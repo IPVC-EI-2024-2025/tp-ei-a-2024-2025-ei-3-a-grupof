@@ -1,5 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 
 @Composable
 fun RegisterView(
@@ -91,7 +95,26 @@ fun RegisterView(
                         horizontal = 16.dp,
                         vertical = 8.dp
                     ),
-                    onClick = {},
+                    onClick = {
+                        val db = Firebase.firestore
+
+                        val user = hashMapOf(
+                            "name" to name,
+                            "username" to username,
+                            "email" to email,
+                            "password" to password,
+                        )
+
+                        db.collection("users")
+                            .add(user)
+                            .addOnSuccessListener { documentReference ->
+                                Log.d(TAG, "User added with ID: ${documentReference.id}")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(TAG, "Error adding user", e)
+                            }
+
+                    },
                 ) {
                     Text("Criar conta")
                 }
