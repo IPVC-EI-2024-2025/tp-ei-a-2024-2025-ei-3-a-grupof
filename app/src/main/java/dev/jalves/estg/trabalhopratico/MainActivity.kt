@@ -7,10 +7,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.jalves.estg.trabalhopratico.ui.components.BottomNavBar
 import dev.jalves.estg.trabalhopratico.ui.theme.TrabalhoPraticoTheme
 import dev.jalves.estg.trabalhopratico.ui.views.HomeView
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
@@ -22,9 +25,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TrabalhoPraticoTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val navController = rememberNavController()
+                val navController = rememberNavController()
+                val bottomBarState = rememberSaveable { (mutableStateOf(false)) }
 
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        if(bottomBarState.value)
+                            BottomNavBar(navController)
+                    }
+                ) { innerPadding ->
                     NavHost(
                         modifier = Modifier.padding(innerPadding),
                         navController = navController,
@@ -39,6 +49,7 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("home") {
                                         popUpTo(0)
                                     }
+                                    bottomBarState.value = true
                                 }
                             )
                         }
