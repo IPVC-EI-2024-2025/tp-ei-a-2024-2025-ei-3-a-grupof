@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.ui.theme.TrabalhoPraticoTheme
+import dev.jalves.estg.trabalhopratico.ui.views.HomeView
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
 
@@ -33,6 +34,11 @@ class MainActivity : ComponentActivity() {
                             SignIn(
                                 onRegisterButtonClicked = {
                                     navController.navigate("register")
+                                },
+                                onSuccessfulSignIn = {
+                                    navController.navigate("home") {
+                                        popUpTo(0)
+                                    }
                                 }
                             )
                         }
@@ -43,6 +49,10 @@ class MainActivity : ComponentActivity() {
                                     navController.navigateUp()
                                 }
                             )
+                        }
+
+                        composable(route = "home") {
+                            HomeView()
                         }
                     }
                 }

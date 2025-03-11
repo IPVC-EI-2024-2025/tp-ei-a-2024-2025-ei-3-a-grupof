@@ -20,7 +20,7 @@ object AuthService {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun signUp(context: Context, newUser: CreateUserDTO): Result<FirebaseUser> = withContext(Dispatchers.IO) {
         suspendCancellableCoroutine { continuation ->
-            val task = auth.createUserWithEmailAndPassword(newUser.email, newUser.password)
+            auth.createUserWithEmailAndPassword(newUser.email, newUser.password)
                 .addOnSuccessListener {
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = auth.currentUser
@@ -47,26 +47,29 @@ object AuthService {
 
                     continuation.resume(Result.failure(exception), onCancellation = {})
                 }
-
-            continuation.invokeOnCancellation {
-                task.addOnCompleteListener {}
-            }
         }
     }
 
-    fun signIn(context: Context, email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                Log.d(TAG, "signInWithEmail:success")
-                val user = auth.currentUser
-            }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "signInWithEmail:failure", exception)
-                Toast.makeText(
-                    context,
-                    "Authentication failed.",
-                    Toast.LENGTH_SHORT,
-                ).show()
-            }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun signIn(context: Context, email: String, password: String): Result<FirebaseUser> = withContext(Dispatchers.IO) {
+        suspendCancellableCoroutine { continuation ->
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener {
+                    Log.d(TAG, "signInWithEmail:success")
+                    val user = auth.currentUser!!
+
+                    continuation.resume(Result.success(user), onCancellation = {})
+                }
+                .addOnFailureListener { exception ->
+                    Log.w(TAG, "signInWithEmail:failure", exception)
+                    Toast.makeText(
+                        context,
+                        "Authentication failed.",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+
+                    continuation.resume(Result.failure(exception), onCancellation = {})
+                }
+        }
     }
 }
