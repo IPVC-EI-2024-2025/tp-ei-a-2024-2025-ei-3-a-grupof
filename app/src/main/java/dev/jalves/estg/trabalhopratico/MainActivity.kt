@@ -14,8 +14,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.ui.components.BottomNavBar
-import dev.jalves.estg.trabalhopratico.ui.theme.TrabalhoPraticoTheme
+import dev.jalves.estg.trabalhopratico.ui.theme.AppTheme
 import dev.jalves.estg.trabalhopratico.ui.views.HomeView
+import dev.jalves.estg.trabalhopratico.ui.views.IntroView
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
 
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TrabalhoPraticoTheme {
+            AppTheme {
                 val navController = rememberNavController()
                 val bottomBarState = rememberSaveable { (mutableStateOf(false)) }
 
@@ -40,6 +41,16 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = "login",
                     ) {
+                        composable(route = "intro") {
+                            IntroView(
+                                onContinue = {
+                                    navController.navigate("login") {
+                                        popUpTo(0)
+                                    }
+                                }
+                            )
+                        }
+
                         composable(route = "login") {
                             SignIn(
                                 onRegisterButtonClicked = {

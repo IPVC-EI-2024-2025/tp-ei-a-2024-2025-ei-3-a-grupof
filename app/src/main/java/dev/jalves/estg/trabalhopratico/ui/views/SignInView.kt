@@ -1,5 +1,6 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,12 +23,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.services.AuthService
 import kotlinx.coroutines.launch
 
@@ -49,28 +49,22 @@ fun SignIn(
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            "Projetos Asdrúbal",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            "Preencha o seu username e password para continuar",
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "TaskSync logo",
+            modifier = Modifier.size(192.dp)
         )
 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") }
+            label = { Text("Username") }
         )
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Palavra-passe") },
+            label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         )
@@ -80,7 +74,7 @@ fun SignIn(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                modifier = Modifier.fillMaxWidth().height(64.dp).padding(
+                modifier = Modifier.height(64.dp).padding(
                     horizontal = 16.dp,
                     vertical = 8.dp
                 ),
@@ -109,7 +103,7 @@ fun SignIn(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text("Entrar")
+                    Text("Login")
                 }
             }
 
@@ -119,7 +113,7 @@ fun SignIn(
                     onRegisterButtonClicked()
                 }
             ) {
-                Text("Criar conta")
+                Text("Sign up")
             }
         }
     }

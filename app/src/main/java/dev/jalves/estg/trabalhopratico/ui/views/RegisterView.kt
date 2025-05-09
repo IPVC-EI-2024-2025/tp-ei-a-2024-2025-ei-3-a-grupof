@@ -61,7 +61,7 @@ fun RegisterView(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "Criar conta",
+                "Sign up",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -69,7 +69,13 @@ fun RegisterView(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Nome") }
+                label = { Text("Display name") }
+            )
+
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Username") }
             )
 
             OutlinedTextField(
@@ -82,7 +88,7 @@ fun RegisterView(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Palavra-passe") },
+                label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             )
@@ -92,7 +98,7 @@ fun RegisterView(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
-                    modifier = Modifier.fillMaxWidth().height(64.dp).padding(
+                    modifier = Modifier.height(64.dp).padding(
                         horizontal = 16.dp,
                         vertical = 8.dp
                     ),
@@ -124,7 +130,7 @@ fun RegisterView(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("Criar conta")
+                        Text("Submit")
                     }
                 }
             }
