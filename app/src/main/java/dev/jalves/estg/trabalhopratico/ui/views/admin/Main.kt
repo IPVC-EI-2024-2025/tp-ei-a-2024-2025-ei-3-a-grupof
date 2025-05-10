@@ -43,7 +43,7 @@ fun AdminMain() {
             startDestination = "home",
         ) {
             composable(route = "home") {
-                Text(text = "Home")
+                AdminHome()
             }
 
             composable(route = "projects") {
