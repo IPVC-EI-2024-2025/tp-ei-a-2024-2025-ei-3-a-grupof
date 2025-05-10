@@ -16,6 +16,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,89 +49,95 @@ fun RegisterView(
 
     var isLoading by remember { mutableStateOf(false) }
 
-    Box() {
-        IconButton(
-            onClick = onReturn
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier.padding(innerPadding)
         ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Return")
-        }
-
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "Sign up",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Display name") }
-            )
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Username") }
-            )
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            )
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            )
+            IconButton(
+                onClick = onReturn
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Return")
+            }
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
-                    modifier = Modifier.height(64.dp).padding(
-                        horizontal = 16.dp,
-                        vertical = 8.dp
-                    ),
-                    onClick = {
-                        // TODO: improve
-                        if(isLoading || name.isEmpty() || email.isEmpty() || password.isEmpty())
-                            return@Button
+                Text(
+                    "Sign up",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )
 
-                        isLoading = true
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Display name") }
+                )
 
-                        scope.launch {
-                            try {
-                                val result = AuthService.signUp(context, CreateUserDTO(
-                                    name, email, password
-                                ))
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Username") }
+                )
 
-                                if(result.isSuccess) {
-                                    onReturn()
-                                }
-                            } finally {
-                                isLoading = false
-                            }
-                        }
-                    },
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                )
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                )
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text("Submit")
+                    Button(
+                        modifier = Modifier.height(64.dp).padding(
+                            horizontal = 16.dp,
+                            vertical = 8.dp
+                        ),
+                        onClick = {
+                            // TODO: improve
+                            if(isLoading || name.isEmpty() || email.isEmpty() || password.isEmpty())
+                                return@Button
+
+                            isLoading = true
+
+                            scope.launch {
+                                try {
+                                    val result = AuthService.signUp(context, CreateUserDTO(
+                                        name, email, password
+                                    ))
+
+                                    if(result.isSuccess) {
+                                        onReturn()
+                                    }
+                                } finally {
+                                    isLoading = false
+                                }
+                            }
+                        },
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Submit")
+                        }
                     }
                 }
             }
