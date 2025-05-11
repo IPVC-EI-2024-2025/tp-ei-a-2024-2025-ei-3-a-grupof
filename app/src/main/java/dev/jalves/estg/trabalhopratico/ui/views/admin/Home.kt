@@ -15,12 +15,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
 
 @Composable
 fun AdminHome() {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
@@ -44,14 +50,30 @@ fun AdminHome() {
         }
 
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text("Your projects")
-            Text("todo: add projects here")
-            Button(onClick = {}) {
-                Text("See all (2+)")
+            Text(
+                "Your projects", style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                ), modifier = Modifier.padding(start = 12.dp)
+            )
+            // Placeholder
+            for (i in 1..3) {
+                ProjectListItem()
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(onClick = {}) {
+                    Text("See all (2+)")
+                }
             }
         }
     }
