@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectListView
+import dev.jalves.estg.trabalhopratico.ui.views.UserListView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +53,7 @@ fun AdminMain() {
             }
 
             composable(route = "users") {
-                Text(text = "Users")
+                UserListView()
             }
 
             composable(route = "menu") {
