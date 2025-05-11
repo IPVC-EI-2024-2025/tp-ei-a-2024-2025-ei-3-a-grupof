@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.ui.views.ProjectListView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +48,7 @@ fun AdminMain() {
             }
 
             composable(route = "projects") {
-                Text(text = "Projects")
+                ProjectListView()
             }
 
             composable(route = "users") {
