@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.ui.views.MenuView
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectListView
 import dev.jalves.estg.trabalhopratico.ui.views.UserListView
 
@@ -42,7 +42,7 @@ fun AdminMain() {
         NavHost(
             modifier = Modifier.padding(innerPadding),
             navController = navController,
-            startDestination = "users",
+            startDestination = "home",
         ) {
             composable(route = "home") {
                 AdminHome()
@@ -57,7 +57,7 @@ fun AdminMain() {
             }
 
             composable(route = "menu") {
-                Text(text = "Menu")
+                MenuView()
             }
         }
     }
