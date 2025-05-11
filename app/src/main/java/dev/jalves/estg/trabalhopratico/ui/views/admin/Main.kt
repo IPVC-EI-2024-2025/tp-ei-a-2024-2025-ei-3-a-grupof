@@ -42,7 +42,7 @@ fun AdminMain() {
         NavHost(
             modifier = Modifier.padding(innerPadding),
             navController = navController,
-            startDestination = "home",
+            startDestination = "users",
         ) {
             composable(route = "home") {
                 AdminHome()
