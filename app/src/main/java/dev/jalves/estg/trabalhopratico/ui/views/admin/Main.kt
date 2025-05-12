@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.ui.views.MenuView
+import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectListView
 import dev.jalves.estg.trabalhopratico.ui.views.UserListView
 
@@ -57,7 +58,11 @@ fun AdminMain() {
             }
 
             composable(route = "menu") {
-                MenuView()
+                MenuView(navController)
+            }
+
+            composable(route = "profile") {
+                ProfileView()
             }
         }
     }
