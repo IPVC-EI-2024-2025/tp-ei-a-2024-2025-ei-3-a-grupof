@@ -64,7 +64,9 @@ fun UserAction(
 }
 
 @Composable
-fun UserListItem() {
+fun UserListItem(
+    onEditUser: () -> Unit,
+) {
     var opened by remember { mutableStateOf(false) }
 
     Column(
@@ -105,7 +107,7 @@ fun UserListItem() {
                 UserAction(
                     icon = Icons.Default.Edit,
                     name = "Edit",
-                    onClick = {}
+                    onClick = onEditUser
                 )
                 UserAction(
                     icon = Icons.Default.Delete,
