@@ -66,6 +66,7 @@ fun UserAction(
 @Composable
 fun UserListItem(
     onEditUser: () -> Unit,
+    onDeleteUser: () -> Unit,
 ) {
     var opened by remember { mutableStateOf(false) }
 
@@ -112,7 +113,7 @@ fun UserListItem(
                 UserAction(
                     icon = Icons.Default.Delete,
                     name = "Delete user",
-                    onClick = {}
+                    onClick = onDeleteUser
                 )
                 UserAction(
                     icon = Icons.Default.Download,

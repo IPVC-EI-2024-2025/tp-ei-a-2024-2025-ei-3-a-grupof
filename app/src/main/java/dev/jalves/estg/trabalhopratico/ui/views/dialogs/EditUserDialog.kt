@@ -15,8 +15,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 @Composable
-fun EditUserDialog (
-    onDismiss: () -> Unit
+fun EditUserDialog(
+    onDismiss: () -> Unit,
+    onSubmit: () -> Unit,
+    user: Boolean // TODO: Pass actual user object
 ) {
     var displayName by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -26,7 +28,7 @@ fun EditUserDialog (
 
     AlertDialog(
         title = {
-            Text(text = "Edit user")
+            Text(text = if (user) "Edit user" else "Add user")
         },
         text = {
             Column {
@@ -58,20 +60,12 @@ fun EditUserDialog (
         },
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(
-                onClick = {
-
-                }
-            ) {
+            TextButton(onClick = onSubmit) {
                 Text("Submit")
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = {
-
-                }
-            ) {
+            TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
         }
