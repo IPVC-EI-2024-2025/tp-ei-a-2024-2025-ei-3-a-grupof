@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 
 @Composable
-fun MenuView(navController: NavController) {
+fun MenuView(rootNavController: NavController) {
     Column {
         ListItem(
             headlineContent = { Text("Profile") },
@@ -26,7 +26,7 @@ fun MenuView(navController: NavController) {
                 )
             },
             modifier = Modifier.clickable {
-                navController.navigate("profile")
+                rootNavController.navigate("profile")
             },
         )
 

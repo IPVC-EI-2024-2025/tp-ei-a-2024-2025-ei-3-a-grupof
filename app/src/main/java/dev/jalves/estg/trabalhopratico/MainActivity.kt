@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.ui.theme.AppTheme
 import dev.jalves.estg.trabalhopratico.ui.views.HomeView
 import dev.jalves.estg.trabalhopratico.ui.views.IntroView
+import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
 import dev.jalves.estg.trabalhopratico.ui.views.admin.AdminMain
@@ -27,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = "adminMain",
+                    startDestination = "adminMain"
                 ) {
                     composable(route = "intro") {
                         IntroView(
@@ -66,19 +67,13 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(route = "adminMain") {
-                        AdminMain()
+                        AdminMain(navController)
+                    }
+
+                    composable(route = "profile") {
+                        ProfileView(navController)
                     }
                 }
-
-                /*Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        if(bottomBarState.value)
-                            BottomNavBar(navController)
-                    }
-                ) { innerPadding ->
-
-                }*/
             }
         }
     }

@@ -11,18 +11,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.ui.views.MenuView
-import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectListView
 import dev.jalves.estg.trabalhopratico.ui.views.UserListView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminMain() {
+fun AdminMain(
+    rootNavController: NavHostController
+) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -43,7 +45,7 @@ fun AdminMain() {
         NavHost(
             modifier = Modifier.padding(innerPadding),
             navController = navController,
-            startDestination = "home",
+            startDestination = "home"
         ) {
             composable(route = "home") {
                 AdminHome()
@@ -58,11 +60,7 @@ fun AdminMain() {
             }
 
             composable(route = "menu") {
-                MenuView(navController)
-            }
-
-            composable(route = "profile") {
-                ProfileView()
+                MenuView(rootNavController)
             }
         }
     }
