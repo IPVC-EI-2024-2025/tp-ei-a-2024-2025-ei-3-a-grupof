@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 
 @Composable
-fun ProjectListView() {
+fun ProjectListView(
+    rootNavController: NavHostController
+) {
     Column(
         modifier = Modifier.padding(horizontal = 10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -21,7 +24,9 @@ fun ProjectListView() {
         )
 
         for (i in 1..8) {
-            ProjectListItem()
+            ProjectListItem(onClick = {
+                rootNavController.navigate("project/1")
+            })
         }
     }
 }

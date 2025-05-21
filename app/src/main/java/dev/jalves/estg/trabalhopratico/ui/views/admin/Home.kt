@@ -19,10 +19,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
 
 @Composable
-fun AdminHome() {
+fun AdminHome(
+    rootNavController: NavHostController
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,7 +68,9 @@ fun AdminHome() {
             )
             // Placeholder
             for (i in 1..3) {
-                ProjectListItem()
+                ProjectListItem(onClick = {
+                    rootNavController.navigate("project/1")
+                })
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),

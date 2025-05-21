@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,14 +27,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ProjectListItem() {
+fun ProjectListItem(
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 shape = RoundedCornerShape(16.dp),
                 color = MaterialTheme.colorScheme.surfaceContainer
-            ),
+            )
+            .clickable {
+                onClick()
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(

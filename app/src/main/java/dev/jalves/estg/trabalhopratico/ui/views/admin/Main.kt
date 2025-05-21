@@ -48,11 +48,11 @@ fun AdminMain(
             startDestination = "home"
         ) {
             composable(route = "home") {
-                AdminHome()
+                AdminHome(rootNavController)
             }
 
             composable(route = "projects") {
-                ProjectListView()
+                ProjectListView(rootNavController)
             }
 
             composable(route = "users") {

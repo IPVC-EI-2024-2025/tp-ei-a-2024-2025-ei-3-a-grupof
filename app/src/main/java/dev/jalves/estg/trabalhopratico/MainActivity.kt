@@ -13,6 +13,7 @@ import dev.jalves.estg.trabalhopratico.ui.theme.AppTheme
 import dev.jalves.estg.trabalhopratico.ui.views.HomeView
 import dev.jalves.estg.trabalhopratico.ui.views.IntroView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
+import dev.jalves.estg.trabalhopratico.ui.views.ProjectView
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
 import dev.jalves.estg.trabalhopratico.ui.views.admin.AdminMain
@@ -72,6 +73,12 @@ class MainActivity : ComponentActivity() {
 
                     composable(route = "profile") {
                         ProfileView(navController)
+                    }
+
+                    composable(route = "project/{id}") { navBackStackEntry ->
+                        val projectID = navBackStackEntry.arguments?.getString("id")
+
+                        ProjectView(navController, projectID?.toInt() ?: 0)
                     }
                 }
             }
