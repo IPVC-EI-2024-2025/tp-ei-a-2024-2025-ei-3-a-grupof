@@ -22,20 +22,28 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun MenuItem(
@@ -145,6 +153,7 @@ fun ProjectView(
                 style = MaterialTheme.typography.bodyMedium
             )
             ManagedBy()
+            Tabs()
         }
     }
 }
@@ -165,7 +174,52 @@ fun ManagedBy() {
     }
 }
 
+enum class Destination(
+    val route: String,
+    val label: String
+) {
+    TASKS("tasks", "Tasks"),
+    EMPLOYEES("employees", "Employees")
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Tabs() {
+    val navController = rememberNavController()
+    val startDestination = Destination.TASKS
+    var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 
+    Column {
+        PrimaryTabRow(selectedTabIndex = selectedDestination) {
+            Destination.entries.forEachIndexed { index, destination ->
+                Tab(
+                    selected = selectedDestination == index,
+                    onClick = {
+                        navController.navigate(route = destination.route)
+                        selectedDestination = index
+                    },
+                    text = {
+                        Text(
+                            text = destination.label,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                )
+            }
+        }
+        NavHost(
+            navController,
+            startDestination = startDestination.route
+        ) {
+            Destination.entries.forEach { destination ->
+                composable(destination.route) {
+                    when (destination) {
+                        Destination.TASKS -> Text("Tasks")
+                        Destination.EMPLOYEES -> Text("Employees")
+                    }
+                }
+            }
+        }
+    }
 }
