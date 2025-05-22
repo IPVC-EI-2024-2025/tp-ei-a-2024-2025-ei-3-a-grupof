@@ -15,6 +15,7 @@ import dev.jalves.estg.trabalhopratico.ui.views.IntroView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectView
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
+import dev.jalves.estg.trabalhopratico.ui.views.SettingsView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
 import dev.jalves.estg.trabalhopratico.ui.views.admin.AdminMain
 
@@ -73,6 +74,10 @@ class MainActivity : ComponentActivity() {
 
                     composable(route = "profile") {
                         ProfileView(navController)
+                    }
+
+                    composable(route = "settings") {
+                        SettingsView(navController)
                     }
 
                     composable(route = "project/{id}") { navBackStackEntry ->

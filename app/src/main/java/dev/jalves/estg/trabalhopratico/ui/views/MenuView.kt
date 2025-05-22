@@ -52,7 +52,7 @@ fun MenuView(rootNavController: NavController) {
                 )
             },
             modifier = Modifier.clickable {
-
+                rootNavController.navigate("settings")
             },
         )
 
