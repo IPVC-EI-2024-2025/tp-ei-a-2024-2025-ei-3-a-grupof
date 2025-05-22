@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,13 +42,24 @@ fun RegisterView(
     onReturn: () -> Unit,
 ) {
     var name by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    var usernameChanged by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var isLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(name) {
+        if (!usernameChanged && name.isNotEmpty()) {
+            username = name.lowercase()
+                .replace(" ", ".")
+                .replace(Regex("[^a-z0-9.]"), "")
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -79,8 +91,11 @@ fun RegisterView(
                 )
 
                 OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
+                    value = username,
+                    onValueChange = { newUsername ->
+                        username = newUsername
+                        usernameChanged = true
+                    },
                     label = { Text("Username") }
                 )
 
@@ -110,7 +125,7 @@ fun RegisterView(
                         ),
                         onClick = {
                             // TODO: improve
-                            if(isLoading || name.isEmpty() || email.isEmpty() || password.isEmpty())
+                            if(isLoading || name.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty())
                                 return@Button
 
                             isLoading = true
