@@ -35,4 +35,28 @@ object ProjectService {
             Result.failure(e)
         }
     }
+
+    suspend fun listProjects(): Result<List<Project>> = try {
+        val snapshot = db.collection("projects").get().await()
+        val projects = snapshot.documents.mapNotNull { it.toObject(Project::class.java) }
+        Result.success(projects)
+    } catch (e: Exception) {
+        Log.e("ProjectService", "Failed to fetch projects", e)
+        Result.failure(e)
+    }
+
+    suspend fun listProjectsByCreator(creatorId: String): Result<List<Project>> = try {
+        val snapshot = db.collection("projects")
+            .whereEqualTo("createdByID", creatorId)
+            .get()
+            .await()
+
+        val projects = snapshot.documents.mapNotNull { it.toObject(Project::class.java) }
+        Result.success(projects)
+    } catch (e: Exception) {
+        Log.e("ProjectService", "Failed to fetch projects for creator $creatorId", e)
+        Result.failure(e)
+    }
+
+
 }

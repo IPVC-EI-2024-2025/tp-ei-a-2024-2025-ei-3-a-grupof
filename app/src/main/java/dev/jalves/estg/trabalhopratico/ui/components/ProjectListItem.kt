@@ -25,10 +25,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.jalves.estg.trabalhopratico.objects.Project
 
 @Composable
 fun ProjectListItem(
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    project: Project
 ) {
     Row(
         modifier = Modifier
@@ -45,7 +47,7 @@ fun ProjectListItem(
         Column(
             modifier = Modifier.weight(1f).padding(vertical = 10.dp).padding(start = 16.dp)
         ) {
-            Text("Project 1", style = TextStyle(
+            Text(project.name, style = TextStyle(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary
@@ -72,9 +74,9 @@ fun ProjectListItem(
                     // Placeholder
                     Icon(Icons.Default.Person, contentDescription = "", Modifier.size(16.dp))
                     Text("•")
-                    Text("5 Tasks")
+                    Text("? Tasks")
                     Text("•")
-                    Text("Due 31/02/2025")
+                    Text("Due ${project.dueDate}")
                 }
             }
         }

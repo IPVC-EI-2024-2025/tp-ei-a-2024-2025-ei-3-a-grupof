@@ -72,7 +72,7 @@ fun MenuItem(
 @Composable
 fun ProjectView(
     navController: NavHostController,
-    projectID: Int
+    projectID: String
 ) {
     var expanded by remember { mutableStateOf(false) }
 

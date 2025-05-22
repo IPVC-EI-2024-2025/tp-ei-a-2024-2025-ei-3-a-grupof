@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                     composable(route = "project/{id}") { navBackStackEntry ->
                         val projectID = navBackStackEntry.arguments?.getString("id")
 
-                        ProjectView(navController, projectID?.toInt() ?: 0)
+                        ProjectView(navController, projectID ?: "")
                     }
                 }
             }
