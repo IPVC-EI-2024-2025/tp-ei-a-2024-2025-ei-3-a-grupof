@@ -44,6 +44,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 
 @Composable
 fun MenuItem(
@@ -215,11 +216,37 @@ fun Tabs() {
             Destination.entries.forEach { destination ->
                 composable(destination.route) {
                     when (destination) {
-                        Destination.TASKS -> Text("Tasks")
-                        Destination.EMPLOYEES -> Text("Employees")
+                        Destination.TASKS -> TasksTab()
+                        Destination.EMPLOYEES -> EmployeesTab()
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun TasksTab() {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(vertical = 8.dp)
+    ) {
+        SearchBar(
+            onSearch = {query -> },
+            onFilter = {}
+        )
+    }
+}
+
+@Composable
+fun EmployeesTab() {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(vertical = 8.dp)
+    ) {
+        SearchBar(
+            onSearch = {query -> },
+            onFilter = {}
+        )
     }
 }
