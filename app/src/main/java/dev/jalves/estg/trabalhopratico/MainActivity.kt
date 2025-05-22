@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("register")
                             },
                             onSuccessfulSignIn = {
-                                navController.navigate("home") {
+                                navController.navigate("adminMain") {
                                     popUpTo(0)
                                 }
                                 bottomBarState.value = true

@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.TableChart
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,12 +22,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -47,8 +44,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import dev.jalves.estg.trabalhopratico.ui.components.DatePickerInput
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
 
 @Composable
 fun MenuItem(
@@ -264,66 +261,4 @@ fun EmployeesTab() {
             onFilter = {}
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun EditProjectDialog(
-    onDismiss: () -> Unit
-) {
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var startDate by rememberSaveable { mutableStateOf("") }
-    var dueDate by rememberSaveable { mutableStateOf("") }
-
-    AlertDialog(
-        title = {
-            Text(text = "Edit project")
-        },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name") },
-                )
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Description") },
-                )
-                DatePickerInput(
-                    label = "Start date",
-                    selectedDate = startDate,
-                    onDateSelected = { it -> startDate = it }
-                )
-                DatePickerInput(
-                    label = "Due date",
-                    selectedDate = dueDate,
-                    onDateSelected = { it -> dueDate = it }
-                )
-            }
-        },
-        onDismissRequest = {
-            onDismiss()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                }
-            ) {
-                Text("Submit")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                }
-            ) {
-                Text("Cancel")
-            }
-        }
-    )
 }
