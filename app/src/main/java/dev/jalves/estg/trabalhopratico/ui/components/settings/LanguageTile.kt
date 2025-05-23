@@ -1,7 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.components.settings
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +20,7 @@ fun LanguageTile(
     var dropdownExpanded by remember { mutableStateOf(false) }
 
     SettingsItem(
-        icon = Icons.Default.Language,
+        icon = Icons.Rounded.Language,
         title = "Language",
         onClick = { dropdownExpanded = true }
     ) {

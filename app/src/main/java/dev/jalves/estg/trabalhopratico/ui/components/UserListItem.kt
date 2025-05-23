@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowRight
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.automirrored.rounded.ArrowRight
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -82,7 +82,7 @@ fun UserListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(Icons.Default.Person, contentDescription = "Picture", Modifier.size(36.dp))
+            Icon(Icons.Rounded.Person, contentDescription = "Picture", Modifier.size(36.dp))
             Text(
                 "Name", style = TextStyle(
                     fontWeight = FontWeight.SemiBold,
@@ -92,7 +92,7 @@ fun UserListItem(
             )
             UserRoleBadge(UserRole.entries.toTypedArray().random())
             Icon(
-                if (opened) Icons.Filled.ArrowDropDown else Icons.AutoMirrored.Filled.ArrowRight,
+                if (opened) Icons.Rounded.ArrowDropDown else Icons.AutoMirrored.Rounded.ArrowRight,
                 contentDescription = "Toggle details",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -106,17 +106,17 @@ fun UserListItem(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 UserAction(
-                    icon = Icons.Default.Edit,
+                    icon = Icons.Rounded.Edit,
                     name = "Edit",
                     onClick = onEditUser
                 )
                 UserAction(
-                    icon = Icons.Default.Delete,
+                    icon = Icons.Rounded.Delete,
                     name = "Delete user",
                     onClick = onDeleteUser
                 )
                 UserAction(
-                    icon = Icons.Default.Download,
+                    icon = Icons.Rounded.Download,
                     name = "Export stats",
                     onClick = {}
                 )

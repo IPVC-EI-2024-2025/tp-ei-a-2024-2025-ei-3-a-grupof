@@ -1,7 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.components.settings
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,7 +18,7 @@ fun NotificationsTile(
     var notificationsEnabled by remember { mutableStateOf(initialEnabled) }
 
     SettingsItem(
-        icon = Icons.Default.Notifications,
+        icon = Icons.Rounded.Notifications,
         title = "Notifications",
         onClick = {
             val newValue = !notificationsEnabled

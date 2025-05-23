@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.FilterAlt
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,7 +41,7 @@ fun SearchBar(
             value = query,
             onValueChange = { query = it },
             label = { Text("Search") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = "Search") },
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(50),
             singleLine = true,
@@ -68,7 +68,7 @@ fun SearchBar(
             ),
             onClick = {}
         ) {
-            Icon(Icons.Default.FilterAlt, contentDescription = "")
+            Icon(Icons.Rounded.FilterAlt, contentDescription = "")
         }
     }
 }

@@ -3,10 +3,10 @@ package dev.jalves.estg.trabalhopratico.ui.views
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -21,7 +21,7 @@ fun MenuView(rootNavController: NavController) {
             headlineContent = { Text("Profile") },
             leadingContent = {
                 Icon(
-                    Icons.Filled.Person,
+                    Icons.Rounded.Person,
                     contentDescription = "Profile",
                 )
             },
@@ -34,7 +34,7 @@ fun MenuView(rootNavController: NavController) {
             headlineContent = { Text("Notifications") },
             leadingContent = {
                 Icon(
-                    Icons.Filled.Notifications,
+                    Icons.Rounded.Notifications,
                     contentDescription = "Notifications",
                 )
             },
@@ -47,7 +47,7 @@ fun MenuView(rootNavController: NavController) {
             headlineContent = { Text("Settings") },
             leadingContent = {
                 Icon(
-                    Icons.Filled.Settings,
+                    Icons.Rounded.Settings,
                     contentDescription = "Settings",
                 )
             },
@@ -60,7 +60,7 @@ fun MenuView(rootNavController: NavController) {
             headlineContent = { Text("Log out") },
             leadingContent = {
                 Icon(
-                    Icons.AutoMirrored.Filled.Logout,
+                    Icons.AutoMirrored.Rounded.Logout,
                     contentDescription = "Log out",
                 )
             },

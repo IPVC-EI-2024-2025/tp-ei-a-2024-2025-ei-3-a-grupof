@@ -6,14 +6,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.TableChart
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.TableChart
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -87,14 +87,14 @@ fun ProjectView(
                         navController.popBackStack()
                     }) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
                 },
                 actions = {
                     IconButton(onClick = { expanded = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                        Icon(Icons.Rounded.MoreVert, contentDescription = "Menu")
                     }
 
                     DropdownMenu(
@@ -102,14 +102,14 @@ fun ProjectView(
                         onDismissRequest = { expanded = false }
                     ) {
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Default.Edit, "Edit manager") },
+                            text = { MenuItem(Icons.Rounded.Person, "Edit manager") },
                             onClick = {
                                 expanded = false
                             }
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Default.Edit, "Edit") },
+                            text = { MenuItem(Icons.Rounded.Edit, "Edit") },
                             onClick = {
                                 expanded = false
                                 openEditDialog.value = true
@@ -117,28 +117,28 @@ fun ProjectView(
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Default.Delete, "Delete") },
+                            text = { MenuItem(Icons.Rounded.Delete, "Delete") },
                             onClick = {
                                 expanded = false
                             }
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Default.TableChart, "Export stats") },
+                            text = { MenuItem(Icons.Rounded.TableChart, "Export stats") },
                             onClick = {
                                 expanded = false
                             }
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Default.Check, "Mark complete") },
+                            text = { MenuItem(Icons.Rounded.Check, "Mark complete") },
                             onClick = {
                                 expanded = false
                             }
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Default.Folder, "Archive project") },
+                            text = { MenuItem(Icons.Rounded.Folder, "Archive project") },
                             onClick = {
                                 expanded = false
                             }
@@ -178,7 +178,7 @@ fun ManagedBy() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Icon(Icons.Default.Person, contentDescription = "", Modifier.size(48.dp))
+        Icon(Icons.Rounded.Person, contentDescription = "", Modifier.size(48.dp))
         Column {
             Text("Managed by", style = MaterialTheme.typography.labelSmall)
             Text("Project manager 1", style = MaterialTheme.typography.labelLarge)

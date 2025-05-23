@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -62,7 +62,7 @@ fun IntroView(
                         .align(Alignment.BottomEnd)
                         .padding(16.dp)
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next button")
+                    Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = "Next button")
                 }
             }
         }
@@ -88,7 +88,7 @@ fun IntroView(
                         .align(Alignment.BottomStart)
                         .padding(16.dp)
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Next button")
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Next button")
                 }
 
                 FloatingActionButton(
@@ -99,7 +99,7 @@ fun IntroView(
                         .align(Alignment.BottomEnd)
                         .padding(16.dp)
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next button")
+                    Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = "Next button")
                 }
             }
         }
@@ -122,7 +122,7 @@ fun IntroView(
                         .align(Alignment.BottomStart)
                         .padding(16.dp)
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Next button")
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Next button")
                 }
 
                 FloatingActionButton(
@@ -133,7 +133,7 @@ fun IntroView(
                         .align(Alignment.BottomEnd)
                         .padding(16.dp)
                 ) {
-                    Icon(Icons.Filled.Check, contentDescription = "Next button")
+                    Icon(Icons.Rounded.Check, contentDescription = "Next button")
                 }
             }
         }

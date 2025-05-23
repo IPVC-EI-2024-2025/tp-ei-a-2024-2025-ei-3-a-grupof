@@ -1,8 +1,8 @@
 package dev.jalves.estg.trabalhopratico.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -27,12 +27,12 @@ fun BottomNavBar(navController: NavController) {
     val navigationItems = listOf(
         NavigationItem(
             title = "Home",
-            icon = Icons.Default.Home,
+            icon = Icons.Rounded.Home,
             route = "main"
         ),
         NavigationItem(
             title = "Profile",
-            icon = Icons.Default.Person,
+            icon = Icons.Rounded.Person,
             route = "profile"
         ),
     )

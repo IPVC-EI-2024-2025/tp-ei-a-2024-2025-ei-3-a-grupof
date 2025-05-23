@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -72,7 +72,7 @@ fun ProjectListItem(
                             .clip(CircleShape)
                     )*/
                     // Placeholder
-                    Icon(Icons.Default.Person, contentDescription = "", Modifier.size(16.dp))
+                    Icon(Icons.Rounded.Person, contentDescription = "", Modifier.size(16.dp))
                     Text("•")
                     Text("? Tasks")
                     Text("•")
@@ -85,7 +85,7 @@ fun ProjectListItem(
             verticalArrangement = Arrangement.Center,
         ) {
             Icon(
-                Icons.AutoMirrored.Filled.ArrowForward,
+                Icons.AutoMirrored.Rounded.ArrowForward,
                 contentDescription = "Open project",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )

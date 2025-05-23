@@ -1,7 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.components.settings
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +19,7 @@ fun ThemeTile(
     var dropdownExpanded by remember { mutableStateOf(false) }
 
     SettingsItem(
-        icon = Icons.Default.DarkMode,
+        icon = Icons.Rounded.DarkMode,
         title = "Theme",
         onClick = { dropdownExpanded = true }
     ) {

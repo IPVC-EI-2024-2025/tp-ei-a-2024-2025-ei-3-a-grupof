@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -68,13 +68,13 @@ fun AdminHome(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Icon(Icons.Default.LocationOn, contentDescription = "Location")
+                Icon(Icons.Rounded.LocationOn, contentDescription = "Location")
                 Text("Viana do Castelo")
             }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Icon(Icons.Default.Schedule, contentDescription = "Time")
+                Icon(Icons.Rounded.Schedule, contentDescription = "Time")
                 Text("20/04/2025 13:00")
             }
         }

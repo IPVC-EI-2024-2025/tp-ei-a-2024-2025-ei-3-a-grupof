@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -70,7 +70,7 @@ fun RegisterView(
             IconButton(
                 onClick = onReturn
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Return")
+                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Return")
             }
 
             Column(

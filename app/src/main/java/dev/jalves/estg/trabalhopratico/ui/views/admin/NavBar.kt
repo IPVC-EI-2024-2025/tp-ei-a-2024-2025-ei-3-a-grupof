@@ -1,10 +1,10 @@
 package dev.jalves.estg.trabalhopratico.ui.views.admin
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.People
+import androidx.compose.material.icons.rounded.Work
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -23,22 +23,22 @@ fun AdminNavBar(navController: NavController) {
     val navigationItems = listOf(
         NavigationItem(
             title = "Home",
-            icon = Icons.Default.Home,
+            icon = Icons.Rounded.Home,
             route = "home"
         ),
         NavigationItem(
             title = "Projects",
-            icon = Icons.Filled.Work,
+            icon = Icons.Rounded.Work,
             route = "projects"
         ),
         NavigationItem(
             title = "Users",
-            icon = Icons.Default.People,
+            icon = Icons.Rounded.People,
             route = "users"
         ),
         NavigationItem(
             title = "Menu",
-            icon = Icons.Default.Menu,
+            icon = Icons.Rounded.Menu,
             route = "menu"
         ),
     )
