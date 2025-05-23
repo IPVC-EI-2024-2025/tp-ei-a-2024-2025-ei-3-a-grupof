@@ -24,6 +24,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.ui.components.settings.LanguageTile
+import dev.jalves.estg.trabalhopratico.ui.components.settings.NotificationsTile
+import dev.jalves.estg.trabalhopratico.ui.components.settings.ThemeTile
 
 @Composable
 fun IntroView(
@@ -72,7 +75,9 @@ fun IntroView(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text("Customize your experience", style = MaterialTheme.typography.headlineLarge)
-                    Text("TODO: Add settings", style = MaterialTheme.typography.headlineLarge)
+                    ThemeTile()
+                    NotificationsTile()
+                    LanguageTile()
                 }
 
                 FloatingActionButton(
