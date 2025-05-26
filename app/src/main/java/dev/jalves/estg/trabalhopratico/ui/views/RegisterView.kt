@@ -133,7 +133,7 @@ fun RegisterView(
                             scope.launch {
                                 try {
                                     val result = AuthService.signUp(context, CreateUserDTO(
-                                        name, email, password
+                                        name, email, username, password
                                     ))
 
                                     if(result.isSuccess) {

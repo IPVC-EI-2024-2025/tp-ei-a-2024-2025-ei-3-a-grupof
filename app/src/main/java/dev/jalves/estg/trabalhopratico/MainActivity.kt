@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = "adminMain"
+                    startDestination = "login"
                 ) {
                     composable(route = "intro") {
                         IntroView(
