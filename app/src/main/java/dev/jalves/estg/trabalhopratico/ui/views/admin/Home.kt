@@ -31,7 +31,9 @@ import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.services.ProjectService
+import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
+import io.github.jan.supabase.auth.auth
 
 @Composable
 fun AdminHome(
@@ -42,13 +44,14 @@ fun AdminHome(
     var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val currentUserId = supabase.auth.currentUserOrNull()?.id
+        if (currentUserId == null) return@LaunchedEffect
         val result = ProjectService.listProjectsByCreator(currentUserId)
         result.onSuccess {
             projects = it
             loading = false
-        }.onFailure {
-            error = it.message ?: "Unknown error"
+        }.onFailure { exception ->
+            error = exception.message ?: "Unknown error"
             loading = false
         }
     }
@@ -94,35 +97,52 @@ fun AdminHome(
                 ), modifier = Modifier.padding(start = 12.dp)
             )
 
-            if (loading) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else if (error != null) {
-                Text("Error loading projects: $error")
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(projects) { project ->
-                        ProjectListItem(
-                            onClick = {
-                                rootNavController.navigate("project/${project.id}")
-                            },
-                            project
-                        )
+            when {
+                loading -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(onClick = {}) {
-                        Text("See all (2+)")
+                error != null -> {
+                    Text(
+                        text = "Error loading projects: $error",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(projects) { project ->
+                            ProjectListItem(
+                                project = project,
+                                onClick = {
+                                    rootNavController.navigate("project/${project.id}")
+                                }
+                            )
+                        }
+                    }
+
+                    if (projects.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(
+                                onClick = {
+                                    // Navigate to all projects view
+                                    rootNavController.navigate("all_projects")
+                                }
+                            ) {
+                                Text("See all (${projects.size}+)")
+                            }
+                        }
                     }
                 }
             }

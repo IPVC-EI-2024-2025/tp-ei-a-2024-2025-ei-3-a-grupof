@@ -4,62 +4,105 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
 import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
 object AuthService {
-    private val auth = Firebase.auth
+    suspend fun signUp(context: Context, newUser: CreateUserDTO): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val authResult = supabase.auth.signUpWith(Email) {
+                    this.email = newUser.email
+                    password = newUser.password
 
-    suspend fun signUp(newUser: CreateUserDTO) = withContext(Dispatchers.IO) {
-        val user = supabase.auth.signUpWith(Email) {
-            email = newUser.email
-            password = newUser.password
-        }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun signIn(context: Context, email: String, password: String): Result<FirebaseUser> = withContext(Dispatchers.IO) {
-        suspendCancellableCoroutine { continuation ->
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener {
-                    Log.d(TAG, "signInWithEmail:success")
-                    val user = auth.currentUser!!
-
-                    continuation.resume(Result.success(user), onCancellation = {})
                 }
-                .addOnFailureListener { exception ->
-                    Log.w(TAG, "signInWithEmail:failure", exception)
+
+                val userId = authResult?.id ?: run {
+                    val errorMsg = "User creation failed - no user ID returned"
+                    Log.e(TAG, errorMsg)
+                    return@withContext Result.failure(Exception(errorMsg))
+                }
+
+                Log.d(TAG, "Auth user created successfully - UserID: $userId")
+
+                val existingUsers = supabase.from("users")
+                    .select {
+                        filter {
+                            eq("uid", userId)
+                        }
+                    }
+                    .decodeList<TaskSyncUser>()
+
+                if (existingUsers.isEmpty()) {
+                    val userDoc = TaskSyncUser(
+                        uid = userId,
+                        displayName = newUser.name,
+                        username = newUser.username,
+                        profilePicture = "",
+                        role = "user"
+                    )
+
+                    supabase.from("users").insert(userDoc)
+                    Log.d(TAG, "User profile created successfully")
+                } else {
+                    Log.d(TAG, "User profile already exists, skipping insert")
+                }
+
+                withContext(Dispatchers.Main) {
                     Toast.makeText(
                         context,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT,
+                        "Account created successfully!",
+                        Toast.LENGTH_SHORT
                     ).show()
-
-                    continuation.resume(Result.failure(exception), onCancellation = {})
                 }
-        }
-    }
 
-    fun fetchCurrentUserProfile(onResult: (TaskSyncUser?) -> Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        FirebaseFirestore.getInstance().collection("users")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { doc ->
-                val user = doc.toObject(TaskSyncUser::class.java)
-                onResult(user)
+                Result.success(Unit)
+
+            } catch (exception: Exception) {
+                Log.e(TAG, "Authentication failed", exception)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "Error: ${exception.message ?: "Unknown error"}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                Result.failure(exception)
             }
-    }
+        }
+
+    suspend fun signIn(context: Context, email: String, password: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val result = supabase.auth.signInWith(Email) {
+                    this.email = email
+                    this.password = password
+                }
+
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Signed in successfully!", Toast.LENGTH_SHORT).show()
+                }
+
+                Result.success(Unit)
+            } catch (exception: Exception) {
+                Log.e(TAG, "signInWithEmail:failure - ${exception.message}", exception)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "Sign-in failed: ${exception.message ?: "Unknown error"}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                Result.failure(exception)
+            }
+        }
 }

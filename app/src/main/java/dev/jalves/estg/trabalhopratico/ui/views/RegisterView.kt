@@ -133,7 +133,7 @@ fun RegisterView(
                             scope.launch {
                                 try {
                                     try {
-                                        AuthService.signUp(CreateUserDTO(
+                                        AuthService.signUp(context, CreateUserDTO(
                                             name, email, username, password
                                         ))
 
