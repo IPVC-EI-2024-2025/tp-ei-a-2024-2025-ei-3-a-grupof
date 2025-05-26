@@ -11,6 +11,9 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
 import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
+import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.Email
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -19,47 +22,10 @@ import kotlinx.coroutines.withContext
 object AuthService {
     private val auth = Firebase.auth
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun signUp(context: Context, newUser: CreateUserDTO): Result<FirebaseUser> = withContext(Dispatchers.IO) {
-        suspendCancellableCoroutine { continuation ->
-            auth.createUserWithEmailAndPassword(newUser.email, newUser.password)
-                .addOnSuccessListener { authResult ->
-                    Log.d(TAG, "createUserWithEmail:success")
-                    val user = auth.currentUser
-
-                    val uid = authResult.user?.uid ?: return@addOnSuccessListener
-                    val userDoc = TaskSyncUser(
-                        uid = uid,
-                        email = newUser.email,
-                        displayName = newUser.name,
-                        username = newUser.username,
-                        profilePicture = "",
-                        role = "user"
-                    )
-                    FirebaseFirestore.getInstance()
-                        .collection("users")
-                        .document(uid)
-                        .set(userDoc)
-                        .addOnSuccessListener {
-                            Toast.makeText(
-                                context,
-                                "Success: " + userDoc.email,
-                                Toast.LENGTH_SHORT,
-                            ).show()
-
-                            continuation.resume(Result.success(user!!), onCancellation = {})
-                        }
-                }
-                .addOnFailureListener { exception ->
-                    Log.w(TAG, "createUserWithEmail:failure", exception)
-                    Toast.makeText(
-                        context,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT,
-                    ).show()
-
-                    continuation.resume(Result.failure(exception), onCancellation = {})
-                }
+    suspend fun signUp(newUser: CreateUserDTO) = withContext(Dispatchers.IO) {
+        val user = supabase.auth.signUpWith(Email) {
+            email = newUser.email
+            password = newUser.password
         }
     }
 
