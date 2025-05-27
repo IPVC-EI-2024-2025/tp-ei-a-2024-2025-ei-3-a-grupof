@@ -1,5 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -58,7 +60,7 @@ fun SignIn(
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Username") }
+            label = { Text("Email") }
         )
 
         OutlinedTextField(
@@ -91,6 +93,13 @@ fun SignIn(
                             if(result.isSuccess) {
                                 onSuccessfulSignIn()
                             }
+                        } catch (e: Exception) {
+                            Log.e("SignUp", "Failed to sign in", e)
+                            Toast.makeText(
+                                context,
+                                e.message,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } finally {
                             isLoading = false
                         }

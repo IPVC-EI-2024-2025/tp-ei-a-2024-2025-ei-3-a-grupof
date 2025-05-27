@@ -1,5 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +42,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RegisterView(
     onReturn: () -> Unit,
+    onSuccessfulRegister: () -> Unit,
 ) {
     var name by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -132,15 +135,24 @@ fun RegisterView(
 
                             scope.launch {
                                 try {
-                                    try {
-                                        AuthService.signUp(context, CreateUserDTO(
-                                            name, email, username, password
-                                        ))
+                                    AuthService.signUp(CreateUserDTO(
+                                        name, email, username, password
+                                    ))
 
-                                        onReturn()
-                                    } catch (e: Exception) {
-                                        // todo: toast
-                                    }
+                                    Toast.makeText(
+                                        context,
+                                        "Account created successfully!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    onSuccessfulRegister()
+                                } catch (e: Exception) {
+                                    Log.e("SignUp", "Failed to sign up", e)
+                                    Toast.makeText(
+                                        context,
+                                        e.message,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 } finally {
                                     isLoading = false
                                 }

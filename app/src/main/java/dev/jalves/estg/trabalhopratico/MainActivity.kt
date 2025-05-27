@@ -60,6 +60,9 @@ class MainActivity : ComponentActivity() {
                         RegisterView(
                             onReturn = {
                                 navController.navigateUp()
+                            },
+                            onSuccessfulRegister = {
+                                navController.navigate("adminMain")
                             }
                         )
                     }
