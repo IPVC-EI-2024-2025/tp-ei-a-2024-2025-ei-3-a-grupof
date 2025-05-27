@@ -17,9 +17,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,17 +29,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.google.firebase.auth.FirebaseAuth
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
+import dev.jalves.estg.trabalhopratico.ui.views.ProfileViewModel
 import io.github.jan.supabase.auth.auth
 
 @Composable
 fun AdminHome(
-    rootNavController: NavHostController
+    rootNavController: NavHostController,
+    profileViewModel: ProfileViewModel
 ) {
+    val profile by profileViewModel.profile.collectAsState()
+
     var projects by remember { mutableStateOf<List<Project>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -67,7 +71,10 @@ fun AdminHome(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Text("Hello Asdrúbal", style = MaterialTheme.typography.headlineLarge)
+            Text(
+                // todo: add loading
+                if (profile == null) "Hello Asdrúbal" else "Hello " + profile!!.displayName,
+                style = MaterialTheme.typography.headlineLarge)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
