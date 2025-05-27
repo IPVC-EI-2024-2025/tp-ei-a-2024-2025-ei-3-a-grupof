@@ -11,11 +11,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
+import io.github.jan.supabase.auth.SignOutScope
+import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.launch
 
 @Composable
 fun MenuView(rootNavController: NavController) {
+    val scope = rememberCoroutineScope()
+
     Column {
         ListItem(
             headlineContent = { Text("Profile") },
@@ -65,7 +72,13 @@ fun MenuView(rootNavController: NavController) {
                 )
             },
             modifier = Modifier.clickable {
-
+                scope.launch {
+                    supabase.auth.signOut(SignOutScope.LOCAL)
+                    rootNavController.navigate("login") {
+                        popUpTo(0)
+                        launchSingleTop = true
+                    }
+                }
             },
         )
     }
