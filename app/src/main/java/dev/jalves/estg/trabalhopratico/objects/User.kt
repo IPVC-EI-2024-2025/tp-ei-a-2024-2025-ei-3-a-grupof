@@ -11,6 +11,6 @@ data class TaskSyncUser (
     val displayName: String = "",
     val username: String = "",
     @SerialName("profile_picture")
-    val profilePicture: String = "",
+    val profilePicture: String? = null,
     val role: String = "user"
 )
