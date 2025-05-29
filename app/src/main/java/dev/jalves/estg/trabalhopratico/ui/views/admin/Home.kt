@@ -150,7 +150,12 @@ fun AdminHome(
                                 Text("See all (${projects.size}+)")
                             }
                         }
-                    }
+                    } else {
+                        Text(
+                            "No projects found",
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )                    }
                 }
             }
         }
