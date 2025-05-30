@@ -5,13 +5,13 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
-import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
-import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 object AuthService {
     suspend fun signUp(newUser: CreateUserDTO): Result<Unit> =
@@ -19,33 +19,11 @@ object AuthService {
             supabase.auth.signUpWith(Email) {
                 email = newUser.email
                 password = newUser.password
-            }
-
-            val newId = supabase.auth.currentUserOrNull()!!.id
-
-            Log.d(TAG, "Auth user created successfully - UserID: $newId")
-
-            val existingUsers = supabase.from("users")
-                .select {
-                    filter {
-                        eq("uid", newId)
-                    }
+                data = buildJsonObject {
+                    put("username", newUser.username)
+                    put("display_name", newUser.name)
+                    put("profile_picture", "")
                 }
-                .decodeList<TaskSyncUser>()
-
-            if (existingUsers.isEmpty()) {
-                val userDoc = TaskSyncUser(
-                    uid = newId,
-                    displayName = newUser.name,
-                    username = newUser.username,
-                    profilePicture = "",
-                    role = "user"
-                )
-
-                supabase.from("users").insert(userDoc)
-                Log.d(TAG, "User profile created successfully")
-            } else {
-                Log.d(TAG, "User profile already exists, skipping insert")
             }
 
             Result.success(Unit)

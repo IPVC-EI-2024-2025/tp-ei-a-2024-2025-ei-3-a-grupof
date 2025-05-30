@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,20 +18,17 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             supabase.auth.awaitInitialization()
 
-            val userId = supabase.auth.currentUserOrNull()?.id ?: return@launch
+            val user = supabase.auth.currentUserOrNull()
 
-            val profile = supabase.from("users")
-                .select{
-                    filter {
-                        eq("uid", userId)
-                    }
-                    limit(count = 1)
-                }
-                .decodeSingle<TaskSyncUser>()
+            if (user == null) return@launch
 
-            profile.email = supabase.auth.currentUserOrNull()!!.email ?: ""
-
-            _profile.value = profile
+            _profile.value = TaskSyncUser(
+                uid = user.id,
+                email = user.email ?: "",
+                displayName = user.userMetadata!!.getValue("display_name").toString(),
+                username = user.userMetadata!!.getValue("username").toString(),
+                profilePicture = user.userMetadata!!.getValue("profile_picture").toString(),
+            )
         }
     }
 }
