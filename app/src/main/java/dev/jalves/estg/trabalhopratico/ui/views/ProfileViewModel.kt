@@ -15,6 +15,10 @@ class ProfileViewModel : ViewModel() {
     val profile: StateFlow<TaskSyncUser?> = _profile
 
     init {
+        fetchData()
+    }
+
+    fun fetchData() {
         viewModelScope.launch {
             supabase.auth.awaitInitialization()
 
@@ -25,9 +29,10 @@ class ProfileViewModel : ViewModel() {
             _profile.value = TaskSyncUser(
                 uid = user.id,
                 email = user.email ?: "",
-                displayName = user.userMetadata!!.getValue("display_name").toString(),
-                username = user.userMetadata!!.getValue("username").toString(),
-                profilePicture = user.userMetadata!!.getValue("profile_picture").toString(),
+                // I don't know why the strings come surrounded in quotes
+                displayName = user.userMetadata!!.getValue("display_name").toString().removeSurrounding("\""),
+                username = user.userMetadata!!.getValue("username").toString().removeSurrounding("\""),
+                profilePicture = user.userMetadata!!.getValue("profile_picture").toString().removeSurrounding("\""),
             )
         }
     }

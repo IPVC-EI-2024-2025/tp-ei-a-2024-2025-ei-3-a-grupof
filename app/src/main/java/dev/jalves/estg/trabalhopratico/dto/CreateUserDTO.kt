@@ -11,3 +11,12 @@ data class CreateUserDTO(
     val username: String,
     val password: String
 )
+
+data class UpdateUserDTO(
+    val id: String,
+    val name: String? = null,
+    val email: String? = null,
+    val username: String? = null,
+    val password: String? = null,
+    val profilePicture: String? = null
+)
