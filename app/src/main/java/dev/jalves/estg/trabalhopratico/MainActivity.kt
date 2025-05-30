@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +22,7 @@ import dev.jalves.estg.trabalhopratico.ui.theme.AppTheme
 import dev.jalves.estg.trabalhopratico.ui.views.HomeView
 import dev.jalves.estg.trabalhopratico.ui.views.IntroView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
+import dev.jalves.estg.trabalhopratico.ui.views.ProfileViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectView
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
 import dev.jalves.estg.trabalhopratico.ui.views.SettingsView
@@ -36,6 +38,8 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 val navController = rememberNavController()
                 val bottomBarState = rememberSaveable { (mutableStateOf(false)) }
+
+                val profileViewModel: ProfileViewModel = viewModel()
 
                 NavHost(
                     navController = navController,
@@ -100,11 +104,11 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(route = "adminMain") {
-                        AdminMain(navController)
+                        AdminMain(navController, profileViewModel)
                     }
 
                     composable(route = "profile") {
-                        ProfileView(navController)
+                        ProfileView(navController, profileViewModel)
                     }
 
                     composable(route = "settings") {

@@ -17,9 +17,11 @@ class ProfileViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
+            supabase.auth.awaitInitialization()
+
             val userId = supabase.auth.currentUserOrNull()?.id ?: return@launch
 
-            _profile.value = supabase.from("users")
+            val profile = supabase.from("users")
                 .select{
                     filter {
                         eq("uid", userId)
@@ -27,6 +29,10 @@ class ProfileViewModel : ViewModel() {
                     limit(count = 1)
                 }
                 .decodeSingle<TaskSyncUser>()
+
+            profile.email = supabase.auth.currentUserOrNull()!!.email ?: ""
+
+            _profile.value = profile
         }
     }
 }

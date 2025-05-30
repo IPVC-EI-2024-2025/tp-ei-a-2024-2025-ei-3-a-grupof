@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,6 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,12 +36,23 @@ import dev.jalves.estg.trabalhopratico.ui.components.UserRoleBadge
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileView(
-    navController: NavHostController
+    navController: NavHostController,
+    profileViewModel: ProfileViewModel
 ) {
     var displayName by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val profile by profileViewModel.profile.collectAsState()
+
+    LaunchedEffect(profile?.uid) {
+        profile?.let {
+            displayName = it.displayName
+            username = it.username
+            email = it.email
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -58,55 +72,68 @@ fun ProfileView(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(Icons.Rounded.Person, contentDescription = "", modifier = Modifier.size(100.dp))
-            UserRoleBadge(UserRole.entries.toTypedArray().random())
+            if (profile == null) {
+                CircularProgressIndicator()
+            } else {
+                Icon(Icons.Rounded.Person, contentDescription = "", modifier = Modifier.size(100.dp))
+                UserRoleBadge(UserRole.entries.toTypedArray().random())
 
-            Column {
-                OutlinedTextField(
-                    value = displayName,
-                    onValueChange = { displayName = it },
-                    label = { Text("Display name") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .widthIn(max = 280.dp)
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedTextField(
+                        value = displayName,
+                        onValueChange = { displayName = it },
+                        label = { Text("Display name") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .widthIn(max = 280.dp)
+                    )
 
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Username") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .widthIn(max = 280.dp)
-                )
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        label = { Text("Username") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .widthIn(max = 280.dp)
+                    )
 
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .widthIn(max = 280.dp)
-                )
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Email") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .widthIn(max = 280.dp)
+                    )
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true,
-                    modifier = Modifier
-                        .widthIn(max = 280.dp)
-                )
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Password") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        modifier = Modifier
+                            .widthIn(max = 280.dp)
+                    )
+
+                    Button(
+                        modifier = Modifier.padding(top = 8.dp),
+                        onClick = {}
+                    ) {
+                        Text("Submit")
+                    }
+                }
             }
 
-            Button(onClick = {}) {
-                Text("Submit")
-            }
+
         }
     }
 }

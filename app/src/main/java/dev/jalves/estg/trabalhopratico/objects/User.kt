@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TaskSyncUser (
     val uid: String = "",
-    val email: String = "",
+    var email: String = "",
     @SerialName("display_name")
     val displayName: String = "",
     val username: String = "",

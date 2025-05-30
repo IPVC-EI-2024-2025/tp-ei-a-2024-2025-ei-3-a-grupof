@@ -24,7 +24,8 @@ import dev.jalves.estg.trabalhopratico.ui.views.UserListView
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminMain(
-    rootNavController: NavHostController
+    rootNavController: NavHostController,
+    profileViewModel: ProfileViewModel
 ) {
     val navController = rememberNavController()
 
@@ -49,7 +50,7 @@ fun AdminMain(
             startDestination = "home"
         ) {
             composable(route = "home") {
-                AdminHome(rootNavController, ProfileViewModel())
+                AdminHome(rootNavController, profileViewModel)
             }
 
             composable(route = "projects") {
