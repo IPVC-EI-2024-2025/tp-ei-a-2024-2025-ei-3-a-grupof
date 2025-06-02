@@ -51,8 +51,7 @@ fun SettingsView(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp),
+                .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             ThemeTile()

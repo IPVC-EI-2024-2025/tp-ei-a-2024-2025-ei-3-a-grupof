@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +36,7 @@ fun IntroView(
     val navController = rememberNavController()
 
     NavHost(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
         navController = navController,
         startDestination = "first",
     ) {
@@ -46,7 +47,11 @@ fun IntroView(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Welcome to", style = MaterialTheme.typography.headlineLarge)
+                    Text(
+                        "Welcome to",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.headlineLarge
+                    )
                     Image(
                         painter = painterResource(id = R.drawable.logo),
                         contentDescription = "TaskSync logo",
@@ -74,7 +79,11 @@ fun IntroView(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Customize your experience", style = MaterialTheme.typography.headlineLarge)
+                    Text(
+                        "Customize your experience",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.headlineLarge
+                    )
                     ThemeTile()
                     NotificationsTile()
                     LanguageTile()
@@ -111,7 +120,11 @@ fun IntroView(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Start syncing!", style = MaterialTheme.typography.headlineLarge)
+                    Text(
+                        "Start syncing!",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.headlineLarge
+                    )
                 }
 
                 FloatingActionButton(
