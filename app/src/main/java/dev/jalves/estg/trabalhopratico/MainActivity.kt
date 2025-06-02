@@ -18,7 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
-import dev.jalves.estg.trabalhopratico.ui.theme.AppTheme
+import dev.jalves.estg.trabalhopratico.ui.theme.ThemedApp
 import dev.jalves.estg.trabalhopratico.ui.views.HomeView
 import dev.jalves.estg.trabalhopratico.ui.views.IntroView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme {
+            ThemedApp {
                 val navController = rememberNavController()
                 val bottomBarState = rememberSaveable { (mutableStateOf(false)) }
 

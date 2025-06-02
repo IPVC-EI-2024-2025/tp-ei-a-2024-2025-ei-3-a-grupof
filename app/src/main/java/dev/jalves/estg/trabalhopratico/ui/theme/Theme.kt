@@ -1,5 +1,8 @@
 package dev.jalves.estg.trabalhopratico.ui.theme
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -8,13 +11,19 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -285,5 +294,80 @@ fun AppTheme(
     typography = AppTypography,
     content = content
   )
+}
+
+class ThemeManager private constructor(private val context: Context) {
+    companion object {
+        @SuppressLint("StaticFieldLeak")
+        @Volatile
+        private var INSTANCE: ThemeManager? = null
+
+        fun getInstance(context: Context): ThemeManager {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: ThemeManager(context.applicationContext).also { INSTANCE = it }
+            }
+        }
+    }
+
+    private val prefs: SharedPreferences = context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+
+    private val _themeMode = MutableStateFlow(getThemeMode())
+    val themeMode: StateFlow<String> = _themeMode
+
+    private val _materialYouEnabled = MutableStateFlow(getMaterialYouEnabled())
+    val materialYouEnabled: StateFlow<Boolean> = _materialYouEnabled
+
+    private fun getThemeMode(): String {
+        return prefs.getString("theme_mode", "System") ?: "System"
+    }
+
+    private fun getMaterialYouEnabled(): Boolean {
+        return prefs.getBoolean("material_you_enabled", false)
+    }
+
+    fun setThemeMode(mode: String) {
+        prefs.edit().putString("theme_mode", mode).apply()
+        _themeMode.value = mode
+    }
+
+    fun setMaterialYouEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean("material_you_enabled", enabled).apply()
+        _materialYouEnabled.value = enabled
+    }
+}
+
+val LocalThemeManager = compositionLocalOf<ThemeManager> { error("ThemeManager not provided") }
+
+@Composable
+fun ProvideThemeManager(content: @Composable () -> Unit) {
+    val context = LocalContext.current
+    val themeManager = ThemeManager.getInstance(context)
+
+    CompositionLocalProvider(LocalThemeManager provides themeManager) {
+        content()
+    }
+}
+
+@Composable
+fun ThemedApp(content: @Composable () -> Unit) {
+    ProvideThemeManager {
+        val themeManager = LocalThemeManager.current
+        val themeMode by themeManager.themeMode.collectAsState()
+        val materialYouEnabled by themeManager.materialYouEnabled.collectAsState()
+        val isSystemInDarkTheme = isSystemInDarkTheme()
+
+        val darkTheme = when (themeMode) {
+            "Light" -> false
+            "Dark" -> true
+            else -> isSystemInDarkTheme
+        }
+
+        AppTheme(
+            darkTheme = darkTheme,
+            dynamicColor = materialYouEnabled
+        ) {
+            content()
+        }
+    }
 }
 
