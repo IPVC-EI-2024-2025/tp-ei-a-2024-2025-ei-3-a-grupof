@@ -14,6 +14,7 @@ import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.TableChart
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +30,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -75,8 +79,16 @@ fun ProjectView(
     projectID: String
 ) {
     var expanded by remember { mutableStateOf(false) }
-
     val openEditDialog = remember { mutableStateOf(false) }
+
+    val projectViewModel: ProjectViewModel = viewModel()
+
+    val project by projectViewModel.project.collectAsState()
+    val error by projectViewModel.error.collectAsState()
+
+    LaunchedEffect(Unit) {
+        projectViewModel.loadProject(projectID)
+    }
 
     Scaffold(
         topBar = {
@@ -152,13 +164,24 @@ fun ProjectView(
             modifier = Modifier.padding(innerPadding).padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Project $projectID", style = MaterialTheme.typography.titleLarge)
-            Text(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi euismod  bibendum enim, sit amet porttitor odio accumsan et. Vestibulum ante  ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            ManagedBy()
-            Tabs()
+            when {
+                // todo: styling
+                error != null -> {
+                    Text("error")
+                }
+                project == null -> {
+                    CircularProgressIndicator()
+                }
+                else -> {
+                    Text("Project ${project!!.name}", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi euismod  bibendum enim, sit amet porttitor odio accumsan et. Vestibulum ante  ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    ManagedBy()
+                    Tabs()
+                }
+            }
         }
 
         when {

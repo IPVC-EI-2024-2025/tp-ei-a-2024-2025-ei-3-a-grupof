@@ -69,5 +69,22 @@ object ProjectService {
             }
         }
 
+    suspend fun getProjectByID(projectID: String): Result<Project> =
+        withContext(Dispatchers.IO) {
+            try {
+                val project = supabase.from("projects")
+                    .select {
+                        filter {
+                            eq("id", projectID)
+                        }
+                        limit(1)
+                    }
+                    .decodeSingle<Project>()
 
+                Result.success(project)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch project with ID $projectID", e)
+                Result.failure(e)
+            }
+        }
 }
