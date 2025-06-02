@@ -24,6 +24,7 @@ import dev.jalves.estg.trabalhopratico.ui.views.IntroView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectView
+import dev.jalves.estg.trabalhopratico.ui.views.ProjectsViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
 import dev.jalves.estg.trabalhopratico.ui.views.SettingsView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
                 val bottomBarState = rememberSaveable { (mutableStateOf(false)) }
 
                 val profileViewModel: ProfileViewModel = viewModel()
+                val projectsViewModel: ProjectsViewModel = viewModel()
 
                 NavHost(
                     navController = navController,
@@ -104,7 +106,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(route = "adminMain") {
-                        AdminMain(navController, profileViewModel)
+                        AdminMain(navController, profileViewModel, projectsViewModel)
                     }
 
                     composable(route = "profile") {

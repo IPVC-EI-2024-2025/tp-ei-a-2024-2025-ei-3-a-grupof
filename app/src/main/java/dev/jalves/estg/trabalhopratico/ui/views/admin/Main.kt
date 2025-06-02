@@ -19,13 +19,15 @@ import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.ui.views.MenuView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectListView
+import dev.jalves.estg.trabalhopratico.ui.views.ProjectsViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.UserListView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminMain(
     rootNavController: NavHostController,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    projectsViewModel: ProjectsViewModel
 ) {
     val navController = rememberNavController()
 
@@ -54,7 +56,7 @@ fun AdminMain(
             }
 
             composable(route = "projects") {
-                ProjectListView(rootNavController)
+                ProjectListView(rootNavController, projectsViewModel)
             }
 
             composable(route = "users") {

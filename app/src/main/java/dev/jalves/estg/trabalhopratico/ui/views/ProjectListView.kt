@@ -14,43 +14,29 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import dev.jalves.estg.trabalhopratico.objects.Project
-import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
 
 @Composable
 fun ProjectListView(
-    rootNavController: NavHostController
+    rootNavController: NavHostController,
+    projectsViewModel: ProjectsViewModel
 ) {
     val openAddProjectDialog = remember { mutableStateOf(false) }
-
-    var projects by remember { mutableStateOf<List<Project>>(emptyList()) }
-    var loading by remember { mutableStateOf(true) }
-    var error by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(Unit) {
-        val result = ProjectService.listProjects()
-        result.onSuccess {
-            projects = it
-            loading = false
-        }.onFailure {
-            error = it.message ?: "Unknown error"
-            loading = false
-        }
-    }
+    val projects by projectsViewModel.projects.collectAsState()
+    val errorMessage by projectsViewModel.errorMessage.collectAsState()
 
     Box (
         modifier = Modifier.fillMaxSize()
@@ -64,26 +50,30 @@ fun ProjectListView(
                 onFilter = {}
             )
 
-            if (loading) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
+            when {
+                errorMessage != null -> {
+                    Text("Error: $errorMessage", color = MaterialTheme.colorScheme.error)
                 }
-            } else if (error != null) {
-                Text("Error loading projects: $error")
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(projects) { project ->
-                        ProjectListItem(
-                            onClick = {
-                                rootNavController.navigate("project/${project.id}")
-                            },
-                            project
-                        )
+                projects == null -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                else -> {
+                    LazyColumn (
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(projects!!) { project ->
+                            ProjectListItem(
+                                onClick = {
+                                    rootNavController.navigate("project/${project.id}")
+                                },
+                                project
+                            )
+                        }
                     }
                 }
             }
@@ -107,7 +97,10 @@ fun ProjectListView(
     when {
         openAddProjectDialog.value -> {
             EditProjectDialog(
-                onDismiss = { openAddProjectDialog.value = false }
+                onDismiss = {
+                    openAddProjectDialog.value = false
+                    projectsViewModel.fetchData()
+                }
             )
         }
     }

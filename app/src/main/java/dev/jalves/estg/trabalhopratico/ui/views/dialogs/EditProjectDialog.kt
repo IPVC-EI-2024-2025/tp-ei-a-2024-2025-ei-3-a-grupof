@@ -82,9 +82,9 @@ fun EditProjectDialog(
                                 name, description, startDate, dueDate
                             ))
                         }
+                    }.invokeOnCompletion {
+                        onDismiss()
                     }
-
-                    onDismiss()
                 }
             ) {
                 Text("Submit")
