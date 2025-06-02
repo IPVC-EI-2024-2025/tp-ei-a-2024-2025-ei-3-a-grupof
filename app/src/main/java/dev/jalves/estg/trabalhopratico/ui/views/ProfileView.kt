@@ -5,11 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,6 +34,7 @@ import androidx.navigation.NavHostController
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.services.UserService
+import dev.jalves.estg.trabalhopratico.ui.components.PlaceholderProfilePic
 import dev.jalves.estg.trabalhopratico.ui.components.UserRole
 import dev.jalves.estg.trabalhopratico.ui.components.UserRoleBadge
 import io.github.jan.supabase.auth.auth
@@ -93,7 +92,7 @@ fun ProfileView(
             if (profile == null) {
                 CircularProgressIndicator()
             } else {
-                Icon(Icons.Rounded.Person, contentDescription = "", modifier = Modifier.size(100.dp))
+                PlaceholderProfilePic(name = displayName, size = 100.dp)
                 UserRoleBadge(UserRole.entries.toTypedArray().random())
 
                 Column(
