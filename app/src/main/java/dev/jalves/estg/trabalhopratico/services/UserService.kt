@@ -5,6 +5,11 @@ import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import kotlinx.serialization.json.put
 
+
+
+
+
+
 object UserService {
     suspend fun updateUserInfo(updatedUser: UpdateUserDTO) {
         supabase.auth

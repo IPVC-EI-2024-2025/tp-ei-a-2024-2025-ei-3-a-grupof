@@ -65,6 +65,7 @@ fun UserAction(
 
 @Composable
 fun UserListItem(
+    name: String,
     onEditUser: () -> Unit,
     onDeleteUser: () -> Unit,
 ) {
@@ -73,8 +74,8 @@ fun UserListItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
             .clickable { opened = !opened }
+            .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
@@ -82,18 +83,22 @@ fun UserListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(Icons.Rounded.Person, contentDescription = "Picture", Modifier.size(36.dp))
+            Icon(
+                Icons.Rounded.Person,
+                contentDescription = "User avatar",
+                Modifier.size(36.dp)
+            )
             Text(
-                "Name", style = TextStyle(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp
+                text = name,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.SemiBold
                 ),
                 modifier = Modifier.weight(1f)
             )
             UserRoleBadge(UserRole.entries.toTypedArray().random())
             Icon(
                 if (opened) Icons.Rounded.ArrowDropDown else Icons.AutoMirrored.Rounded.ArrowRight,
-                contentDescription = "Toggle details",
+                contentDescription = if (opened) "Collapse details" else "Expand details",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -112,7 +117,7 @@ fun UserListItem(
                 )
                 UserAction(
                     icon = Icons.Rounded.Delete,
-                    name = "Delete user",
+                    name = "Delete",
                     onClick = onDeleteUser
                 )
                 UserAction(

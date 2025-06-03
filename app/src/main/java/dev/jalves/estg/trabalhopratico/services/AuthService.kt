@@ -37,6 +37,7 @@ object AuthService {
                     this.password = password
                 }
 
+
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Signed in successfully!", Toast.LENGTH_SHORT).show()
                 }

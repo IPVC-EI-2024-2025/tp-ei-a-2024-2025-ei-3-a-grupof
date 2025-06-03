@@ -27,6 +27,7 @@ android {
 
         buildConfigField("String", "SUPABASE_URL", "\"${localProperties["SUPABASE_URL"]}\"")
         buildConfigField("String", "SUPABASE_KEY", "\"${localProperties["SUPABASE_KEY"]}\"")
+        buildConfigField("String", "SUPABASE_ADMINKEY", "\"${localProperties["SUPABASE_ADMINKEY"]}\"")
     }
 
     buildTypes {
