@@ -62,8 +62,8 @@ fun UserListView() {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             SearchBar(
-                onSearch = { query -> /* TODO: implement search */ },
-                onFilter = { /* TODO: implement filter */ }
+                onSearch = { query ->  },
+                onFilter = { }
             )
 
             LazyColumn {
