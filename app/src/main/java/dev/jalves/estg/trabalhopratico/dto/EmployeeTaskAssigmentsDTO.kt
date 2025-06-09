@@ -1,10 +1,18 @@
 package dev.jalves.estg.trabalhopratico.dto
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class CreateTaskAssignmentDTO(
-val taskId: String,
-val employeeId:String,
-val assigmentId:String,
+    @SerialName("task_id")
+    val taskId: String,
+    @SerialName("employee_id")
+    val employeeId: String,
+    @SerialName("assigned_at")
     val assignedAt: String,
-    val completionRate: Float ,
-    val completedAt: String
+    @SerialName("completion_rate")
+    val completionRate: Float = 0.0f,
+    @SerialName("completed_at")
+    val completedAt: String? = null
 )

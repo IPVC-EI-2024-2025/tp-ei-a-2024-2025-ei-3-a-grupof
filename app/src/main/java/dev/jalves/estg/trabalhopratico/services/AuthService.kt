@@ -21,7 +21,7 @@ object AuthService {
                 password = newUser.password
                 data = buildJsonObject {
                     put("username", newUser.username)
-                    put("display_name", newUser.name)
+                    put("display_name", newUser.displayName)
                     put("profile_picture", "")
                 }
             }

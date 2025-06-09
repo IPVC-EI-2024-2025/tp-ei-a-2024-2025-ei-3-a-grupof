@@ -1,8 +1,15 @@
 package dev.jalves.estg.trabalhopratico.objects
 
-data class LogPhotos (
-    val photoId: String,
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class LogPhotos(
+    val id: String,
+    @SerialName("uploaded_at")
     val uploadedAt: String,
+    @SerialName("photo_url")
     val photoUrl: String,
-    val taskId: String
+    @SerialName("log_id")
+    val logId: String
 )

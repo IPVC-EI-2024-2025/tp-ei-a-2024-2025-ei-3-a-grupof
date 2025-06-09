@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
-import dev.jalves.estg.trabalhopratico.services.AuthService
 import dev.jalves.estg.trabalhopratico.services.UserCrud
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.launch
@@ -80,7 +79,7 @@ fun EditUserDialog(
                     scope.launch {
                         try {
                             val dto = CreateUserDTO(
-                                name = displayName,
+                                displayName = displayName,
                                 email = email,
                                 username = username,
                                 password = password
@@ -92,7 +91,7 @@ fun EditUserDialog(
                                 Toast.makeText(context, "User created successfully!", Toast.LENGTH_SHORT).show()
                             } else {
                                 // Update existing user
-                                UserCrud.UodateUser(dto, user.id)
+                                UserCrud.UpdateUser(dto, user.id)
                                 Toast.makeText(context, "User updated successfully!", Toast.LENGTH_SHORT).show()
                             }
 

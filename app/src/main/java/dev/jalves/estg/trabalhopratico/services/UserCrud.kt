@@ -2,19 +2,13 @@ package dev.jalves.estg.trabalhopratico.services
 
 import android.content.ContentValues.TAG
 import android.util.Log
-import dev.jalves.estg.trabalhopratico.BuildConfig
-import dev.jalves.estg.trabalhopratico.dto.CreateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
-import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.services.SupabaseAdminService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.user.UserInfo
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -29,7 +23,7 @@ object UserCrud {
                     password = user.password
                     data = buildJsonObject {
                         put("username", user.username)
-                        put("display_name", user.name)
+                        put("display_name", user.displayName)
                         put("profile_picture", "")
                     }
                 }
@@ -41,7 +35,7 @@ object UserCrud {
         }
 
 
-    suspend fun UodateUser(user: CreateUserDTO,ID:String): Result<Unit> =
+    suspend fun UpdateUser(user: CreateUserDTO, ID:String): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
                 SupabaseAdminService.initAdminSession()
@@ -52,7 +46,7 @@ object UserCrud {
                     password = user.password
                     userMetadata = buildJsonObject {
                         put("username", user.username)
-                        put("display_name", user.name)
+                        put("display_name", user.displayName)
                         put("profile_picture", "")
 
                     }

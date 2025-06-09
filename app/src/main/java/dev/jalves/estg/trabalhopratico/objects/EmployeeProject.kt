@@ -1,8 +1,14 @@
 package dev.jalves.estg.trabalhopratico.objects
 
-data class EmployeeProject (
-    val projectId: String,
-    val userId: String,
-    val assignedAt: String
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
+data class EmployeeProject(
+    @SerialName("project_id")
+    val projectId: String,
+    @SerialName("user_id")
+    val userId: String,
+    @SerialName("assigned_at")
+    val assignedAt: String
 )

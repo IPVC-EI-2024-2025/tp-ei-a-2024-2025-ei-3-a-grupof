@@ -5,8 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Task (
-    val projectid: String,
-    val taskid: String,
+    val id: String,
+    @SerialName("project_id")
+    val projectId: String,
     val name: String,
     val description: String,
     val status: String,
