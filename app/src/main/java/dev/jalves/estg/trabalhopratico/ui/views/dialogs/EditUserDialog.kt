@@ -87,11 +87,11 @@ fun EditUserDialog(
 
                             if (user == null) {
                                 // Create new user
-                                UserCrud.CreateUser(dto)
+                                UserCrud.createUser(dto)
                                 Toast.makeText(context, "User created successfully!", Toast.LENGTH_SHORT).show()
                             } else {
                                 // Update existing user
-                                UserCrud.UpdateUser(dto, user.id)
+                                UserCrud.updateUser(user.id, dto)
                                 Toast.makeText(context, "User updated successfully!", Toast.LENGTH_SHORT).show()
                             }
 

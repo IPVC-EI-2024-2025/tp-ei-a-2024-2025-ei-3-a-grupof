@@ -19,13 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.services.SupabaseAdminService
-import dev.jalves.estg.trabalhopratico.services.UserCrud.DisableUser
-import dev.jalves.estg.trabalhopratico.services.UserCrud.GetUsers
+import dev.jalves.estg.trabalhopratico.services.UserCrud.disableUser
+import dev.jalves.estg.trabalhopratico.services.UserCrud.getUsers
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditUserDialog
-import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,7 +45,7 @@ fun UserListView() {
         isLoading.value = true
         try {
             val userList = withContext(Dispatchers.IO) {
-                GetUsers().getOrElse { emptyList() }
+                getUsers().getOrElse { emptyList() }
             }
             users.value = userList
         } catch (e: Exception) {
@@ -111,7 +110,7 @@ fun UserListView() {
                             openDeleteUserDialog.value = false
                             kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
                                 SupabaseAdminService.initAdminSession()
-                                DisableUser(userId)
+                                disableUser(userId)
                             }
                         }
                     },

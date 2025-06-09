@@ -15,7 +15,7 @@ import kotlinx.serialization.json.put
 object UserCrud {
     private val adminClient = supabase
 
-    suspend fun CreateUser(user: CreateUserDTO): Result<Unit> =
+    suspend fun createUser(user: CreateUserDTO): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
                 adminClient.auth.signUpWith(Email) {
@@ -35,13 +35,12 @@ object UserCrud {
         }
 
 
-    suspend fun UpdateUser(user: CreateUserDTO, ID:String): Result<Unit> =
+    suspend fun updateUser(id:String, user: CreateUserDTO): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
                 SupabaseAdminService.initAdminSession()
 
-
-                supabase.auth.admin.updateUserById(uid =ID) {
+                supabase.auth.admin.updateUserById(uid =id) {
                     email = user.email
                     password = user.password
                     userMetadata = buildJsonObject {
@@ -53,7 +52,6 @@ object UserCrud {
 
                 }
 
-
                 Result.success(Unit)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to create user", e)
@@ -61,10 +59,7 @@ object UserCrud {
             }
         }
 
-
-
-
-    suspend fun GetUsers(): Result<List<UserInfo>> =
+    suspend fun getUsers(): Result<List<UserInfo>> =
         withContext(Dispatchers.IO) {
             try {
                 SupabaseAdminService.initAdminSession()
@@ -77,18 +72,16 @@ object UserCrud {
             }
         }
 
-    suspend fun DisableUser(ID: String): Unit =
+    suspend fun disableUser(id: String): Unit =
         withContext(Dispatchers.IO) {
             try {
                 SupabaseAdminService.initAdminSession()
 
-
-                supabase.auth.admin.updateUserById(uid = ID) {
+                supabase.auth.admin.updateUserById(uid = id) {
                     userMetadata = buildJsonObject {
                         put("Status", "Disabled")
                     }
                 }
-
             }catch (e: Exception){
                 Log.e(TAG, "Failed to create user", e)
             }
