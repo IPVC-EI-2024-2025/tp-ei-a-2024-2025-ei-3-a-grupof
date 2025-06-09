@@ -49,6 +49,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
@@ -87,7 +88,6 @@ fun ProjectView(
     val projectViewModel: ProjectViewModel = viewModel()
 
     val project by projectViewModel.project.collectAsState()
-    val manager by projectViewModel.manager.collectAsState()
     val error by projectViewModel.error.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -182,7 +182,7 @@ fun ProjectView(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi euismod  bibendum enim, sit amet porttitor odio accumsan et. Vestibulum ante  ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    ManagedBy(project, manager)
+                    ManagedBy(project!!)
                     Tabs()
                 }
             }
@@ -199,7 +199,7 @@ fun ProjectView(
 }
 
 @Composable
-fun ManagedBy(project: Project?, manager: TaskSyncUser?) {
+fun ManagedBy(project: ProjectDTO) {
     Row(
         modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -209,25 +209,13 @@ fun ManagedBy(project: Project?, manager: TaskSyncUser?) {
         Column {
             Text("Managed by", style = MaterialTheme.typography.labelSmall)
             when {
-                project == null -> {
-                    LinearProgressIndicator()
-                }
-
-                project.managerID == null -> {
+                project.manager == null -> {
                     Text("No manager assigned", style = MaterialTheme.typography.labelLarge)
                 }
 
                 else -> {
-                    when {
-                        manager == null -> {
-                            LinearProgressIndicator()
-                        }
-
-                        else -> {
-                            Text(manager.displayName, style = MaterialTheme.typography.labelLarge)
-                            Text("Last edit: 27/04/2025 14:00", style = MaterialTheme.typography.labelSmall)
-                        }
-                    }
+                    Text(project.manager.displayName, style = MaterialTheme.typography.labelLarge)
+                    Text("Last edit: 27/04/2025 14:00", style = MaterialTheme.typography.labelSmall)
                 }
             }
         }

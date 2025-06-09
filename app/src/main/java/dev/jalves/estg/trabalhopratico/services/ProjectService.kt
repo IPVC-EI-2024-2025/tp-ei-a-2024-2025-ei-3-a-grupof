@@ -3,14 +3,16 @@ package dev.jalves.estg.trabalhopratico.services
 import android.content.ContentValues.TAG
 import android.util.Log
 import dev.jalves.estg.trabalhopratico.dto.CreateProjectDTO
+import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.objects.Project
-import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 object ProjectService {
     suspend fun createProject(projectDto: CreateProjectDTO): Result<Unit> =
@@ -71,38 +73,18 @@ object ProjectService {
             }
         }
 
-    suspend fun getProjectByID(projectID: String): Result<Project> =
+    suspend fun getProjectByID(projectID: String): Result<ProjectDTO> =
         withContext(Dispatchers.IO) {
             try {
-                val project = supabase.from("projects")
-                    .select {
-                        filter {
-                            eq("id", projectID)
-                        }
-                        limit(1)
-                    }
-                    .decodeSingle<Project>()
+                val project = supabase.postgrest.rpc("get_project", parameters = buildJsonObject {
+                    put("p_id", projectID)
+                })
 
-                Result.success(project)
+                Log.d("PROJECT", project.data)
+
+                Result.success(project.decodeAs<ProjectDTO>())
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to fetch project with ID $projectID", e)
-                Result.failure(e)
-            }
-        }
-
-    suspend fun getProjectManager(managerID: String): Result<TaskSyncUser> =
-        withContext(Dispatchers.IO) {
-            try {
-                val manager = supabase.from("app_users").select {
-                    filter {
-                        eq("id", managerID)
-                    }
-                }.decodeSingle<JsonObject>()
-
-
-                Result.success(TaskSyncUser.fromView(manager))
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to fetch manager with ID $managerID", e)
                 Result.failure(e)
             }
         }
