@@ -20,7 +20,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -50,8 +49,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
-import dev.jalves.estg.trabalhopratico.objects.Project
-import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
+import dev.jalves.estg.trabalhopratico.dto.UserDTO
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
 
@@ -179,11 +177,11 @@ fun ProjectView(
                 else -> {
                     Text(project!!.name, style = MaterialTheme.typography.titleLarge)
                     Text(
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi euismod  bibendum enim, sit amet porttitor odio accumsan et. Vestibulum ante  ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;",
+                        project!!.description,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     ManagedBy(project!!)
-                    Tabs()
+                    Tabs(project!!)
                 }
             }
         }
@@ -232,7 +230,7 @@ enum class Destination(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Tabs() {
+fun Tabs(project: ProjectDTO) {
     val navController = rememberNavController()
     val startDestination = Destination.TASKS
     var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
@@ -264,7 +262,7 @@ fun Tabs() {
                 composable(destination.route) {
                     when (destination) {
                         Destination.TASKS -> TasksTab()
-                        Destination.EMPLOYEES -> EmployeesTab()
+                        Destination.EMPLOYEES -> EmployeesTab(project.employees)
                     }
                 }
             }
@@ -286,7 +284,7 @@ fun TasksTab() {
 }
 
 @Composable
-fun EmployeesTab() {
+fun EmployeesTab(employees: List<UserDTO>) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(vertical = 8.dp)
@@ -295,5 +293,7 @@ fun EmployeesTab() {
             onSearch = {query -> },
             onFilter = {}
         )
+        for(employee in employees)
+            Text(employee.displayName)
     }
 }
