@@ -14,11 +14,13 @@ import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.TableChart
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +31,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,10 +44,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
+import dev.jalves.estg.trabalhopratico.objects.Project
+import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
 
@@ -75,13 +83,21 @@ fun ProjectView(
     projectID: String
 ) {
     var expanded by remember { mutableStateOf(false) }
-
     val openEditDialog = remember { mutableStateOf(false) }
+
+    val projectViewModel: ProjectViewModel = viewModel()
+
+    val project by projectViewModel.project.collectAsState()
+    val error by projectViewModel.error.collectAsState()
+
+    LaunchedEffect(Unit) {
+        projectViewModel.loadProject(projectID)
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {Text("Profile")},
+                title = {Text("Project")},
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
@@ -152,13 +168,24 @@ fun ProjectView(
             modifier = Modifier.padding(innerPadding).padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Project $projectID", style = MaterialTheme.typography.titleLarge)
-            Text(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi euismod  bibendum enim, sit amet porttitor odio accumsan et. Vestibulum ante  ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            ManagedBy()
-            Tabs()
+            when {
+                // todo: styling
+                error != null -> {
+                    Text("error")
+                }
+                project == null -> {
+                    CircularProgressIndicator()
+                }
+                else -> {
+                    Text(project!!.name, style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi euismod  bibendum enim, sit amet porttitor odio accumsan et. Vestibulum ante  ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    ManagedBy(project!!)
+                    Tabs()
+                }
+            }
         }
 
         when {
@@ -172,7 +199,7 @@ fun ProjectView(
 }
 
 @Composable
-fun ManagedBy() {
+fun ManagedBy(project: ProjectDTO) {
     Row(
         modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -181,8 +208,16 @@ fun ManagedBy() {
         Icon(Icons.Rounded.Person, contentDescription = "", Modifier.size(48.dp))
         Column {
             Text("Managed by", style = MaterialTheme.typography.labelSmall)
-            Text("Project manager 1", style = MaterialTheme.typography.labelLarge)
-            Text("Last edit: 27/04/2025 14:00", style = MaterialTheme.typography.labelSmall)
+            when {
+                project.manager == null -> {
+                    Text("No manager assigned", style = MaterialTheme.typography.labelLarge)
+                }
+
+                else -> {
+                    Text(project.manager.displayName, style = MaterialTheme.typography.labelLarge)
+                    Text("Last edit: 27/04/2025 14:00", style = MaterialTheme.typography.labelSmall)
+                }
+            }
         }
     }
 }
