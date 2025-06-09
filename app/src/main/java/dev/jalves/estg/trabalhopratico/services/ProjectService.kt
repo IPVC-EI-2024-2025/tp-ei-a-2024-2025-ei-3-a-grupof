@@ -4,11 +4,13 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import dev.jalves.estg.trabalhopratico.dto.CreateProjectDTO
 import dev.jalves.estg.trabalhopratico.objects.Project
+import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonObject
 
 object ProjectService {
     suspend fun createProject(projectDto: CreateProjectDTO): Result<Unit> =
@@ -84,6 +86,23 @@ object ProjectService {
                 Result.success(project)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to fetch project with ID $projectID", e)
+                Result.failure(e)
+            }
+        }
+
+    suspend fun getProjectManager(managerID: String): Result<TaskSyncUser> =
+        withContext(Dispatchers.IO) {
+            try {
+                val manager = supabase.from("app_users").select {
+                    filter {
+                        eq("id", managerID)
+                    }
+                }.decodeSingle<JsonObject>()
+
+
+                Result.success(TaskSyncUser.fromView(manager))
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch manager with ID $managerID", e)
                 Result.failure(e)
             }
         }
