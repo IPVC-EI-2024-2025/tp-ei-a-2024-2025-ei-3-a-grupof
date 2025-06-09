@@ -13,7 +13,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.absoluteValue
@@ -22,7 +21,6 @@ import kotlin.math.absoluteValue
 fun PlaceholderProfilePic(
     name: String,
     size: Dp = 64.dp,
-    fontSize: TextUnit = 24.sp,
     modifier: Modifier = Modifier
 ) {
     val initials = remember(name) {
@@ -44,6 +42,11 @@ fun PlaceholderProfilePic(
             Color(0xFF80DEEA), Color(0xFFB0BEC5)
         )
         colors[(name.hashCode().absoluteValue) % colors.size]
+    }
+
+    val fontSize = remember(size) {
+        val calculatedSize = size.value * 0.375f
+        maxOf(calculatedSize, 10f).sp
     }
 
     Box(
