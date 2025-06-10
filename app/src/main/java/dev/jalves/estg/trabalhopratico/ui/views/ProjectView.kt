@@ -189,6 +189,18 @@ fun ProjectView(
                         project!!.description,
                         style = MaterialTheme.typography.bodyMedium
                     )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            "Created: " + project!!.startDate,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            "Due: " + project!!.dueDate,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                     ManagedBy(project!!)
                     Tabs(project!!)
                 }
@@ -198,7 +210,11 @@ fun ProjectView(
         when {
             openEditDialog.value -> {
                 EditProjectDialog(
-                    onDismiss = { openEditDialog.value = false }
+                    onDismiss = {
+                        openEditDialog.value = false
+                        projectViewModel.loadProject(projectID)
+                    },
+                    project = project
                 )
             }
             openManagerSelectionDialog.value -> {
@@ -237,7 +253,6 @@ fun ManagedBy(project: ProjectDTO) {
 
                 else -> {
                     Text(project.manager.displayName, style = MaterialTheme.typography.labelLarge)
-                    Text("Last edit: 27/04/2025 14:00", style = MaterialTheme.typography.labelSmall)
                 }
             }
         }

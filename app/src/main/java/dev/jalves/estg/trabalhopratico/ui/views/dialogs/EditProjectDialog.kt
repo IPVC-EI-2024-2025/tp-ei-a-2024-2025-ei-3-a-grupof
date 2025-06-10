@@ -14,7 +14,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import dev.jalves.estg.trabalhopratico.dto.CreateProjectDTO
-import dev.jalves.estg.trabalhopratico.objects.Project
+import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
+import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
 import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.ui.components.DatePickerInput
 import kotlinx.coroutines.launch
@@ -23,7 +24,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun EditProjectDialog(
     onDismiss: () -> Unit,
-    project: Project? = null
+    project: ProjectDTO? = null
 ) {
     val scope = rememberCoroutineScope()
 
@@ -80,6 +81,10 @@ fun EditProjectDialog(
                         if (project == null) {
                             ProjectService.createProject(CreateProjectDTO(
                                 name, description, startDate, dueDate
+                            ))
+                        } else {
+                            ProjectService.updateProject(UpdateProjectDTO(
+                                id = project.id, name, description, startDate, dueDate
                             ))
                         }
                     }.invokeOnCompletion {
