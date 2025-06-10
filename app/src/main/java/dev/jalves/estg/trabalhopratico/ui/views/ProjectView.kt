@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.MoreVert
@@ -54,6 +54,7 @@ import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UserDTO
 import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
 import kotlinx.coroutines.launch
@@ -88,6 +89,9 @@ fun ProjectView(
     var expanded by remember { mutableStateOf(false) }
     val openEditDialog = remember { mutableStateOf(false) }
     val openManagerSelectionDialog = remember { mutableStateOf(false) }
+    val confirmDisableDialog = remember { mutableStateOf(false) }
+    val confirmCompleteDialog = remember { mutableStateOf(false) }
+    val confirmArchiveDialog = remember { mutableStateOf(false) }
 
     val projectViewModel: ProjectViewModel = viewModel()
 
@@ -140,9 +144,10 @@ fun ProjectView(
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Delete, "Delete") },
+                            text = { MenuItem(Icons.Rounded.Cancel, "Disable") },
                             onClick = {
                                 expanded = false
+                                confirmDisableDialog.value = true
                             }
                         )
 
@@ -157,6 +162,7 @@ fun ProjectView(
                             text = { MenuItem(Icons.Rounded.Check, "Mark complete") },
                             onClick = {
                                 expanded = false
+                                confirmCompleteDialog.value = true
                             }
                         )
 
@@ -164,6 +170,7 @@ fun ProjectView(
                             text = { MenuItem(Icons.Rounded.Folder, "Archive project") },
                             onClick = {
                                 expanded = false
+                                confirmArchiveDialog.value = true
                             }
                         )
                     }
@@ -229,6 +236,57 @@ fun ProjectView(
                             projectViewModel.loadProject(projectID)
                             openManagerSelectionDialog.value = false
                         }
+                    }
+                )
+            }
+            confirmDisableDialog.value -> {
+                ConfirmDialog(
+                    message = "Disable project?",
+                    onConfirm = {
+                        scope.launch {
+                            ProjectService.updateProject(UpdateProjectDTO(
+                                id = projectID,
+                                status = "disabled"
+                            ))
+                            confirmDisableDialog.value = false
+                        }
+                    },
+                    onDismiss = {
+                        confirmDisableDialog.value = false
+                    }
+                )
+            }
+            confirmCompleteDialog.value -> {
+                ConfirmDialog(
+                    message = "Mark project as complete?",
+                    onConfirm = {
+                        scope.launch {
+                            ProjectService.updateProject(UpdateProjectDTO(
+                                id = projectID,
+                                status = "complete"
+                            ))
+                            confirmCompleteDialog.value = false
+                        }
+                    },
+                    onDismiss = {
+                        confirmCompleteDialog.value = false
+                    }
+                )
+            }
+            confirmArchiveDialog.value -> {
+                ConfirmDialog(
+                    message = "Archive project?",
+                    onConfirm = {
+                        scope.launch {
+                            ProjectService.updateProject(UpdateProjectDTO(
+                                id = projectID,
+                                status = "archived"
+                            ))
+                            confirmArchiveDialog.value = false
+                        }
+                    },
+                    onDismiss = {
+                        confirmArchiveDialog.value = false
                     }
                 )
             }
