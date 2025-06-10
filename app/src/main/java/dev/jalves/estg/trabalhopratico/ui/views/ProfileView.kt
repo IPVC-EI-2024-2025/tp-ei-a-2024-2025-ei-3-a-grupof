@@ -57,7 +57,7 @@ fun ProfileView(
     var loading by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    LaunchedEffect(profile?.uid) {
+    LaunchedEffect(profile?.id) {
         profile?.let {
             displayName = it.displayName
             username = it.username

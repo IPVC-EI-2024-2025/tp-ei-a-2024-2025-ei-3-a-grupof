@@ -4,6 +4,7 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import dev.jalves.estg.trabalhopratico.dto.CreateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
+import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
@@ -85,6 +86,33 @@ object ProjectService {
                 Result.success(project.decodeAs<ProjectDTO>())
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to fetch project with ID $projectID", e)
+                Result.failure(e)
+            }
+        }
+
+    suspend fun updateProject(updatedProject: UpdateProjectDTO) =
+        withContext(Dispatchers.IO) {
+            try {
+                Log.d("PROJECT", updatedProject.id)
+
+                supabase.from("projects").update(
+                    buildMap {
+                        updatedProject.name?.let { put("name", it) }
+                        updatedProject.description?.let { put("description", it) }
+                        updatedProject.startDate?.let { put("start_date", it) }
+                        updatedProject.dueDate?.let { put("due_date", it) }
+                        updatedProject.status?.let { put("status", it) }
+                        updatedProject.managerID?.let { put("manager_id", it) }
+                    }
+                ) {
+                    filter {
+                        eq("id", updatedProject.id)
+                    }
+                }
+
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to update project", e)
                 Result.failure(e)
             }
         }

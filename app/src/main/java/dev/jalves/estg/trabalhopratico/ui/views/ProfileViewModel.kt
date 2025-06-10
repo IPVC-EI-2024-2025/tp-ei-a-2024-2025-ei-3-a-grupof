@@ -27,7 +27,7 @@ class ProfileViewModel : ViewModel() {
             if (user == null) return@launch
 
             _profile.value = TaskSyncUser(
-                uid = user.id,
+                id = user.id,
                 email = user.email ?: "",
                 // I don't know why the strings come surrounded in quotes
                 displayName = user.userMetadata!!.getValue("display_name").toString().removeSurrounding("\""),

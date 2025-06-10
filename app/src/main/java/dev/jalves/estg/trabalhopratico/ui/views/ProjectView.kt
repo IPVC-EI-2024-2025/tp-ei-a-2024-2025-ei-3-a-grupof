@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,9 +50,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
+import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UserDTO
+import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
+import kotlinx.coroutines.launch
 
 @Composable
 fun MenuItem(
@@ -82,11 +87,14 @@ fun ProjectView(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val openEditDialog = remember { mutableStateOf(false) }
+    val openManagerSelectionDialog = remember { mutableStateOf(false) }
 
     val projectViewModel: ProjectViewModel = viewModel()
 
     val project by projectViewModel.project.collectAsState()
     val error by projectViewModel.error.collectAsState()
+
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         projectViewModel.loadProject(projectID)
@@ -119,6 +127,7 @@ fun ProjectView(
                             text = { MenuItem(Icons.Rounded.Person, "Edit manager") },
                             onClick = {
                                 expanded = false
+                                openManagerSelectionDialog.value = true
                             }
                         )
 
@@ -190,6 +199,21 @@ fun ProjectView(
             openEditDialog.value -> {
                 EditProjectDialog(
                     onDismiss = { openEditDialog.value = false }
+                )
+            }
+            openManagerSelectionDialog.value -> {
+                UserSelectionDialog(
+                    onDismiss = { openManagerSelectionDialog.value = false },
+                    onClick = { user ->
+                        scope.launch {
+                            ProjectService.updateProject(UpdateProjectDTO(
+                                id = project!!.id,
+                                managerID = user.id
+                            ))
+                            projectViewModel.loadProject(projectID)
+                            openManagerSelectionDialog.value = false
+                        }
+                    }
                 )
             }
         }

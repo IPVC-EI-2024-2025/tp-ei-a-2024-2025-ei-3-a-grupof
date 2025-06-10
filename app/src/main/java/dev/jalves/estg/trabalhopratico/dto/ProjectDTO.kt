@@ -14,6 +14,17 @@ data class CreateProjectDTO (
 )
 
 @Serializable
+data class UpdateProjectDTO (
+    val id: String,
+    val name: String? = null,
+    val description: String? = null,
+    val startDate: String? = null,
+    val dueDate: String? = null,
+    val status: String? = null,
+    val managerID: String? = null,
+)
+
+@Serializable
 data class UserDTO (
     val id: String,
     @SerialName("display_name")
