@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Folder
@@ -89,7 +88,6 @@ fun ProjectView(
     var expanded by remember { mutableStateOf(false) }
     val openEditDialog = remember { mutableStateOf(false) }
     val openManagerSelectionDialog = remember { mutableStateOf(false) }
-    val confirmDisableDialog = remember { mutableStateOf(false) }
     val confirmCompleteDialog = remember { mutableStateOf(false) }
     val confirmArchiveDialog = remember { mutableStateOf(false) }
 
@@ -140,14 +138,6 @@ fun ProjectView(
                             onClick = {
                                 expanded = false
                                 openEditDialog.value = true
-                            }
-                        )
-
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Cancel, "Disable") },
-                            onClick = {
-                                expanded = false
-                                confirmDisableDialog.value = true
                             }
                         )
 
@@ -236,23 +226,6 @@ fun ProjectView(
                             projectViewModel.loadProject(projectID)
                             openManagerSelectionDialog.value = false
                         }
-                    }
-                )
-            }
-            confirmDisableDialog.value -> {
-                ConfirmDialog(
-                    message = "Disable project?",
-                    onConfirm = {
-                        scope.launch {
-                            ProjectService.updateProject(UpdateProjectDTO(
-                                id = projectID,
-                                status = "disabled"
-                            ))
-                            confirmDisableDialog.value = false
-                        }
-                    },
-                    onDismiss = {
-                        confirmDisableDialog.value = false
                     }
                 )
             }
