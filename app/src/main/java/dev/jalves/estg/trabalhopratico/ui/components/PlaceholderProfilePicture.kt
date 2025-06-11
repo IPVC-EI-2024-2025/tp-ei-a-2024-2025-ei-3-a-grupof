@@ -26,7 +26,6 @@ fun PlaceholderProfilePic(
     val initials = remember(name) {
         if (name.isEmpty())
             "?"
-
         else
             name.trim()
                 .split("\\s+".toRegex())
@@ -56,11 +55,19 @@ fun PlaceholderProfilePic(
             .clip(CircleShape)
             .background(backgroundColor)
     ) {
-        Text(
-            text = initials,
-            color = Color.White,
-            fontSize = fontSize,
-            fontWeight = FontWeight.Bold
-        )
+        Box(
+            modifier = Modifier
+                .matchParentSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = initials,
+                color = Color.White,
+                fontSize = fontSize,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                lineHeight = fontSize
+            )
+        }
     }
 }

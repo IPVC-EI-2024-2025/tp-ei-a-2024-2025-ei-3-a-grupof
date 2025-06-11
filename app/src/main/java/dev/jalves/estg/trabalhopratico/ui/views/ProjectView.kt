@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
@@ -40,7 +41,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,10 +51,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UserDTO
 import dev.jalves.estg.trabalhopratico.services.ProjectService
+import dev.jalves.estg.trabalhopratico.services.UserService
+import dev.jalves.estg.trabalhopratico.ui.components.PlaceholderProfilePic
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
@@ -269,12 +277,60 @@ fun ProjectView(
 
 @Composable
 fun ManagedBy(project: ProjectDTO) {
+    var profilePicUrl by remember { mutableStateOf<String?>(null) }
+    var imageLoadFailed by remember { mutableStateOf(false) }
+    var profilePicLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        if(project.manager == null) {
+            imageLoadFailed = true
+            profilePicLoading = false
+        } else {
+            try {
+                profilePicUrl = UserService.getProfilePictureURL(
+                    pictureSize = 128,
+                    userId = project.manager.id
+                )
+            } catch (_: Exception) {
+                imageLoadFailed = true
+                null
+            } finally {
+                profilePicLoading = false
+            }
+        }
+    }
+
     Row(
         modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Icon(Icons.Rounded.Person, contentDescription = "", Modifier.size(48.dp))
+        when {
+            project.manager == null -> {
+                PlaceholderProfilePic(name = "?", size = 48.dp)
+            }
+            profilePicLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+            !imageLoadFailed && profilePicUrl != null -> {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(profilePicUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Profile picture",
+                    modifier = Modifier.size(48.dp).clip(CircleShape),
+                    onError = {
+                        imageLoadFailed = true
+                    }
+                )
+            }
+            else -> {
+                PlaceholderProfilePic(name = project.manager.displayName, size = 48.dp)
+            }
+        }
         Column {
             Text("Managed by", style = MaterialTheme.typography.labelSmall)
             when {
