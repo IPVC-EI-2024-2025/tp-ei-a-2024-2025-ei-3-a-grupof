@@ -29,6 +29,9 @@ import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
 fun UserListView() {
@@ -67,19 +70,20 @@ fun UserListView() {
 
             LazyColumn {
                 items(users.value) { user ->
-                    user.email?.let {
-                        UserListItem(
-                            name = it,
-                            onEditUser = {
-                                selectedUser.value = user
-                                openEditUserDialog.value = true
-                            },
-                            onDeleteUser = {
-                                selectedUser.value = user
-                                openDeleteUserDialog.value = true
-                            }
-                        )
-                    }
+                    val userMetadata = user.userMetadata?.jsonObject
+                    val username = userMetadata?.get("display_name")?.jsonPrimitive?.contentOrNull ?: "No username"
+
+                    UserListItem(
+                        name = username,
+                        onEditUser = {
+                            selectedUser.value = user
+                            openEditUserDialog.value = true
+                        },
+                        onDeleteUser = {
+                            selectedUser.value = user
+                            openDeleteUserDialog.value = true
+                        }
+                    )
                 }
             }
         }

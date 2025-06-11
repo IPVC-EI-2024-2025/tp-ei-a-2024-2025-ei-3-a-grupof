@@ -1,5 +1,6 @@
 package dev.jalves.estg.trabalhopratico.ui.views.dialogs
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -55,20 +56,23 @@ fun EditUserDialog(
                     onValueChange = { username = it },
                     label = { Text("Username") },
                 )
+                if (user == null) {
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Email") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 )
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                )
-                Text("TODO: Add dropdown for role")
+                    }
+                if (user == null) {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Password") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    )
+                }
             }
         },
         onDismissRequest = onDismiss,
@@ -86,13 +90,23 @@ fun EditUserDialog(
                             )
 
                             if (user == null) {
-                                // Create new user
-                                UserCrud.createUser(dto)
-                                Toast.makeText(context, "User created successfully!", Toast.LENGTH_SHORT).show()
+                                val result = UserCrud.createUser(dto)
+
+                                if (result.isSuccess) {
+                                    Toast.makeText(context, "User created!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    val errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"
+                                    Toast.makeText(context, "Error: $errorMessage", Toast.LENGTH_LONG).show()
+                                }
                             } else {
-                                // Update existing user
-                                UserCrud.updateUser(user.id, dto)
-                                Toast.makeText(context, "User updated successfully!", Toast.LENGTH_SHORT).show()
+                                val result = UserCrud.updateUser(user.id, dto)
+
+                                if (result.isSuccess) {
+                                    Toast.makeText(context, "User created!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    val errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"
+                                    Toast.makeText(context, "Error: $errorMessage", Toast.LENGTH_LONG).show()
+                                }
                             }
 
                             onSubmit()
@@ -103,7 +117,9 @@ fun EditUserDialog(
                             isLoading = false
                         }
                     }
-                }
+
+
+        }
             ) {
                 Text("Submit")
             }
