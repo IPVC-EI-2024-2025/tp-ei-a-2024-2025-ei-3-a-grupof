@@ -1,11 +1,18 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Button
@@ -27,10 +34,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil3.compose.AsyncImage
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.services.UserService
@@ -39,6 +48,17 @@ import dev.jalves.estg.trabalhopratico.ui.components.UserRole
 import dev.jalves.estg.trabalhopratico.ui.components.UserRoleBadge
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
+
+suspend fun fetchProfilePictureUrl(userId: String, pictureSize: Int = 100): String? {
+    return try {
+        UserService.getProfilePictureURL(
+            pictureSize = pictureSize,
+            userId = userId
+        )
+    } catch (_: Exception) {
+        null
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,17 +71,49 @@ fun ProfileView(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    var profilePicUrl by remember { mutableStateOf<String?>(null) }
+    var imageLoadFailed by remember { mutableStateOf(false) }
+    var profilePicLoading by remember { mutableStateOf(true) }
+
     val profile by profileViewModel.profile.collectAsState()
     val scope = rememberCoroutineScope()
 
     var loading by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    val coroutineScope = rememberCoroutineScope()
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            coroutineScope.launch {
+                UserService.updateUserProfilePicture(uri, context)
+                try {
+                    UserService.updateUserProfilePicture(it, context)
+                    profilePicUrl = fetchProfilePictureUrl(profile!!.id)
+                    imageLoadFailed = false
+                } catch (_: Exception) {
+                    imageLoadFailed = true
+                } finally {
+                    profilePicLoading = false
+                }
+            }
+        }
+    }
+
     LaunchedEffect(profile?.id) {
         profile?.let {
             displayName = it.displayName
             username = it.username
             email = it.email
+
+            profilePicLoading = true
+            imageLoadFailed = false
+
+            profilePicUrl = fetchProfilePictureUrl(it.id)
+
+            profilePicLoading = false
         }
     }
 
@@ -92,7 +144,35 @@ fun ProfileView(
             if (profile == null) {
                 CircularProgressIndicator()
             } else {
-                PlaceholderProfilePic(name = displayName, size = 100.dp)
+                Box(
+                    modifier = Modifier
+                        .clickable {
+                            imagePickerLauncher.launch("image/*")
+                        }
+                        .size(100.dp)
+                        .clip(CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    when {
+                        profilePicLoading -> {
+                            CircularProgressIndicator()
+                        }
+                        !imageLoadFailed && profilePicUrl != null -> {
+                            AsyncImage(
+                                model = profilePicUrl,
+                                contentDescription = "Profile picture",
+                                modifier = Modifier.size(100.dp),
+                                onError = {
+                                    imageLoadFailed = true
+                                }
+                            )
+                        }
+                        else -> {
+                            PlaceholderProfilePic(name = displayName, size = 100.dp)
+                        }
+                    }
+                }
+
                 UserRoleBadge(UserRole.entries.toTypedArray().random())
 
                 Column(

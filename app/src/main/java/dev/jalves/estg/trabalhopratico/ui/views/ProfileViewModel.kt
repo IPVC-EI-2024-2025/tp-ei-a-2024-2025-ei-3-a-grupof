@@ -31,8 +31,7 @@ class ProfileViewModel : ViewModel() {
                 email = user.email ?: "",
                 // I don't know why the strings come surrounded in quotes
                 displayName = user.userMetadata!!.getValue("display_name").toString().removeSurrounding("\""),
-                username = user.userMetadata!!.getValue("username").toString().removeSurrounding("\""),
-                profilePicture = user.userMetadata!!.getValue("profile_picture").toString().removeSurrounding("\""),
+                username = user.userMetadata!!.getValue("username").toString().removeSurrounding("\"")
             )
         }
     }
