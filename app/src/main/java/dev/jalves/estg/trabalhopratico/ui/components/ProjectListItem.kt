@@ -28,11 +28,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.services.UserService
 
@@ -52,7 +55,7 @@ fun ProjectListItem(
         } else {
             try {
                 profilePicUrl = UserService.getProfilePictureURL(
-                    pictureSize = 16,
+                    pictureSize = 32,
                     userId = project.managerID
                 )
             } catch (_: Exception) {
@@ -104,7 +107,10 @@ fun ProjectListItem(
                         }
                         !imageLoadFailed && profilePicUrl != null -> {
                             AsyncImage(
-                                model = profilePicUrl,
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(profilePicUrl)
+                                    .crossfade(true)
+                                    .build(),
                                 contentDescription = "Profile picture",
                                 modifier = Modifier.size(16.dp).clip(CircleShape),
                                 onError = {

@@ -40,6 +40,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.services.UserService
@@ -159,7 +161,10 @@ fun ProfileView(
                         }
                         !imageLoadFailed && profilePicUrl != null -> {
                             AsyncImage(
-                                model = profilePicUrl,
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(profilePicUrl)
+                                    .crossfade(true)
+                                    .build(),
                                 contentDescription = "Profile picture",
                                 modifier = Modifier.size(100.dp),
                                 onError = {
