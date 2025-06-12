@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,11 +16,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,12 +37,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
 import dev.jalves.estg.trabalhopratico.services.AuthService
+import dev.jalves.estg.trabalhopratico.ui.components.FormField
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterView(
     onReturn: () -> Unit,
@@ -51,10 +58,22 @@ fun RegisterView(
 
     var usernameChanged by remember { mutableStateOf(false) }
 
+    var usernameError by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var isLoading by remember { mutableStateOf(false) }
+
+    val isEmailValid = email.isBlank() || Patterns.EMAIL_ADDRESS.matcher(email).matches()
+
+    val isFormValid = name.isNotBlank() &&
+            username.isNotBlank() &&
+            email.isNotBlank() &&
+            isEmailValid &&
+            password.isNotBlank()
 
     LaunchedEffect(name) {
         if (!usernameChanged && name.isNotEmpty()) {
@@ -64,109 +83,148 @@ fun RegisterView(
         }
     }
 
+    LaunchedEffect(username) {
+        if (usernameError != null) usernameError = null
+    }
+
+    LaunchedEffect(email) {
+        if (emailError != null) emailError = null
+        if (email.isNotBlank() && !isEmailValid) {
+            emailError = "Please enter a valid email address"
+        }
+    }
+
+    LaunchedEffect(password) {
+        if (passwordError != null) passwordError = null
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = { },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onReturn
+                    ) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Return")
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier.padding(innerPadding)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            IconButton(
-                onClick = onReturn
-            ) {
-                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Return")
-            }
+            Text(
+                "Sign up",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            FormField(
+                value = name,
+                onValueChange = { name = it },
+                label = "Display name"
+            )
+
+            FormField(
+                value = username,
+                onValueChange = { newUsername ->
+                    val filteredUsername = newUsername.replace(" ", "")
+                    username = filteredUsername
+                    usernameChanged = true
+                },
+                label = "Username",
+                isError = usernameError != null,
+                errorMessage = usernameError
+            )
+
+            FormField(
+                value = email,
+                onValueChange = { email = it },
+                label = "Email",
+                keyboardType = KeyboardType.Email,
+                isError = emailError != null,
+                errorMessage = emailError
+            )
+
+            FormField(
+                value = password,
+                onValueChange = { password = it },
+                label = "Password",
+                keyboardType = KeyboardType.Password,
+                isPassword = true,
+                isError = passwordError != null,
+                errorMessage = passwordError
+            )
 
             Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    "Sign up",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Button(
+                    modifier = Modifier.height(64.dp).padding(
+                        horizontal = 16.dp,
+                        vertical = 8.dp
+                    ),
+                    enabled = !isLoading && isFormValid,
+                    onClick = {
+                        isLoading = true
+                        usernameError = null
+                        emailError = null
+                        passwordError = null
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Display name") }
-                )
+                        scope.launch {
+                            val result = AuthService.signUp(CreateUserDTO(
+                                name, email, username, password
+                            ))
 
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { newUsername ->
-                        username = newUsername
-                        usernameChanged = true
-                    },
-                    label = { Text("Username") }
-                )
-
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                )
-
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                )
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Button(
-                        modifier = Modifier.height(64.dp).padding(
-                            horizontal = 16.dp,
-                            vertical = 8.dp
-                        ),
-                        onClick = {
-                            // TODO: improve
-                            if(isLoading || name.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty())
-                                return@Button
-
-                            isLoading = true
-
-                            scope.launch {
-                                try {
-                                    AuthService.signUp(CreateUserDTO(
-                                        name, email, username, password
-                                    ))
-
+                            result.fold(
+                                onSuccess = {
                                     Toast.makeText(
                                         context,
                                         "Account created successfully!",
                                         Toast.LENGTH_SHORT
                                     ).show()
-
                                     onSuccessfulRegister()
-                                } catch (e: Exception) {
-                                    Log.e("SignUp", "Failed to sign up", e)
-                                    Toast.makeText(
-                                        context,
-                                        e.message,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } finally {
-                                    isLoading = false
+                                },
+                                onFailure = { exception ->
+                                    Log.e("SignUp", "Failed to sign up", exception)
+
+                                    when (exception.message) {
+                                        "duplicate_email" -> {
+                                            emailError = "An account with this email already exists"
+                                        }
+                                        "duplicate_username" -> {
+                                            usernameError = "This username is already taken"
+                                        }
+                                        else -> {
+                                            Toast.makeText(
+                                                context,
+                                                "Registration failed: ${exception.message ?: "Unknown error"}",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }
                                 }
-                            }
-                        },
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
                             )
-                        } else {
-                            Text("Submit")
+
+                            isLoading = false
                         }
+                    },
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Submit")
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +36,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.services.AuthService
+import dev.jalves.estg.trabalhopratico.ui.components.FormField
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,10 +48,24 @@ fun SignIn(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    var emailError by remember { mutableStateOf<String?>(null) }
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    val isEmailValid = email.isBlank() || Patterns.EMAIL_ADDRESS.matcher(email).matches()
     var isLoading by remember { mutableStateOf(false) }
+
+    val isFormValid = email.isNotBlank() &&
+            isEmailValid &&
+            password.isNotBlank()
+
+    LaunchedEffect(email) {
+        if (emailError != null) emailError = null
+        if (email.isNotBlank() && !isEmailValid) {
+            emailError = "Please enter a valid email address"
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -71,10 +88,13 @@ fun SignIn(
                 modifier = Modifier.size(192.dp)
             )
 
-            OutlinedTextField(
+            FormField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") }
+                label = "Email",
+                keyboardType = KeyboardType.Email,
+                isError = emailError != null,
+                errorMessage = emailError
             )
 
             OutlinedTextField(
@@ -94,6 +114,7 @@ fun SignIn(
                         horizontal = 16.dp,
                         vertical = 8.dp
                     ),
+                    enabled = !isLoading && isFormValid,
                     onClick = {
                         if(isLoading || email.isEmpty() || password.isEmpty())
                             return@Button
