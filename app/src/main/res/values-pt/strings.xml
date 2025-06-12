@@ -26,4 +26,8 @@
     <string name="username">Utilizador</string>
     <string name="password">Palavra-passe</string>
     <string name="submit">Submeter</string>
+    <string name="email">Email</string>
+    <string name="system">Sistema</string>
+    <string name="light">Claro</string>
+    <string name="dark">Escuro</string>
 </resources>

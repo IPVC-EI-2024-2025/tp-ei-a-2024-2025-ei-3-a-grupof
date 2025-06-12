@@ -13,11 +13,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.SignOutScope
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
+import dev.jalves.estg.trabalhopratico.R
 
 @Composable
 fun MenuView(rootNavController: NavController) {
@@ -25,7 +27,7 @@ fun MenuView(rootNavController: NavController) {
 
     Column {
         ListItem(
-            headlineContent = { Text("Profile") },
+            headlineContent = { Text(stringResource(R.string.profile)) },
             leadingContent = {
                 Icon(
                     Icons.Rounded.Person,
@@ -38,7 +40,7 @@ fun MenuView(rootNavController: NavController) {
         )
 
         ListItem(
-            headlineContent = { Text("Notifications") },
+            headlineContent = { Text(stringResource(R.string.notifications)) },
             leadingContent = {
                 Icon(
                     Icons.Rounded.Notifications,
@@ -51,7 +53,7 @@ fun MenuView(rootNavController: NavController) {
         )
 
         ListItem(
-            headlineContent = { Text("Settings") },
+            headlineContent = { Text(stringResource(R.string.settings)) },
             leadingContent = {
                 Icon(
                     Icons.Rounded.Settings,
@@ -64,7 +66,7 @@ fun MenuView(rootNavController: NavController) {
         )
 
         ListItem(
-            headlineContent = { Text("Log out") },
+            headlineContent = { Text(stringResource(R.string.log_out)) },
             leadingContent = {
                 Icon(
                     Icons.AutoMirrored.Rounded.Logout,
