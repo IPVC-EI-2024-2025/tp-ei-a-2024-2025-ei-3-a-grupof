@@ -1,5 +1,6 @@
 package dev.jalves.estg.trabalhopratico
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,6 +33,20 @@ import dev.jalves.estg.trabalhopratico.ui.views.admin.AdminMain
 import io.github.jan.supabase.auth.auth
 
 class MainActivity : ComponentActivity() {
+
+    private fun isFirstTimeUser(): Boolean {
+        val sharedPref = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        return sharedPref.getBoolean("is_first_time", true)
+    }
+
+    private fun setFirstTimeComplete() {
+        val sharedPref = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putBoolean("is_first_time", false)
+            apply()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -56,10 +71,18 @@ class MainActivity : ComponentActivity() {
                             LaunchedEffect(Unit) {
                                 supabase.auth.awaitInitialization()
 
-                                navController.navigate(
-                                    if (supabase.auth.currentUserOrNull() == null)
-                                    "login" else "adminMain"
-                                )
+                                if (isFirstTimeUser()) {
+                                    navController.navigate("intro") {
+                                        popUpTo(0)
+                                    }
+                                } else {
+                                    navController.navigate(
+                                        if (supabase.auth.currentUserOrNull() == null)
+                                            "login" else "adminMain"
+                                    ) {
+                                        popUpTo(0)
+                                    }
+                                }
                             }
 
                             CircularProgressIndicator()
@@ -69,6 +92,7 @@ class MainActivity : ComponentActivity() {
                     composable(route = "intro") {
                         IntroView(
                             onContinue = {
+                                setFirstTimeComplete()
                                 navController.navigate("login") {
                                     popUpTo(0)
                                 }
