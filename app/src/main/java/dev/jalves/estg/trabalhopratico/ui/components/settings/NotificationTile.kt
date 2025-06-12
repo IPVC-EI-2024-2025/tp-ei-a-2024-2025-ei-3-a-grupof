@@ -8,6 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.ui.components.SettingsItem
 
 @Composable
@@ -19,7 +21,7 @@ fun NotificationsTile(
 
     SettingsItem(
         icon = Icons.Rounded.Notifications,
-        title = "Notifications",
+        title = stringResource(R.string.notifications),
         onClick = {
             val newValue = !notificationsEnabled
             notificationsEnabled = newValue

@@ -10,6 +10,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.ui.components.Dropdown
 import dev.jalves.estg.trabalhopratico.ui.components.SettingsItem
 import dev.jalves.estg.trabalhopratico.ui.theme.LocalThemeManager
@@ -22,18 +24,33 @@ fun ThemeTile() {
 
     var dropdownExpanded by remember { mutableStateOf(false) }
 
+    val themeOptions = listOf("System", "Light", "Dark")
+    val displayOptions = listOf(
+        stringResource(R.string.system),
+        stringResource(R.string.light),
+        stringResource(R.string.dark)
+    )
+
+    val currentThemeDisplay = when (currentTheme) {
+        "Light" -> stringResource(R.string.light)
+        "Dark" -> stringResource(R.string.dark)
+        else -> stringResource(R.string.system)
+    }
+
     SettingsItem(
         icon = Icons.Rounded.DarkMode,
-        title = "Theme",
+        title = stringResource(R.string.theme),
         onClick = { dropdownExpanded = true }
     ) {
         Dropdown(
-            text = currentTheme,
+            text = currentThemeDisplay,
             expanded = dropdownExpanded,
             onDismiss = { dropdownExpanded = false },
-            options = listOf("System", "Light", "Dark"),
-            onOptionSelected = { option ->
-                themeManager.setThemeMode(option)
+            options = displayOptions,
+            onOptionSelected = { selectedLabel ->
+                val selectedIndex = displayOptions.indexOf(selectedLabel)
+                val selectedInternal = themeOptions.getOrNull(selectedIndex) ?: "System"
+                themeManager.setThemeMode(selectedInternal)
                 dropdownExpanded = false
             }
         )

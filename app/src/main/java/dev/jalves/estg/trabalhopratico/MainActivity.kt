@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -31,16 +32,29 @@ import dev.jalves.estg.trabalhopratico.ui.views.SettingsView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
 import dev.jalves.estg.trabalhopratico.ui.views.admin.AdminMain
 import io.github.jan.supabase.auth.auth
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        val prefs = newBase.getSharedPreferences("settings", MODE_PRIVATE)
+        val langCode = prefs.getString("language", "en") ?: "en"
+        val locale = Locale(langCode)
+        Locale.setDefault(locale)
+
+        val config = Configuration(newBase.resources.configuration)
+        config.setLocale(locale)
+
+        val localizedContext = newBase.createConfigurationContext(config)
+        super.attachBaseContext(localizedContext)
+    }
 
     private fun isFirstTimeUser(): Boolean {
-        val sharedPref = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences("app_prefs", MODE_PRIVATE)
         return sharedPref.getBoolean("is_first_time", true)
     }
 
     private fun setFirstTimeComplete() {
-        val sharedPref = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences("app_prefs", MODE_PRIVATE)
         with(sharedPref.edit()) {
             putBoolean("is_first_time", false)
             apply()

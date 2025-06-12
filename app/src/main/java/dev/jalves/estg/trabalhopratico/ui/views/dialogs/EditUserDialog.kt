@@ -15,11 +15,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.UserCrud
+import dev.jalves.estg.trabalhopratico.R
 import kotlinx.coroutines.launch
 
 @Composable
@@ -40,25 +42,25 @@ fun EditUserDialog(
 
     AlertDialog(
         title = {
-            Text(text = if (user != null) "Edit user" else "Add user")
+            Text(text = if (user != null) stringResource(R.string.edit_user) else stringResource(R.string.add_user))
         },
         text = {
             Column {
                 OutlinedTextField(
                     value = displayName,
                     onValueChange = { displayName = it },
-                    label = { Text("Display name") },
+                    label = { Text(stringResource(R.string.name_setting)) },
                 )
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
-                    label = { Text("Username") },
+                    label = { Text(stringResource(R.string.username)) },
                 )
                 if (user == null) {
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Email") },
+                    label = { Text(stringResource(R.string.email)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 )
                     }
@@ -66,7 +68,7 @@ fun EditUserDialog(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password") },
+                        label = { Text(stringResource(R.string.password)) },
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     )
@@ -119,12 +121,12 @@ fun EditUserDialog(
 
         }
             ) {
-                Text("Submit")
+                Text(stringResource(R.string.submit))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

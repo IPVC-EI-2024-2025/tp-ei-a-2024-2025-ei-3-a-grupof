@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.ui.components.settings.ThemeTile
 import dev.jalves.estg.trabalhopratico.ui.components.settings.NotificationsTile
 import dev.jalves.estg.trabalhopratico.ui.components.settings.LanguageTile
@@ -32,7 +34,7 @@ fun SettingsView(
             TopAppBar(
                 title = {
                     Text(
-                        "Settings",
+                        stringResource(R.string.settings),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Medium
                     )

@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.UserService
+import dev.jalves.estg.trabalhopratico.R
 
 @Composable
 fun ProjectListItem(
@@ -80,9 +82,9 @@ fun ProjectListItem(
                         size = 24.dp
                     )
                     Text("•")
-                    Text("? Tasks")
+                    Text("? " + stringResource(R.string.tasks))
                     Text("•")
-                    Text("Due ${project.dueDate}")
+                    Text("${stringResource(R.string.due)} ${project.dueDate}")
                 }
             }
         }

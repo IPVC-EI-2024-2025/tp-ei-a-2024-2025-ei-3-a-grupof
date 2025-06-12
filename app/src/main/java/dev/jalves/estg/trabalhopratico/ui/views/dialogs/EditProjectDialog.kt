@@ -13,6 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.dto.CreateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
@@ -28,7 +30,7 @@ fun EditProjectDialog(
 ) {
     val scope = rememberCoroutineScope()
 
-    var title = "New project"
+    var title = stringResource(R.string.new_project)
 
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -36,7 +38,7 @@ fun EditProjectDialog(
     var dueDate by rememberSaveable { mutableStateOf("") }
 
     if (project != null) {
-        title = "Edit project"
+        title = stringResource(R.string.edit_project)
         name = project.name
         description = project.description
         startDate = project.startDate
@@ -52,20 +54,20 @@ fun EditProjectDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(R.string.name)) },
                 )
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.description)) },
                 )
                 DatePickerInput(
-                    label = "Start date",
+                    label = stringResource(R.string.start_date),
                     selectedDate = startDate,
                     onDateSelected = { it -> startDate = it }
                 )
                 DatePickerInput(
-                    label = "Due date",
+                    label = stringResource(R.string.due_date),
                     selectedDate = dueDate,
                     onDateSelected = { it -> dueDate = it }
                 )
@@ -92,7 +94,7 @@ fun EditProjectDialog(
                     }
                 }
             ) {
-                Text("Submit")
+                Text(stringResource(R.string.submit))
             }
         },
         dismissButton = {
@@ -101,7 +103,7 @@ fun EditProjectDialog(
                     onDismiss()
                 }
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

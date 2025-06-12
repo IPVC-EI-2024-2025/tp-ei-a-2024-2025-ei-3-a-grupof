@@ -24,8 +24,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.UserService
 import dev.jalves.estg.trabalhopratico.ui.components.SimpleUserListItem
@@ -88,7 +90,7 @@ fun UserSelectionDialog(
                     TextField(
                         value = employeeFilter,
                         onValueChange = { onSearchInputChanged(it) },
-                        label = { Text("Search employee") }
+                        label = { Text(stringResource(R.string.search_employee)) }
                     )
                 }
 

@@ -31,9 +31,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
@@ -116,7 +118,7 @@ fun ProfileView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {Text("Profile")},
+                title = {Text(stringResource(R.string.profile))},
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
@@ -159,7 +161,7 @@ fun ProfileView(
                     OutlinedTextField(
                         value = displayName,
                         onValueChange = { displayName = it },
-                        label = { Text("Display name") },
+                        label = { Text(stringResource(R.string.name_setting)) },
                         singleLine = true,
                         modifier = Modifier
                             .widthIn(max = 280.dp)
@@ -168,7 +170,7 @@ fun ProfileView(
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
-                        label = { Text("Username") },
+                        label = { Text(stringResource(R.string.username)) },
                         singleLine = true,
                         modifier = Modifier
                             .widthIn(max = 280.dp)
@@ -177,7 +179,7 @@ fun ProfileView(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Email") },
+                        label = { Text(stringResource(R.string.email)) },
                         singleLine = true,
                         modifier = Modifier
                             .widthIn(max = 280.dp)
@@ -186,7 +188,7 @@ fun ProfileView(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password") },
+                        label = { Text(stringResource(R.string.password)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier
@@ -225,7 +227,7 @@ fun ProfileView(
                             }
                         }
                     ) {
-                        if (loading) CircularProgressIndicator() else Text("Submit")
+                        if (loading) CircularProgressIndicator() else Text(stringResource(R.string.submit))
                     }
                 }
             }

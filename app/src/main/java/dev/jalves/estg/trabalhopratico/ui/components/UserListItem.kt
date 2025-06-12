@@ -13,7 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
 import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Icon
@@ -29,11 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.objects.User
+import dev.jalves.estg.trabalhopratico.R
 
 @Composable
 fun UserAction(
@@ -66,7 +68,7 @@ fun UserAction(
 fun UserListItem(
     user: User,
     onEditUser: () -> Unit,
-    onDeleteUser: () -> Unit,
+    onDisableUser: () -> Unit,
 ) {
     var opened by remember { mutableStateOf(false) }
 
@@ -110,17 +112,17 @@ fun UserListItem(
             ) {
                 UserAction(
                     icon = Icons.Rounded.Edit,
-                    name = "Edit",
+                    name = stringResource(R.string.edit),
                     onClick = onEditUser
                 )
                 UserAction(
-                    icon = Icons.Rounded.Delete,
-                    name = "Delete",
-                    onClick = onDeleteUser
+                    icon = Icons.Rounded.Cancel,
+                    name = stringResource(R.string.disable),
+                    onClick = onDisableUser
                 )
                 UserAction(
                     icon = Icons.Rounded.Download,
-                    name = "Export stats",
+                    name = stringResource(R.string.export_stats),
                     onClick = {}
                 )
             }

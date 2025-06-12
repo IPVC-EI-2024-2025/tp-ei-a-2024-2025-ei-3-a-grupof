@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,7 +25,7 @@ fun UserRoleBadge(role: Role) {
             .padding(horizontal = 14.dp, vertical = 6.dp)
     ) {
         Text(
-            role.description, style = TextStyle(
+            stringResource(role.descriptionId), style = TextStyle(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
                 color = Color(

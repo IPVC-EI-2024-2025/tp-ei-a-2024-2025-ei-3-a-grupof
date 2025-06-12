@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,7 @@ import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileViewModel
 import io.github.jan.supabase.auth.auth
+import dev.jalves.estg.trabalhopratico.R
 
 @Composable
 fun AdminHome(
@@ -71,10 +74,13 @@ fun AdminHome(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Text(
-                // todo: add loading
-                if (profile == null) "Hello Asdrúbal" else "Hello " + profile!!.displayName,
-                style = MaterialTheme.typography.headlineLarge)
+            when {
+                profile == null -> LinearProgressIndicator()
+                else -> Text(
+                    "${stringResource(R.string.hello)} ${profile!!.displayName}",
+                    style = MaterialTheme.typography.headlineLarge
+                )
+            }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -97,7 +103,7 @@ fun AdminHome(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                "Your projects", style = TextStyle(
+                stringResource(R.string.your_projects), style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -147,7 +153,7 @@ fun AdminHome(
                                     rootNavController.navigate("all_projects")
                                 }
                             ) {
-                                Text("See all (${projects.size}+)")
+                                Text("${stringResource(R.string.see_all)} (${projects.size}+)")
                             }
                         }
                     } else {

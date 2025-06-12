@@ -3,6 +3,7 @@ package dev.jalves.estg.trabalhopratico.objects
 import androidx.compose.ui.graphics.Color
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.jalves.estg.trabalhopratico.R
 
 @Serializable
 data class User (
@@ -17,17 +18,17 @@ data class User (
 @Serializable
 enum class Role(
     val value: String,
-    val description: String,
+    val descriptionId: Int,
     val color: Color
 ) {
     @SerialName("Admin")
-    ADMIN("Admin", "Administrator", Color.hsl(40f, 0.75f, 0.75f)),
+    ADMIN("Admin", R.string.role_admin, Color.hsl(40f, 0.75f, 0.75f)),
 
     @SerialName("Manager")
-    MANAGER("Manager", "Manager", Color.hsl(280f, 0.75f, 0.75f)),
+    MANAGER("Manager", R.string.role_manager, Color.hsl(280f, 0.75f, 0.75f)),
 
     @SerialName("Employee")
-    EMPLOYEE("Employee", "Employee", Color.hsl(119f, 0.75f, 0.75f));
+    EMPLOYEE("Employee", R.string.role_employee, Color.hsl(119f, 0.75f, 0.75f));
 
     companion object {
         fun fromString(value: String): Role? {
