@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
+import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
@@ -25,20 +26,27 @@ object UserService {
 
                 Result.success(result)
             } catch (e: Exception) {
-                Log.e("UserCrud", "Failed to retrieve users", e)
+                Log.e("UserService", "Failed to retrieve users", e)
                 Result.failure(e)
             }
         }
 
     suspend fun updateUserInfo(updatedUser: UpdateUserDTO) {
         supabase.auth
-            .updateUser{
-                if(updatedUser.email != null) email = updatedUser.email
-                if(updatedUser.password != null) password = updatedUser.password
+            .updateUser {
+                if (updatedUser.email != null) email = updatedUser.email
+                if (updatedUser.password != null) password = updatedUser.password
                 data {
-                    if(updatedUser.displayName != null) put("display_name", updatedUser.displayName)
-                    if(updatedUser.username != null) put("username", updatedUser.username)
-                    if(updatedUser.profilePicture != null) put("profile_picture", updatedUser.profilePicture)
+                    if (updatedUser.displayName != null) put(
+                        "display_name",
+                        updatedUser.displayName
+                    )
+                    if (updatedUser.username != null) put("username", updatedUser.username)
+                    if (updatedUser.profilePicture != null) put(
+                        "profile_picture",
+                        updatedUser.profilePicture
+                    )
+                    if (updatedUser.role != null) put("role", updatedUser.role.value)
                 }
             }
     }
@@ -80,5 +88,24 @@ object UserService {
                 ilike("display_name", "%$query%")
             }
         }.decodeList<User>()
+    }
+
+    suspend fun fetchUserById(id: String): User {
+        return supabase.from("users").select {
+            filter {
+                eq("id", id)
+            }
+        }.decodeSingle()
+    }
+
+    suspend fun getCurrentUserRole(): Role {
+        return try {
+            val currentUser = supabase.auth.currentUserOrNull()
+            val roleString = currentUser?.userMetadata?.get("role")?.toString()?.replace("\"", "")
+            roleString?.let { Role.fromString(it) } ?: Role.EMPLOYEE
+        } catch (e: Exception) {
+            Log.e("UserService", "Failed to get current user role", e)
+            Role.EMPLOYEE
+        }
     }
 }

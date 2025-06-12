@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.jalves.estg.trabalhopratico.objects.Task
+import dev.jalves.estg.trabalhopratico.objects.TaskStatus
 
 @Composable
 fun TaskListItem(
@@ -86,38 +87,23 @@ fun TaskListItem(
 
 @Composable
 fun TaskStatusBadge(
-    status: String,
+    status: TaskStatus,
     modifier: Modifier = Modifier
 ) {
-    val (backgroundColor, textColor) = when (status.lowercase()) {
-        "in progress" -> Pair(
-            Color(0xFF4CAF50).copy(alpha = 0.1f),
-            Color(0xFF2E7D32)
-        )
-        "complete", "completed" -> Pair(
-            Color(0xFF4CAF50).copy(alpha = 0.1f),
-            Color(0xFF2E7D32)
-        )
-        else -> Pair(
-            MaterialTheme.colorScheme.surfaceVariant,
-            MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-
     Box(
         modifier = modifier
             .background(
-                color = backgroundColor,
+                color = status.color,
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
         Text(
-            text = status,
+            text = status.toString(),
             style = TextStyle(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
-                color = textColor
+                color = Color.hsl(122f, 0.46f, 0.33f)
             )
         )
     }

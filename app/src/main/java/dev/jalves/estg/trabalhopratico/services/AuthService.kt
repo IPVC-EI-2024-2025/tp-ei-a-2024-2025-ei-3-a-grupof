@@ -63,6 +63,7 @@ object AuthService {
                         put("username", newUser.username)
                         put("display_name", newUser.displayName)
                         put("profile_picture", "")
+                        put("role", newUser.role.value)
                     }
                 }
 

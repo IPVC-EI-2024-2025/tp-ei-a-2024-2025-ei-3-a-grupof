@@ -93,7 +93,7 @@ fun UserListItem(
                 ),
                 modifier = Modifier.weight(1f)
             )
-            UserRoleBadge(UserRole.entries.toTypedArray().random())
+            UserRoleBadge(user.role)
             Icon(
                 if (opened) Icons.Rounded.ArrowDropDown else Icons.AutoMirrored.Rounded.ArrowRight,
                 contentDescription = if (opened) "Collapse details" else "Expand details",

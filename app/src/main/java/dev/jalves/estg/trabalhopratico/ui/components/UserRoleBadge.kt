@@ -14,18 +14,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
-
-// Temporary
-// Should be replaced with database roles
-enum class UserRole(val color: Color, val description: String) {
-    Employee(Color.hsl(119f, 0.75f, 0.75f), "Employee"),
-    Admin(Color.hsl(40f, 0.75f, 0.75f), "Admin"),
-    Manager(Color.hsl(280f, 0.75f, 0.75f), "Manager")
-}
-
+import dev.jalves.estg.trabalhopratico.objects.Role
 
 @Composable
-fun UserRoleBadge(role: UserRole) {
+fun UserRoleBadge(role: Role) {
     Box(
         modifier = Modifier
             .background(color = role.color, shape = RoundedCornerShape(16.dp))

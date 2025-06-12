@@ -35,10 +35,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
+import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.services.UserService
 import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
-import dev.jalves.estg.trabalhopratico.ui.components.UserRole
 import dev.jalves.estg.trabalhopratico.ui.components.UserRoleBadge
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
@@ -64,6 +64,7 @@ fun ProfileView(
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var userRole by remember { mutableStateOf<Role?>(null) }
 
     var profilePicUrl by remember { mutableStateOf<String?>(null) }
     var imageLoadFailed by remember { mutableStateOf(false) }
@@ -101,6 +102,7 @@ fun ProfileView(
             displayName = it.displayName
             username = it.username
             email = it.email
+            userRole = UserService.getCurrentUserRole()
 
             profilePicLoading = true
             imageLoadFailed = false
@@ -147,7 +149,9 @@ fun ProfileView(
                     externalProfilePicUrl = profilePicUrl,
                 )
 
-                UserRoleBadge(UserRole.entries.toTypedArray().random())
+                userRole?.let { role ->
+                    UserRoleBadge(role)
+                }
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally

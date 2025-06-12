@@ -24,6 +24,7 @@ object UserCrud {
                         put("username", user.username)
                         put("display_name", user.displayName)
                         put("profile_picture", "")
+                        put("role", user.role.value)
                     }
                 }
                 Result.success(Unit)
@@ -33,25 +34,23 @@ object UserCrud {
             }
         }
 
-
-    suspend fun updateUser(id:String, user: CreateUserDTO): Result<Unit> =
+    suspend fun updateUser(id: String, user: CreateUserDTO): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
                 SupabaseAdminService.initAdminSession()
 
-                supabase.auth.admin.updateUserById(uid =id) {
+                supabase.auth.admin.updateUserById(uid = id) {
                     userMetadata = buildJsonObject {
                         put("username", user.username)
                         put("display_name", user.displayName)
                         put("profile_picture", "")
-
+                        put("role", user.role.value)
                     }
-
                 }
 
                 Result.success(Unit)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to create user", e)
+                Log.e(TAG, "Failed to update user", e)
                 Result.failure(e)
             }
         }
@@ -66,9 +65,8 @@ object UserCrud {
                         put("Status", "Disabled")
                     }
                 }
-            }catch (e: Exception){
-                Log.e(TAG, "Failed to create user", e)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to disable user", e)
             }
-
         }
 }
