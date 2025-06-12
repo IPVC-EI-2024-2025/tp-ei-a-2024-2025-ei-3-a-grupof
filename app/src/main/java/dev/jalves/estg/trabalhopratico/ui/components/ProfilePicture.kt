@@ -36,24 +36,26 @@ suspend fun fetchProfilePictureUrl(userId: String, pictureSize: Int = 100): Stri
 
 @Composable
 fun ProfilePicture(
-    user: User,
+    user: User?,
     size: Dp = 64.dp,
     onClick: (() -> Unit)? = null,
     showLoadingIndicator: Boolean = true,
     modifier: Modifier = Modifier,
     externalProfilePicUrl: String? = null,
 ) {
-    var profilePicUrl by remember(user.id) { mutableStateOf<String?>(null) }
-    var imageLoadFailed by remember(user.id) { mutableStateOf(false) }
-    var isLoading by remember(user.id) { mutableStateOf(true) }
+    var profilePicUrl by remember(user) { mutableStateOf<String?>(null) }
+    var imageLoadFailed by remember(user) { mutableStateOf(false) }
+    var isLoading by remember(user) { mutableStateOf(false) }
 
-    LaunchedEffect(user.id) {
-        if (user.id.isNotEmpty()) {
+    LaunchedEffect(user) {
+        if (user == null) {
+            profilePicUrl = null
+            isLoading = false
+            imageLoadFailed = true
+        } else {
             isLoading = true
             imageLoadFailed = false
-
             profilePicUrl = fetchProfilePictureUrl(user.id, size.value.toInt())
-
             isLoading = false
         }
     }
@@ -66,26 +68,16 @@ fun ProfilePicture(
         }
     }
 
-    val boxModifier = modifier
-        .size(size)
-        .clip(CircleShape)
-        .then(
-            if (onClick != null) {
-                Modifier.clickable { onClick() }
-            } else {
-                Modifier
-            }
-        )
-
     Box(
         contentAlignment = Alignment.Center,
-        modifier = boxModifier
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape)
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
     ) {
         when {
             isLoading && showLoadingIndicator -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(size * 0.5f)
-                )
+                CircularProgressIndicator(modifier = Modifier.size(size * 0.5f))
             }
             !imageLoadFailed && profilePicUrl != null -> {
                 AsyncImage(
@@ -93,20 +85,13 @@ fun ProfilePicture(
                         .data(profilePicUrl)
                         .crossfade(true)
                         .build(),
-                    contentDescription = "Profile picture for ${user.displayName}",
-                    modifier = Modifier
-                        .size(size)
-                        .clip(CircleShape),
-                    onError = {
-                        imageLoadFailed = true
-                    }
+                    contentDescription = "Profile picture for ${user?.displayName ?: "Unknown"}",
+                    modifier = Modifier.size(size).clip(CircleShape),
+                    onError = { imageLoadFailed = true }
                 )
             }
             else -> {
-                PlaceholderProfilePic(
-                    name = user.displayName,
-                    size = size
-                )
+                PlaceholderProfilePic(name = user?.displayName ?: "", size = size)
             }
         }
     }
