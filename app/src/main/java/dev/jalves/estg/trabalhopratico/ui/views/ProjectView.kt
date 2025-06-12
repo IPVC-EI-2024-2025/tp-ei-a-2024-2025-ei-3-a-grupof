@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -65,6 +66,7 @@ import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
 import kotlinx.coroutines.launch
+import dev.jalves.estg.trabalhopratico.R
 
 @Composable
 fun MenuItem(
@@ -113,7 +115,7 @@ fun ProjectView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {Text("Project")},
+                title = {Text(stringResource(R.string.project))},
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
@@ -134,7 +136,7 @@ fun ProjectView(
                         onDismissRequest = { expanded = false }
                     ) {
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Person, "Edit manager") },
+                            text = { MenuItem(Icons.Rounded.Person, stringResource(R.string.edit_manager)) },
                             onClick = {
                                 expanded = false
                                 openManagerSelectionDialog.value = true
@@ -142,7 +144,7 @@ fun ProjectView(
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Edit, "Edit") },
+                            text = { MenuItem(Icons.Rounded.Edit, stringResource(R.string.edit)) },
                             onClick = {
                                 expanded = false
                                 openEditDialog.value = true
@@ -150,14 +152,14 @@ fun ProjectView(
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.TableChart, "Export stats") },
+                            text = { MenuItem(Icons.Rounded.TableChart, stringResource(R.string.export_stats)) },
                             onClick = {
                                 expanded = false
                             }
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Check, "Mark complete") },
+                            text = { MenuItem(Icons.Rounded.Check, stringResource(R.string.mark_complete)) },
                             onClick = {
                                 expanded = false
                                 confirmCompleteDialog.value = true
@@ -165,7 +167,7 @@ fun ProjectView(
                         )
 
                         DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Folder, "Archive project") },
+                            text = { MenuItem(Icons.Rounded.Folder, stringResource(R.string.archive_project)) },
                             onClick = {
                                 expanded = false
                                 confirmArchiveDialog.value = true
@@ -198,11 +200,11 @@ fun ProjectView(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            "Created: " + project!!.startDate,
+                            "${stringResource(R.string.created)}: ${project!!.startDate}",
                             style = MaterialTheme.typography.bodySmall
                         )
                         Text(
-                            "Due: " + project!!.dueDate,
+                            "${stringResource(R.string.due)}: ${project!!.dueDate}",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -332,10 +334,10 @@ fun ManagedBy(project: ProjectDTO) {
             }
         }
         Column {
-            Text("Managed by", style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.managed_by), style = MaterialTheme.typography.labelSmall)
             when {
                 project.manager == null -> {
-                    Text("No manager assigned", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.no_manager), style = MaterialTheme.typography.labelLarge)
                 }
 
                 else -> {
@@ -348,10 +350,10 @@ fun ManagedBy(project: ProjectDTO) {
 
 enum class Destination(
     val route: String,
-    val label: String
+    val labelId: Int
 ) {
-    TASKS("tasks", "Tasks"),
-    EMPLOYEES("employees", "Employees")
+    TASKS("tasks", R.string.tasks),
+    EMPLOYEES("employees", R.string.employees)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -372,7 +374,7 @@ fun Tabs(project: ProjectDTO) {
                     },
                     text = {
                         Text(
-                            text = destination.label,
+                            text = stringResource(destination.labelId),
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )

@@ -29,4 +29,24 @@
     <string name="system">System</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
+    <string name="created">Created</string>
+    <string name="due">Due</string>
+    <string name="managed_by">Managed by</string>
+    <string name="no_manager">No manager assigned</string>
+    <string name="employees">Employees</string>
+    <string name="edit_manager">Edit manager</string>
+    <string name="mark_complete">Mark as complete</string>
+    <string name="archive_project">Archive project</string>
+    <string name="project">Project</string>
+    <string name="search_employee">Search employee</string>
+    <string name="edit_user">Edit user</string>
+    <string name="add_user">Add user</string>
+    <string name="cancel">Cancel</string>
+    <string name="name">Name</string>
+    <string name="description">Description</string>
+    <string name="start_date">Start date</string>
+    <string name="due_date">Due date</string>
+    <string name="edit_project">Edit project</string>
+    <string name="new_project">New project</string>
+    <string name="confirm_disable_user">Disable user?</string>
 </resources>

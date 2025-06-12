@@ -30,4 +30,24 @@
     <string name="system">Sistema</string>
     <string name="light">Claro</string>
     <string name="dark">Escuro</string>
+    <string name="created">Criado</string>
+    <string name="due">Termina</string>
+    <string name="managed_by">Gerido por</string>
+    <string name="no_manager">Nenhum gestor atribuído</string>
+    <string name="employees">Empregados</string>
+    <string name="edit_manager">Editar gestor</string>
+    <string name="mark_complete">Marcar como completo</string>
+    <string name="archive_project">Arquivar projeto</string>
+    <string name="project">Projeto</string>
+    <string name="search_employee">Pesquisar empregado</string>
+    <string name="edit_user">Editar utilizador</string>
+    <string name="add_user">Adicionar utilizador</string>
+    <string name="cancel">Cancelar</string>
+    <string name="name">Nome</string>
+    <string name="description">Descrição</string>
+    <string name="start_date">Data de início</string>
+    <string name="due_date">Data de fim</string>
+    <string name="edit_project">Editar projeto</string>
+    <string name="new_project">Novo projeto</string>
+    <string name="confirm_disable_user">Desativar utilizador?</string>
 </resources>

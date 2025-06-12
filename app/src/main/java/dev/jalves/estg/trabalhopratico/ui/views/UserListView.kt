@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.SupabaseAdminService
@@ -29,6 +30,7 @@ import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditUserDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import dev.jalves.estg.trabalhopratico.R
 
 @Composable
 fun UserListView() {
@@ -113,7 +115,7 @@ fun UserListView() {
                             }
                         }
                     },
-                    message = "Delete user?"
+                    message = stringResource(R.string.confirm_disable_user)
 
                 )
             }
