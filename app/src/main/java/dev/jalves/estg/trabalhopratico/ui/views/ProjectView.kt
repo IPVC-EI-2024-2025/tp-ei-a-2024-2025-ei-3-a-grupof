@@ -1,8 +1,10 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -18,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -400,14 +403,42 @@ fun Tabs(project: ProjectDTO) {
 
 @Composable
 fun TasksTab() {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(vertical = 8.dp)
+    val openAddUserDialog = remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+            .fillMaxSize()
     ) {
-        SearchBar(
-            onSearch = {query -> },
-            onFilter = {}
-        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(8.dp)
+        ) {
+            SearchBar(
+                onSearch = { query -> },
+                onFilter = {}
+            )
+        }
+
+        FloatingActionButton(
+            onClick = { openAddUserDialog.value = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Rounded.Person, contentDescription = "Add Task")
+        }
+
+        if (openAddUserDialog.value) {
+            // Replace with your actual dialog
+            ConfirmDialog(
+                message = "Add task dialog placeholder",
+                onConfirm = { openAddUserDialog.value = false },
+                onDismiss = { openAddUserDialog.value = false }
+            )
+        }
     }
 }
 
