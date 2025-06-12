@@ -16,7 +16,6 @@ import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,7 +33,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import dev.jalves.estg.trabalhopratico.objects.User
 
 @Composable
 fun UserAction(
@@ -65,7 +64,7 @@ fun UserAction(
 
 @Composable
 fun UserListItem(
-    name: String,
+    user: User,
     onEditUser: () -> Unit,
     onDeleteUser: () -> Unit,
 ) {
@@ -83,13 +82,12 @@ fun UserListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(
-                Icons.Rounded.Person,
-                contentDescription = "User avatar",
-                Modifier.size(36.dp)
+            ProfilePicture(
+                user,
+                size = 36.dp
             )
             Text(
-                text = name,
+                text = user.displayName,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold
                 ),

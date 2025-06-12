@@ -4,15 +4,11 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Button
@@ -34,18 +30,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.services.UserService
-import dev.jalves.estg.trabalhopratico.ui.components.PlaceholderProfilePic
+import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
 import dev.jalves.estg.trabalhopratico.ui.components.UserRole
 import dev.jalves.estg.trabalhopratico.ui.components.UserRoleBadge
 import io.github.jan.supabase.auth.auth
@@ -146,37 +138,14 @@ fun ProfileView(
             if (profile == null) {
                 CircularProgressIndicator()
             } else {
-                Box(
-                    modifier = Modifier
-                        .clickable {
-                            imagePickerLauncher.launch("image/*")
-                        }
-                        .size(100.dp)
-                        .clip(CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    when {
-                        profilePicLoading -> {
-                            CircularProgressIndicator()
-                        }
-                        !imageLoadFailed && profilePicUrl != null -> {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(profilePicUrl)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = "Profile picture",
-                                modifier = Modifier.size(100.dp),
-                                onError = {
-                                    imageLoadFailed = true
-                                }
-                            )
-                        }
-                        else -> {
-                            PlaceholderProfilePic(name = displayName, size = 100.dp)
-                        }
-                    }
-                }
+                ProfilePicture(
+                    user = profile!!,
+                    size = 100.dp,
+                    onClick = {
+                        imagePickerLauncher.launch("image/*")
+                    },
+                    externalProfilePicUrl = profilePicUrl,
+                )
 
                 UserRoleBadge(UserRole.entries.toTypedArray().random())
 

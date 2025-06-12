@@ -69,7 +69,7 @@ fun UserListView() {
             ) {
                 items(users.value) { user ->
                     UserListItem(
-                        name = user.username,
+                        user = user,
                         onEditUser = {
                             selectedUser.value = user
                             openEditUserDialog.value = true
