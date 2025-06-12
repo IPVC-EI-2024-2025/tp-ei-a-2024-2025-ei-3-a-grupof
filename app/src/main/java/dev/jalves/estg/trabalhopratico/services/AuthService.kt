@@ -64,6 +64,8 @@ object AuthService {
                         put("display_name", newUser.displayName)
                         put("profile_picture", "")
                         put("role", newUser.role.value)
+                        put("status", "Enabled")
+
                     }
                 }
 

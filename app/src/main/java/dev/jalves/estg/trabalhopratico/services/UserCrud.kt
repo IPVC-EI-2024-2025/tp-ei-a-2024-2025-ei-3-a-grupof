@@ -25,6 +25,7 @@ object UserCrud {
                         put("display_name", user.displayName)
                         put("profile_picture", "")
                         put("role", user.role.value)
+                        put("status", "Enabled")
                     }
                 }
                 Result.success(Unit)
@@ -55,18 +56,39 @@ object UserCrud {
             }
         }
 
-    suspend fun disableUser(id: String): Unit =
+    suspend fun disableUser(id: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
                 SupabaseAdminService.initAdminSession()
 
                 supabase.auth.admin.updateUserById(uid = id) {
                     userMetadata = buildJsonObject {
-                        put("Status", "Disabled")
+                        put("status", "Disabled")
                     }
                 }
+
+                Result.success(Unit)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to disable user", e)
+                Result.failure(e)
+            }
+        }
+
+    suspend fun enableUser(id: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                SupabaseAdminService.initAdminSession()
+
+                supabase.auth.admin.updateUserById(uid = id) {
+                    userMetadata = buildJsonObject {
+                        put("status", "Enabled")
+                    }
+                }
+
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to enable user", e)
+                Result.failure(e)
             }
         }
 }

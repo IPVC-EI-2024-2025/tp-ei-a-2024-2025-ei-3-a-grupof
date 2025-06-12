@@ -6,18 +6,18 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Task (
-    val id: String,
+    val id: String = "",
     @SerialName("project_id")
-    val projectId: String,
+    val projectId: String = "",
     val name: String,
     val description: String,
     val status: TaskStatus = TaskStatus.IN_PROGRESS,
     @SerialName("created_at")
-    val createdAt: String,
+    val createdAt: String = "",
     @SerialName("updated_at")
-    val updatedAt: String,
+    val updatedAt: String = "",
     @SerialName("created_by")
-    val createdBy: String
+    val createdBy: String = ""
 )
 
 @Serializable

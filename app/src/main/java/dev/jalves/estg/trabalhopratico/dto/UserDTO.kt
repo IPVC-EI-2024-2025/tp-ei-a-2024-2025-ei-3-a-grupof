@@ -11,8 +11,10 @@ data class CreateUserDTO(
     val email: String,
     val username: String,
     val password: String,
-    val role: Role = Role.EMPLOYEE
-)
+    val role: Role = Role.EMPLOYEE,
+    val status: String = ""
+
+    )
 
 @Serializable
 data class UpdateUserDTO(
@@ -24,5 +26,7 @@ data class UpdateUserDTO(
     val password: String? = null,
     @SerialName("profile_picture")
     val profilePicture: String? = null,
-    val role: Role? = null
+    val role: Role? = null,
+    val status: String = ""
+
 )

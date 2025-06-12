@@ -12,7 +12,9 @@ data class User (
     @SerialName("display_name")
     val displayName: String = "",
     val username: String = "",
-    val role: Role = Role.EMPLOYEE
+    val role: Role = Role.EMPLOYEE,
+    val status: String = ""
+
 )
 
 @Serializable
