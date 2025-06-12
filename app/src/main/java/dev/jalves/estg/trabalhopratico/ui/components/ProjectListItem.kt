@@ -33,6 +33,7 @@ import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.UserService
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.formatDate
 
 @Composable
 fun ProjectListItem(
@@ -84,7 +85,7 @@ fun ProjectListItem(
                     Text("•")
                     Text("? " + stringResource(R.string.tasks))
                     Text("•")
-                    Text("${stringResource(R.string.due)} ${project.dueDate}")
+                    Text("${stringResource(R.string.due)} ${formatDate(project.dueDate)}")
                 }
             }
         }

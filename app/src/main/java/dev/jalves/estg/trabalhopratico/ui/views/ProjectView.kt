@@ -70,6 +70,7 @@ import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
 import kotlinx.coroutines.launch
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.formatDate
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
 
 @Composable
@@ -204,11 +205,11 @@ fun ProjectView(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            "${stringResource(R.string.created)}: ${project!!.startDate}",
+                            "${stringResource(R.string.created)}: ${formatDate(project!!.startDate)}",
                             style = MaterialTheme.typography.bodySmall
                         )
                         Text(
-                            "${stringResource(R.string.due)}: ${project!!.dueDate}",
+                            "${stringResource(R.string.due)}: ${formatDate(project!!.dueDate)}",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }

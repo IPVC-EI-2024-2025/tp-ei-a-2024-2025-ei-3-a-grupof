@@ -11,7 +11,14 @@ fun Long.formatToDateString(): String {
 fun String.toEpochMillis(): Long? {
     return try {
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(this)?.time
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
+}
+
+fun formatDate(input: String): String {
+    val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val date = inputFormat.parse(input)
+    return outputFormat.format(date!!)
 }
