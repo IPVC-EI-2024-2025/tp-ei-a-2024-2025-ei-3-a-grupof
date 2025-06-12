@@ -20,8 +20,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
 import dev.jalves.estg.trabalhopratico.objects.User
-import dev.jalves.estg.trabalhopratico.services.UserCrud
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.services.UserService
 import kotlinx.coroutines.launch
 
 @Composable
@@ -90,7 +90,7 @@ fun EditUserDialog(
                             )
 
                             if (user == null) {
-                                val result = UserCrud.createUser(dto)
+                                val result = UserService.createUser(dto)
 
                                 if (result.isSuccess) {
                                     Toast.makeText(context, "User created!", Toast.LENGTH_SHORT).show()
@@ -99,7 +99,7 @@ fun EditUserDialog(
                                     Toast.makeText(context, "Error: $errorMessage", Toast.LENGTH_LONG).show()
                                 }
                             } else {
-                                val result = UserCrud.updateUser(user.id, dto)
+                                val result = UserService.updateUser(user.id, dto)
 
                                 if (result.isSuccess) {
                                     Toast.makeText(context, "User created!", Toast.LENGTH_SHORT).show()
