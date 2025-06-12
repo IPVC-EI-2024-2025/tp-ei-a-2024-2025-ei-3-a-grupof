@@ -13,7 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
 import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Icon
@@ -66,7 +66,7 @@ fun UserAction(
 fun UserListItem(
     user: User,
     onEditUser: () -> Unit,
-    onDeleteUser: () -> Unit,
+    onDisableUser: () -> Unit,
 ) {
     var opened by remember { mutableStateOf(false) }
 
@@ -114,9 +114,9 @@ fun UserListItem(
                     onClick = onEditUser
                 )
                 UserAction(
-                    icon = Icons.Rounded.Delete,
-                    name = "Delete",
-                    onClick = onDeleteUser
+                    icon = Icons.Rounded.Cancel,
+                    name = "Disable",
+                    onClick = onDisableUser
                 )
                 UserAction(
                     icon = Icons.Rounded.Download,

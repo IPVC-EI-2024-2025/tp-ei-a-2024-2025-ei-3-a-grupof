@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TaskSync</string>
+    <string name="hello">Olá</string>
+    <string name="your_projects">Os teus projetos</string>
+    <string name="see_all">Ver tudo</string>
+    <string name="nav_home">Início</string>
+    <string name="projects">Projetos</string>
+    <string name="users">Utilizadores</string>
+    <string name="menu">Menu</string>
+    <string name="search">Pesquisar</string>
+    <string name="tasks">Tarefas</string>
+    <string name="role_admin">Administrador</string>
+    <string name="role_employee">Empregado</string>
+    <string name="role_manager">Gestor</string>
+    <string name="edit">Editar</string>
+    <string name="disable">Desativar</string>
+    <string name="export_stats">Exportar estatísticas</string>
+    <string name="profile">Perfil</string>
+    <string name="notifications">Notificações</string>
+    <string name="settings">Definições</string>
+    <string name="log_out">Terminar sessão</string>
+    <string name="theme">Tema</string>
+    <string name="language">Linguagem</string>
+    <string name="name_setting">Nome</string>
+    <string name="username">Utilizador</string>
+    <string name="password">Palavra-passe</string>
+    <string name="submit">Submeter</string>
+</resources>

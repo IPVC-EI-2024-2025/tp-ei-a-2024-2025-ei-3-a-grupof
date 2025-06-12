@@ -12,29 +12,31 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import dev.jalves.estg.trabalhopratico.ui.components.NavigationItem
+import dev.jalves.estg.trabalhopratico.R
 
 @Composable
 fun AdminNavBar(navController: NavController) {
     val navigationItems = listOf(
         NavigationItem(
-            title = "Home",
+            title = stringResource(R.string.nav_home),
             icon = Icons.Rounded.Home,
             route = "home"
         ),
         NavigationItem(
-            title = "Projects",
+            title = stringResource(R.string.projects),
             icon = Icons.Rounded.Work,
             route = "projects"
         ),
         NavigationItem(
-            title = "Users",
+            title = stringResource(R.string.users),
             icon = Icons.Rounded.People,
             route = "users"
         ),
         NavigationItem(
-            title = "Menu",
+            title = stringResource(R.string.menu),
             icon = Icons.Rounded.Menu,
             route = "menu"
         ),

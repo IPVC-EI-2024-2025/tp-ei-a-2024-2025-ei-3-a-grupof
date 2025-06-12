@@ -74,7 +74,7 @@ fun UserListView() {
                             selectedUser.value = user
                             openEditUserDialog.value = true
                         },
-                        onDeleteUser = {
+                        onDisableUser = {
                             selectedUser.value = user
                             openDeleteUserDialog.value = true
                         }
