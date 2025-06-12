@@ -26,7 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
+import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.UserService
 import dev.jalves.estg.trabalhopratico.ui.components.SimpleUserListItem
 import kotlinx.coroutines.Job
@@ -36,10 +36,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserSelectionDialog(
     onDismiss: () -> Unit,
-    onClick: (user: TaskSyncUser) -> Unit
+    onClick: (user: User) -> Unit
 ) {
     var employeeFilter by remember { mutableStateOf("") }
-    var employees by remember { mutableStateOf<List<TaskSyncUser>>(emptyList()) }
+    var employees by remember { mutableStateOf<List<User>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()

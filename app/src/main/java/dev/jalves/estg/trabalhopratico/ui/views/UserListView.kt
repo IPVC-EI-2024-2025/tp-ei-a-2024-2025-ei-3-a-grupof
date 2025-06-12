@@ -18,31 +18,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.SupabaseAdminService
 import dev.jalves.estg.trabalhopratico.services.UserCrud.disableUser
-import dev.jalves.estg.trabalhopratico.services.UserCrud.getUsers
+import dev.jalves.estg.trabalhopratico.services.UserService.getUsers
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditUserDialog
-import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
 fun UserListView() {
     val openEditUserDialog = remember { mutableStateOf(false) }
     val openAddUserDialog = remember { mutableStateOf(false) }
     val openDeleteUserDialog = remember { mutableStateOf(false) }
-    val users = remember { mutableStateOf<List<UserInfo>>(emptyList()) }
-    val selectedUser = remember { mutableStateOf<UserInfo?>(null) }
+    val users = remember { mutableStateOf<List<User>>(emptyList()) }
+    val selectedUser = remember { mutableStateOf<User?>(null) }
     val isLoading = remember { mutableStateOf(false) }
     val error = remember { mutableStateOf<String?>(null) }
-    val adminClient = SupabaseAdminService.supabase
 
     LaunchedEffect(Unit) {
         isLoading.value = true
@@ -68,13 +64,12 @@ fun UserListView() {
                 onFilter = { }
             )
 
-            LazyColumn {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(users.value) { user ->
-                    val userMetadata = user.userMetadata?.jsonObject
-                    val username = userMetadata?.get("display_name")?.jsonPrimitive?.contentOrNull ?: "No username"
-
                     UserListItem(
-                        name = username,
+                        name = user.username,
                         onEditUser = {
                             selectedUser.value = user
                             openEditUserDialog.value = true

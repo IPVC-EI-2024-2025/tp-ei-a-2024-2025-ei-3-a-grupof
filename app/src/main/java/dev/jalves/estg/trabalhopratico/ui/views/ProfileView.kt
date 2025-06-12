@@ -227,19 +227,25 @@ fun ProfileView(
                                 try {
                                     loading = true
 
+                                    val currentProfile = profile
+                                    if (currentProfile == null) {
+                                        Toast.makeText(context, "Profile not loaded", Toast.LENGTH_SHORT).show()
+                                        return@launch
+                                    }
+
                                     UserService.updateUserInfo(UpdateUserDTO(
                                         id = supabase.auth.currentUserOrNull()!!.id,
-                                        if(displayName != profile!!.displayName) displayName else null,
-                                        if(email != profile!!.email) email else null,
-                                        if(username != profile!!.username) username else null,
-                                        if(password.isNotEmpty()) password else null
+                                        displayName = if(displayName != currentProfile.displayName) displayName else null,
+                                        email = if(email != currentProfile.email) email else null,
+                                        username = if(username != currentProfile.username) username else null,
+                                        password = password.ifEmpty { null }
                                     ))
 
                                     profileViewModel.fetchData()
 
                                     Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                                } catch (_: Exception) {
-                                    Toast.makeText(context, "Failed to update user", Toast.LENGTH_SHORT).show()
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Failed to update user: ${e.message}", Toast.LENGTH_SHORT).show()
                                 } finally {
                                     loading = false
                                 }

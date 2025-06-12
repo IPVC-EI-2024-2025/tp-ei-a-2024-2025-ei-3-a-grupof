@@ -2,7 +2,7 @@ package dev.jalves.estg.trabalhopratico.ui.views
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
+import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 
 
 class ProfileViewModel : ViewModel() {
-    private val _profile = MutableStateFlow<TaskSyncUser?>(null)
-    val profile: StateFlow<TaskSyncUser?> = _profile
+    private val _profile = MutableStateFlow<User?>(null)
+    val profile: StateFlow<User?> = _profile
 
     init {
         fetchData()
@@ -22,14 +22,11 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             supabase.auth.awaitInitialization()
 
-            val user = supabase.auth.currentUserOrNull()
+            val user = supabase.auth.currentUserOrNull() ?: return@launch
 
-            if (user == null) return@launch
-
-            _profile.value = TaskSyncUser(
+            _profile.value = User(
                 id = user.id,
                 email = user.email ?: "",
-                // I don't know why the strings come surrounded in quotes
                 displayName = user.userMetadata!!.getValue("display_name").toString().removeSurrounding("\""),
                 username = user.userMetadata!!.getValue("username").toString().removeSurrounding("\"")
             )

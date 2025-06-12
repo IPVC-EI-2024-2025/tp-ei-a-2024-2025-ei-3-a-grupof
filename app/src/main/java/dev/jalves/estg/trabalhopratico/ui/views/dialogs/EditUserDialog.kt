@@ -1,6 +1,5 @@
 package dev.jalves.estg.trabalhopratico.ui.views.dialogs
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -19,19 +18,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
+import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.UserCrud
-import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
 fun EditUserDialog(
     onDismiss: () -> Unit,
     onSubmit: () -> Unit,
-    user: UserInfo?
+    user: User?
 ) {
-    var displayName by remember { mutableStateOf(user?.userMetadata?.get("display_name")?.jsonPrimitive?.content ?: "") }
-    var username by remember { mutableStateOf(user?.userMetadata?.get("username")?.jsonPrimitive?.content ?: "") }
+    var displayName by remember { mutableStateOf(user?.displayName ?: "") }
+    var username by remember { mutableStateOf(user?.username ?: "") }
     var email by remember { mutableStateOf(user?.email ?: "") }
     var password by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("") }

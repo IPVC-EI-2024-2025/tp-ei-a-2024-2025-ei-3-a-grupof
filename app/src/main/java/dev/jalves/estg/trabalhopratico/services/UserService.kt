@@ -4,16 +4,32 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
-import dev.jalves.estg.trabalhopratico.objects.TaskSyncUser
+import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.put
 import kotlin.time.Duration.Companion.minutes
 
 object UserService {
+    suspend fun getUsers(): Result<List<User>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val result = supabase.from("users")
+                    .select {
+                    }.decodeList<User>()
+
+                Result.success(result)
+            } catch (e: Exception) {
+                Log.e("UserCrud", "Failed to retrieve users", e)
+                Result.failure(e)
+            }
+        }
+
     suspend fun updateUserInfo(updatedUser: UpdateUserDTO) {
         supabase.auth
             .updateUser{
@@ -58,11 +74,11 @@ object UserService {
         }
     }
 
-    suspend fun fetchUsers(query: String): List<TaskSyncUser> {
+    suspend fun fetchUsers(query: String): List<User> {
         return supabase.from("users").select {
             filter {
                 ilike("display_name", "%$query%")
             }
-        }.decodeList<TaskSyncUser>()
+        }.decodeList<User>()
     }
 }
