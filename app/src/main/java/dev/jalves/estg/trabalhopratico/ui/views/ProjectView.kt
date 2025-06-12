@@ -70,6 +70,7 @@ import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
 import kotlinx.coroutines.launch
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
 
 @Composable
 fun MenuItem(
@@ -392,7 +393,7 @@ fun Tabs(project: ProjectDTO) {
             Destination.entries.forEach { destination ->
                 composable(destination.route) {
                     when (destination) {
-                        Destination.TASKS -> TasksTab()
+                        Destination.TASKS -> TasksTab(project.id)
                         Destination.EMPLOYEES -> EmployeesTab(project.employees)
                     }
                 }
@@ -402,7 +403,7 @@ fun Tabs(project: ProjectDTO) {
 }
 
 @Composable
-fun TasksTab() {
+fun TasksTab(projectID: String) {
     val openAddUserDialog = remember { mutableStateOf(false) }
 
     Box(
@@ -432,16 +433,15 @@ fun TasksTab() {
         }
 
         if (openAddUserDialog.value) {
-            // Replace with your actual dialog
-            ConfirmDialog(
-                message = "Add task dialog placeholder",
-                onConfirm = { openAddUserDialog.value = false },
-                onDismiss = { openAddUserDialog.value = false }
+            CreateTaskDialog(
+                projectId = projectID,
+                onDismiss = { openAddUserDialog.value = false },
+                onSubmit = { openAddUserDialog.value = false }
             )
         }
+
     }
 }
-
 @Composable
 fun EmployeesTab(employees: List<UserDTO>) {
     Column(
