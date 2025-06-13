@@ -13,7 +13,7 @@ data class User (
     val displayName: String = "",
     val username: String = "",
     val role: Role = Role.EMPLOYEE,
-    val status: String = ""
+    val status: Boolean = true
 
 )
 

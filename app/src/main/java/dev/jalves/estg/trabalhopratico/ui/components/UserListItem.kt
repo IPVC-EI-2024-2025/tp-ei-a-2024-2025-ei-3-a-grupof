@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Cancel
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Icon
@@ -68,7 +69,7 @@ fun UserAction(
 fun UserListItem(
     user: User,
     onEditUser: () -> Unit,
-    onDisableUser: () -> Unit,
+    onSetStatusUser: () -> Unit,
 ) {
     var opened by remember { mutableStateOf(false) }
 
@@ -115,11 +116,18 @@ fun UserListItem(
                     name = stringResource(R.string.edit),
                     onClick = onEditUser
                 )
-                UserAction(
-                    icon = Icons.Rounded.Cancel,
-                    name = stringResource(R.string.disable),
-                    onClick = onDisableUser
-                )
+                if(user.status)
+                    UserAction(
+                        icon = Icons.Rounded.Cancel,
+                        name = stringResource(R.string.disable),
+                        onClick = onSetStatusUser
+                    )
+                else
+                    UserAction(
+                        icon = Icons.Rounded.CheckCircle,
+                        name = stringResource(R.string.enable),
+                        onClick = onSetStatusUser
+                    )
                 UserAction(
                     icon = Icons.Rounded.Download,
                     name = stringResource(R.string.export_stats),

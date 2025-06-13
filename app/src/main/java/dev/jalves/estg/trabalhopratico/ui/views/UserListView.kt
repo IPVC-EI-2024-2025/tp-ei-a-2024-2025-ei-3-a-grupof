@@ -30,7 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import dev.jalves.estg.trabalhopratico.R
-import dev.jalves.estg.trabalhopratico.services.UserService.disableUser
+import dev.jalves.estg.trabalhopratico.services.UserService.setUserStatus
 
 @Composable
 fun UserListView() {
@@ -76,7 +76,7 @@ fun UserListView() {
                             selectedUser.value = user
                             openEditUserDialog.value = true
                         },
-                        onDisableUser = {
+                        onSetStatusUser = {
                             selectedUser.value = user
                             openDeleteUserDialog.value = true
                         }
@@ -111,11 +111,15 @@ fun UserListView() {
                             openDeleteUserDialog.value = false
                             kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
                                 SupabaseAdminService.initAdminSession()
-                                disableUser(userId)
+                                setUserStatus(userId, selectedUser.value!!.status)
                             }
                         }
                     },
-                    message = stringResource(R.string.confirm_disable_user)
+                    message = if (selectedUser.value?.status == true) {
+                        stringResource(R.string.confirm_disable_user)
+                    } else {
+                        stringResource(R.string.confirm_enable_user)
+                    }
 
                 )
             }

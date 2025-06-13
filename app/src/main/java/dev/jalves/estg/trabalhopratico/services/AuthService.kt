@@ -11,7 +11,9 @@ import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
 object AuthService {
@@ -64,7 +66,7 @@ object AuthService {
                         put("display_name", newUser.displayName)
                         put("profile_picture", "")
                         put("role", newUser.role.value)
-                        put("status", "Enabled")
+                        put("status", true)
 
                     }
                 }
@@ -84,6 +86,28 @@ object AuthService {
                     this.password = password
                 }
 
+                val currentUser = supabase.auth.currentUserOrNull()
+                    ?: throw Exception("Authentication succeeded but user data is unavailable")
+
+                val isActive: Boolean? = currentUser
+                    .userMetadata
+                    ?.get("status")
+                    ?.jsonPrimitive
+                    ?.booleanOrNull
+
+                if (isActive != null && !isActive) {
+                    supabase.auth.signOut()
+
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            "Account is inactive. Please contact support.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
+                    return@withContext Result.failure(Exception("account_inactive"))
+                }
 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Signed in successfully!", Toast.LENGTH_SHORT).show()

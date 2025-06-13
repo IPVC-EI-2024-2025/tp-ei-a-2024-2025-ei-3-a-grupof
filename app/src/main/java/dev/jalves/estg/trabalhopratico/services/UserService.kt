@@ -34,7 +34,7 @@ object UserService {
                         put("display_name", user.displayName)
                         put("profile_picture", "")
                         put("role", user.role.value)
-                        put("status", "Enabled")
+                        put("status", true)
                     }
                 }
                 Result.success(Unit)
@@ -67,14 +67,14 @@ object UserService {
         }
 
 
-    suspend fun disableUser(id: String): Result<Unit> =
+    suspend fun setUserStatus(id: String, status: Boolean): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
                 SupabaseAdminService.initAdminSession()
 
                 SupabaseAdminService.supabase.auth.admin.updateUserById(uid = id) {
                     userMetadata = buildJsonObject {
-                        put("status", "Disabled")
+                        put("status", !status)
                     }
                 }
 
@@ -85,23 +85,6 @@ object UserService {
             }
         }
 
-    suspend fun enableUser(id: String): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            try {
-                SupabaseAdminService.initAdminSession()
-
-                SupabaseAdminService.supabase.auth.admin.updateUserById(uid = id) {
-                    userMetadata = buildJsonObject {
-                        put("status", "Enabled")
-                    }
-                }
-
-                Result.success(Unit)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to enable user", e)
-                Result.failure(e)
-            }
-        }
     suspend fun getUsers(): Result<List<User>> =
         withContext(Dispatchers.IO) {
             try {

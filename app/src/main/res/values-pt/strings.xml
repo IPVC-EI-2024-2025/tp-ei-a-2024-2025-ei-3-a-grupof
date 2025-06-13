@@ -15,6 +15,7 @@
     <string name="role_manager">Gestor</string>
     <string name="edit">Editar</string>
     <string name="disable">Desativar</string>
+    <string name="enable">Ativar</string>
     <string name="export_stats">Exportar estatísticas</string>
     <string name="profile">Perfil</string>
     <string name="notifications">Notificações</string>
@@ -50,4 +51,5 @@
     <string name="edit_project">Editar projeto</string>
     <string name="new_project">Novo projeto</string>
     <string name="confirm_disable_user">Desativar utilizador?</string>
+    <string name="confirm_enable_user">Ativar utilizador?</string>
 </resources>
