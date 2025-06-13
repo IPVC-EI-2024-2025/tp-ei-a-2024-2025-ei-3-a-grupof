@@ -200,13 +200,16 @@ fun ProjectView(
                     CircularProgressIndicator()
                 }
                 else -> {
-                    Text(project!!.name, style = MaterialTheme.typography.titleLarge)
+                    Text(project!!.name, style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(horizontal = 8.dp))
                     Text(
                         project!!.description,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
                         Text(
                             "${stringResource(R.string.created)}: ${formatDate(project!!.startDate)}",
