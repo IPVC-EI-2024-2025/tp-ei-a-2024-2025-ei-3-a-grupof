@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlin.math.log
 import kotlin.time.Duration.Companion.minutes
 
 object UserService {
@@ -142,8 +143,14 @@ object UserService {
         }
     }
 
-    suspend fun getProfilePictureURL(pictureSize: Int, userId: String): String {
+    suspend fun getProfilePictureURL(pictureSize: Int, userId: String): String? {
         val bucket = supabase.storage.from("profile-pictures")
+        val fileExists = bucket
+            .exists(path = userId)
+
+        if (!fileExists)
+            return null
+
         return bucket.createSignedUrl(path = userId, expiresIn = 3.minutes) {
             size(pictureSize, pictureSize)
             fill()
