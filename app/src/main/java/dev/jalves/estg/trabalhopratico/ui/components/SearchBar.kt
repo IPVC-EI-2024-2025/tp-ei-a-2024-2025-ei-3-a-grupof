@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
@@ -27,7 +26,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
     onSearch: (query: String) -> Unit,
@@ -41,7 +39,10 @@ fun SearchBar(
     ) {
         TextField(
             value = query,
-            onValueChange = { query = it },
+            onValueChange = {
+                query = it
+                onSearch(it)
+            },
             label = { Text(stringResource(R.string.search)) },
             leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = "Search") },
             modifier = Modifier.weight(1f),
@@ -68,9 +69,9 @@ fun SearchBar(
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                 disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             ),
-            onClick = {}
+            onClick = onFilter
         ) {
-            Icon(Icons.Rounded.FilterAlt, contentDescription = "")
+            Icon(Icons.Rounded.FilterAlt, contentDescription = "Filter")
         }
     }
 }

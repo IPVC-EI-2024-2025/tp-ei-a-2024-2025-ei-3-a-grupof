@@ -33,7 +33,7 @@ import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.UserService
-import dev.jalves.estg.trabalhopratico.ui.components.SimpleUserListItem
+import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -109,13 +109,11 @@ fun UserSelectionDialog(
                             .padding(8.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(employees.size) { i ->
-                            SimpleUserListItem(
-                                name = "${employees[i].displayName} (${employees[i].username})",
-                                onClick = { Log.d("USER", employees[i].toString());onClick(employees[i]) }
                         items(users.size) { i ->
+                            UserListItem(
                                 user = users[i],
                                 onClick = { Log.d("USER", users[i].toString());onClick(users[i]) },
+                                simple = true
                             )
                         }
                     }

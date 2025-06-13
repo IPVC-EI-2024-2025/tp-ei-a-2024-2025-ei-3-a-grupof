@@ -29,18 +29,114 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.R
 
 @Composable
+fun UserListItem(
+    user: User,
+    simple: Boolean? = null,
+    onClick: (() -> Unit)? = null,
+    onEditUser: () -> Unit = {},
+    onSetStatusUser: () -> Unit = {}
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val isSimple = simple == true
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .clickable(enabled = true) {
+                if (isSimple) {
+                    onClick?.invoke()
+                } else {
+                    expanded = !expanded
+                }
+            }
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            ProfilePicture(user = user, size = 36.dp)
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = user.displayName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+                Text(
+                    text = user.username,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = FontWeight.Normal
+                    )
+                )
+            }
+
+            if (!isSimple) {
+                UserRoleBadge(user.role)
+                Icon(
+                    imageVector = if (expanded) Icons.Rounded.ArrowDropDown else Icons.AutoMirrored.Rounded.ArrowRight,
+                    contentDescription = if (expanded) "Collapse details" else "Expand details",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        if (!isSimple) {
+            AnimatedVisibility(visible = expanded) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp, bottom = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    UserAction(
+                        icon = Icons.Rounded.Edit,
+                        name = stringResource(R.string.edit),
+                        onClick = onEditUser
+                    )
+                    if (user.status)
+                        UserAction(
+                            icon = Icons.Rounded.Cancel,
+                            name = stringResource(R.string.disable),
+                            onClick = onSetStatusUser
+                        )
+                    else
+                        UserAction(
+                            icon = Icons.Rounded.CheckCircle,
+                            name = stringResource(R.string.enable),
+                            onClick = onSetStatusUser
+                        )
+                    UserAction(
+                        icon = Icons.Rounded.Download,
+                        name = stringResource(R.string.export_stats),
+                        onClick = {}
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun UserAction(
-    icon: ImageVector,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     name: String,
     onClick: () -> Unit
 ) {
@@ -54,86 +150,16 @@ fun UserAction(
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(24.dp)
         )
-        Text(name,
+        Text(
+            name,
             style = TextStyle(
                 textAlign = TextAlign.Left,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 color = MaterialTheme.colorScheme.primary
             ),
-            modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp)
         )
-    }
-}
-
-@Composable
-fun UserListItem(
-    user: User,
-    onEditUser: () -> Unit,
-    onSetStatusUser: () -> Unit,
-) {
-    var opened by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { opened = !opened }
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            ProfilePicture(
-                user,
-                size = 36.dp
-            )
-            Text(
-                text = user.displayName,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.SemiBold
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            UserRoleBadge(user.role)
-            Icon(
-                if (opened) Icons.Rounded.ArrowDropDown else Icons.AutoMirrored.Rounded.ArrowRight,
-                contentDescription = if (opened) "Collapse details" else "Expand details",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        AnimatedVisibility(visible = opened) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                UserAction(
-                    icon = Icons.Rounded.Edit,
-                    name = stringResource(R.string.edit),
-                    onClick = onEditUser
-                )
-                if(user.status)
-                    UserAction(
-                        icon = Icons.Rounded.Cancel,
-                        name = stringResource(R.string.disable),
-                        onClick = onSetStatusUser
-                    )
-                else
-                    UserAction(
-                        icon = Icons.Rounded.CheckCircle,
-                        name = stringResource(R.string.enable),
-                        onClick = onSetStatusUser
-                    )
-                UserAction(
-                    icon = Icons.Rounded.Download,
-                    name = stringResource(R.string.export_stats),
-                    onClick = {}
-                )
-            }
-        }
     }
 }

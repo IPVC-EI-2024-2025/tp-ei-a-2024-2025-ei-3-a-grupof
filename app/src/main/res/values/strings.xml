@@ -51,4 +51,13 @@
     <string name="new_project">New project</string>
     <string name="confirm_disable_user">Disable user?</string>
     <string name="confirm_enable_user">Enable user?</string>
+    <string name="filter_users">Filter Users</string>
+    <string name="all_roles">All Roles</string>
+    <string name="filter_by_role">Filter by Role</string>
+    <string name="filter_by_status">Filter by Status</string>
+    <string name="all_statuses">All Statuses</string>
+    <string name="active_users">Active Users</string>
+    <string name="inactive_users">Inactive Users</string>
+    <string name="clear_filters">Clear Filters</string>
+    <string name="apply_filters">Apply Filters</string>
 </resources>

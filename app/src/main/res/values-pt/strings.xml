@@ -52,4 +52,13 @@
     <string name="new_project">Novo projeto</string>
     <string name="confirm_disable_user">Desativar utilizador?</string>
     <string name="confirm_enable_user">Ativar utilizador?</string>
+    <string name="filter_users">Filtrar Utilizadores</string>
+    <string name="all_roles">Todos os cargos</string>
+    <string name="filter_by_role">Filtrar por cargo</string>
+    <string name="filter_by_status">Filtrar por Estado</string>
+    <string name="all_statuses">Todos Estados</string>
+    <string name="active_users">Utilizadores Ativos</string>
+    <string name="inactive_users">Utilizadores Destivados</string>
+    <string name="clear_filters">Limpar Filtros</string>
+    <string name="apply_filters">Aplicar Filtros</string>
 </resources>
