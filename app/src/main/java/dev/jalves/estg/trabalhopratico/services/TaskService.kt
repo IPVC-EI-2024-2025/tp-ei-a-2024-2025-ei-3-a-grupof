@@ -6,6 +6,7 @@ import dev.jalves.estg.trabalhopratico.dto.CreateTaskDTO
 
 import dev.jalves.estg.trabalhopratico.dto.UpdateTask
 import dev.jalves.estg.trabalhopratico.objects.Task
+import dev.jalves.estg.trabalhopratico.objects.TaskStatus
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -84,14 +85,20 @@ object TaskService {
     suspend fun updateTask(updatedTask: UpdateTask,id: String ) =
         withContext(Dispatchers.IO) {
             try {
-                val currentMoment = Clock.System.now()
-                val dateTime = currentMoment.toLocalDateTime(TimeZone.currentSystemDefault())
-                supabase.from("tasks").update(
-                    buildMap {
-                        put("updated_at", dateTime)
-                        put("description", updatedTask.description)
-                        put("status", updatedTask.status.value)
-                    }
+                val status = if (updatedTask.status == "Complete") {
+                    TaskStatus.COMPLETE
+                } else {
+                    TaskStatus.IN_PROGRESS
+                }
+
+                val task = Task(
+                    name = updatedTask.name,
+                    description = updatedTask.description,
+                    status = status,
+
+                )
+
+                supabase.from("tasks").update(task
                 ) {
                     filter {
                         eq("id", id)
@@ -99,7 +106,7 @@ object TaskService {
                 }
                 Result.success(Unit)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to update project", e)
+                Log.e(TAG, "Failed to update Task", e)
                 Result.failure(e)
             }
         }

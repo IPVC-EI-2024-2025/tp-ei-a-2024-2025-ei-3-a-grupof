@@ -16,6 +16,7 @@ import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.TableChart
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -30,6 +31,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -73,6 +75,7 @@ import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.formatDate
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditTaskDialog
 
 @Composable
 fun MenuItem(
@@ -407,7 +410,9 @@ fun Tabs(project: ProjectDTO) {
 
 @Composable
 fun TasksTab(projectID: String) {
-    val openAddUserDialog = remember { mutableStateOf(false) }
+    val showActionDialog = remember { mutableStateOf(false) }
+    val showCreateDialog = remember { mutableStateOf(false) }
+    val showEditDialog = remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -427,24 +432,56 @@ fun TasksTab(projectID: String) {
         }
 
         FloatingActionButton(
-            onClick = { openAddUserDialog.value = true },
+            onClick = { showActionDialog.value = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            Icon(Icons.Rounded.Person, contentDescription = "Add Task")
+            Icon(Icons.Rounded.Person, contentDescription = "Add or Edit Task")
         }
 
-        if (openAddUserDialog.value) {
-            CreateTaskDialog(
-                projectId = projectID,
-                onDismiss = { openAddUserDialog.value = false },
-                onSubmit = { openAddUserDialog.value = false }
+        if (showActionDialog.value) {
+            AlertDialog(
+                onDismissRequest = { showActionDialog.value = false },
+                title = { Text("Choose Action") },
+                text = { Text("Would you like to create a new task or edit an existing one?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showActionDialog.value = false
+                        showCreateDialog.value = true
+                    }) {
+                        Text("Create")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showActionDialog.value = false
+                        showEditDialog.value = true
+                    }) {
+                        Text("Edit")
+                    }
+                }
             )
         }
 
+        if (showCreateDialog.value) {
+            CreateTaskDialog(
+                projectId = projectID,
+                onDismiss = { showCreateDialog.value = false },
+                onSubmit = { showCreateDialog.value = false }
+            )
+        }
+
+        if (showEditDialog.value) {
+            EditTaskDialog(
+                onDismiss = { showEditDialog.value = false },
+                onSubmit = { showEditDialog.value = false }
+            )
+        }
     }
 }
+
+
 @Composable
 fun EmployeesTab(employees: List<UserDTO>) {
     Column(

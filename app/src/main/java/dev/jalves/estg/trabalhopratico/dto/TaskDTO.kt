@@ -15,7 +15,8 @@ data class CreateTaskDTO(
     val createdBy: String = ""
 )
 data class UpdateTask(
+    val name: String,
     val description: String,
-    val status: TaskStatus,
+    val status: String = "",
     val updatedAt: String = "",
     )
