@@ -71,6 +71,7 @@ import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
 import kotlinx.coroutines.launch
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.formatDate
+import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
 
 @Composable
@@ -241,7 +242,8 @@ fun ProjectView(
                             projectViewModel.loadProject(projectID)
                             openManagerSelectionDialog.value = false
                         }
-                    }
+                    },
+                    userRole = Role.MANAGER,
                 )
             }
             confirmCompleteDialog.value -> {

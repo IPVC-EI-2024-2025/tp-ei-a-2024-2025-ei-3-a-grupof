@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views.dialogs
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.UserService
 import dev.jalves.estg.trabalhopratico.ui.components.SimpleUserListItem
@@ -38,28 +41,31 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserSelectionDialog(
     onDismiss: () -> Unit,
-    onClick: (user: User) -> Unit
+    onClick: (user: User) -> Unit,
+    userRole: Role? = null,
 ) {
-    var employeeFilter by remember { mutableStateOf("") }
-    var employees by remember { mutableStateOf<List<User>>(emptyList()) }
+    var userFilter by remember { mutableStateOf("") }
+    var users by remember { mutableStateOf<List<User>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     var fetchJob by remember { mutableStateOf<Job?>(null) }
 
+    LaunchedEffect(Unit) {
+        isLoading = true
+        users = UserService.fetchUsersByQuery("", userRole)
+        isLoading = false
+    }
+
     fun onSearchInputChanged(query: String) {
-        employeeFilter = query
+        userFilter = query
 
         fetchJob?.cancel()
-        if (query.isNotBlank()) {
-            fetchJob = coroutineScope.launch {
-                delay(500)
-                isLoading = true
-                employees = UserService.fetchUsers(query)
-                isLoading = false
-            }
-        } else {
-            employees = emptyList()
+        fetchJob = coroutineScope.launch {
+            delay(500)
+            isLoading = true
+            users = UserService.fetchUsersByQuery(query, userRole)
+            isLoading = false
         }
     }
 
@@ -85,10 +91,10 @@ fun UserSelectionDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = {}
+                        onClick = { onDismiss() }
                     ) { Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Close dialog") }
                     TextField(
-                        value = employeeFilter,
+                        value = userFilter,
                         onValueChange = { onSearchInputChanged(it) },
                         label = { Text(stringResource(R.string.search_employee)) }
                     )
@@ -100,12 +106,16 @@ fun UserSelectionDialog(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(employees.size) { i ->
                             SimpleUserListItem(
                                 name = "${employees[i].displayName} (${employees[i].username})",
                                 onClick = { Log.d("USER", employees[i].toString());onClick(employees[i]) }
+                        items(users.size) { i ->
+                                user = users[i],
+                                onClick = { Log.d("USER", users[i].toString());onClick(users[i]) },
                             )
                         }
                     }

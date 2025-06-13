@@ -150,10 +150,22 @@ object UserService {
         }
     }
 
-    suspend fun fetchUsers(query: String): List<User> {
+    suspend fun fetchUsersByQuery(query: String, role: Role? = null, status: Boolean? = null): List<User> {
         return supabase.from("users").select {
             filter {
-                ilike("display_name", "%$query%")
+                if (role != null) {
+                    eq("role", role.value)
+                }
+                if (status != null) {
+                    eq("status", status)
+                }
+                if (query.isNotBlank()) {
+                    or {
+                        ilike("display_name", "%$query%")
+                        ilike("email", "%$query%")
+                        ilike("username", "%$query%")
+                    }
+                }
             }
         }.decodeList<User>()
     }
