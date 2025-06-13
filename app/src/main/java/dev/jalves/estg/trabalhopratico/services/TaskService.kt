@@ -17,33 +17,28 @@ import kotlinx.datetime.toLocalDateTime
 
 
 object TaskService {
-    suspend fun createTask(dto: CreateTaskDTO, id: String): Result<Unit> =
+    suspend fun createTask(dto: CreateTaskDTO,id: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
                 val currentUserId = supabase.auth.currentUserOrNull()?.id
                     ?: return@withContext Result.failure(Exception("User not authenticated"))
 
-                val currentMoment = Clock.System.now()
-                val dateTime = currentMoment.toLocalDateTime(TimeZone.currentSystemDefault()).toString()
+                val task = Task(
+                    name = dto.name,
+                    description = dto.description,
+                    projectId = id,
+                    status = dto.status,
+                    createdBy = currentUserId,
+                    )
 
-                supabase.from("tasks").insert(
-                    buildMap {
-                        put("name", dto.name)
-                        put("description", dto.description)
-                        put("project_id", id)
-                        put("status", dto.status)
-                        put("created_by", currentUserId)
-                        put("created_at", dateTime)
-                    }
-                )
+                supabase.from("tasks").insert(task)
 
                 Result.success(Unit)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to create Task", e)
+                Log.e(TAG, "Failed to create project", e)
                 Result.failure(e)
             }
         }
-
 
     suspend fun listTasks(): Result<List<Task>> =
         withContext(Dispatchers.IO) {
