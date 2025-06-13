@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views.dialogs
 
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -17,7 +18,7 @@ fun ConfirmDialog(
         },
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            Button (onClick = onConfirm) {
                 Text("Yes")
             }
         },
