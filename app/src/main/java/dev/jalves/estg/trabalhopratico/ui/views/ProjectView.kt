@@ -1,5 +1,6 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
@@ -79,7 +81,11 @@ import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.formatDate
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.Task
+import dev.jalves.estg.trabalhopratico.objects.User
+import dev.jalves.estg.trabalhopratico.services.ProjectService.AddEmployeeToProject
+import dev.jalves.estg.trabalhopratico.services.ProjectService.removeEmployeeFromProject
 import dev.jalves.estg.trabalhopratico.services.TaskService
+import dev.jalves.estg.trabalhopratico.ui.components.EmployeeListItem
 import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditTaskDialog
@@ -410,7 +416,7 @@ fun Tabs(project: ProjectDTO) {
                 composable(destination.route) {
                     when (destination) {
                         Destination.TASKS -> TasksTab(project.id)
-                        Destination.EMPLOYEES -> EmployeesTab(project.employees)
+                        Destination.EMPLOYEES -> EmployeesTab(project.employees,project.id)
                     }
                 }
             }
@@ -463,16 +469,11 @@ fun TasksTab(projectID: String) {
         }
     }
 
-    Box(
-        modifier = Modifier
-            .padding(vertical = 8.dp)
-            .fillMaxSize()
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(8.dp)
+                .padding(vertical = 8.dp)
                 .padding(bottom = 80.dp)
         ) {
             SearchBar(
@@ -518,7 +519,8 @@ fun TasksTab(projectID: String) {
 
                 else -> {
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
                         items(filteredTasks) { task ->
                             TaskListItem(
@@ -575,17 +577,137 @@ fun TasksTab(projectID: String) {
         }
     }
 }
+
 @Composable
-fun EmployeesTab(employees: List<UserDTO>) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(vertical = 8.dp)
-    ) {
-        SearchBar(
-            onSearch = {query -> },
-            onFilter = {}
-        )
-        for(employee in employees)
-            Text(employee.displayName)
+fun EmployeesTab(employees: List<UserDTO>, projectID: String) {
+    var searchQuery by remember { mutableStateOf("") }
+    val showAddEmployeeDialog = remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    val filteredEmployees = remember(employees, searchQuery) {
+        if (searchQuery.isBlank()) {
+            employees
+        } else {
+            employees.filter { employee ->
+                employee.displayName?.contains(searchQuery, ignoreCase = true) == true
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .padding(bottom = 80.dp)
+        ) {
+            SearchBar(
+                onSearch = { query -> searchQuery = query },
+                onFilter = {}
+            )
+
+            when {
+                employees.isEmpty() -> {
+                    Text(
+                        text = "No employees assigned to this project",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                filteredEmployees.isEmpty() && searchQuery.isNotBlank() -> {
+                    Text(
+                        text = "No employees found matching \"$searchQuery\"",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    ) {
+                        items(filteredEmployees) { employee ->
+                            val user = User(
+                                id = employee.id,
+                                displayName = employee.displayName,
+                            )
+
+                            EmployeeListItem(
+                                user = user,
+                                simple = false,
+                                onSetTasks = {
+                                    // TODO: Implement set tasks functionality
+                                },
+                                onRemoveFromProject = {
+                                    scope.launch {
+                                        try {
+                                            val result = ProjectService.removeEmployeeFromProject(user.id, projectID)
+                                            result.fold(
+                                                onSuccess = {
+                                                    // TODO: Refresh UI if necessary
+                                                },
+                                                onFailure = { e ->
+                                                    Log.e("EmployeesTab", "Failed to remove employee", e)
+                                                }
+                                            )
+                                        } catch (e: Exception) {
+                                            Log.e("EmployeesTab", "Error removing employee from project", e)
+                                        }
+                                    }
+                                },
+                                onExportStats = {
+                                    // TODO: Implement export stats functionality
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = {
+                showAddEmployeeDialog.value = true
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add Employee"
+            )
+        }
+
+        if (showAddEmployeeDialog.value) {
+            UserSelectionDialog(
+                onDismiss = {
+                    showAddEmployeeDialog.value = false
+                },
+                onClick = { selectedUser ->
+                    scope.launch {
+                        try {
+                            val result = ProjectService.AddEmployeeToProject(selectedUser.id, projectID)
+                            result.fold(
+                                onSuccess = {
+                                    // TODO: Refresh the employees list or show success message
+                                },
+                                onFailure = { exception ->
+                                    Log.e("EmployeesTab", "Failed to add employee to project", exception)
+                                }
+                            )
+                        } catch (e: Exception) {
+                            Log.e("EmployeesTab", "Error adding employee to project", e)
+                        }
+                    }
+                    showAddEmployeeDialog.value = false
+                },
+                userRole = Role.EMPLOYEE
+            )
+        }
     }
 }

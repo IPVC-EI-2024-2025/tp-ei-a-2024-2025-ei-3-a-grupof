@@ -60,4 +60,6 @@
     <string name="inactive_users">Inactive Users</string>
     <string name="clear_filters">Clear Filters</string>
     <string name="apply_filters">Apply Filters</string>
+    <string name="set_tasks">Set tasks</string>
+    <string name="remove_from_project">Remove from project</string>
 </resources>
