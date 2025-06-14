@@ -24,5 +24,6 @@ data class UpdateUserDTO(
     val password: String? = null,
     @SerialName("profile_picture")
     val profilePicture: String? = null,
-    val role: Role? = null
+    val role: Role? = null,
+    val status: Boolean? = null
 )

@@ -61,6 +61,4 @@
     <string name="inactive_users">Utilizadores Destivados</string>
     <string name="clear_filters">Limpar Filtros</string>
     <string name="apply_filters">Aplicar Filtros</string>
-    <string name="set_tasks">Colocar tasks</string>
-    <string name="remove_from_project">Remover do Projeto</string>
 </resources>
