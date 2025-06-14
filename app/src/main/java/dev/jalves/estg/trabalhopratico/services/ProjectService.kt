@@ -43,7 +43,7 @@ object ProjectService {
         }
 
 
-    suspend fun AddEmployeeToProject(userID:String,ProjectId: String): Result<Unit> =
+    suspend fun addEmployeeToProject(userID:String,ProjectId: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
 

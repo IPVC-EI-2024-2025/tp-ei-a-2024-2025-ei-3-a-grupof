@@ -14,15 +14,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Assignment
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.RemoveCircle
 import androidx.compose.material.icons.rounded.TableChart
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -30,17 +32,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,7 +51,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -82,34 +79,14 @@ import dev.jalves.estg.trabalhopratico.formatDate
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.User
-import dev.jalves.estg.trabalhopratico.services.ProjectService.AddEmployeeToProject
+import dev.jalves.estg.trabalhopratico.services.ProjectService.addEmployeeToProject
 import dev.jalves.estg.trabalhopratico.services.ProjectService.removeEmployeeFromProject
 import dev.jalves.estg.trabalhopratico.services.TaskService
-import dev.jalves.estg.trabalhopratico.ui.components.EmployeeListItem
+import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
 import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
+import dev.jalves.estg.trabalhopratico.ui.components.UserAction
+import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
-import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditTaskDialog
-
-@Composable
-fun MenuItem(
-    icon: ImageVector,
-    text: String
-) {
-    CompositionLocalProvider(
-        LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant,
-        LocalTextStyle provides LocalTextStyle.current.copy(
-            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-        )
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(icon, contentDescription = text)
-            Text(text)
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -579,9 +556,11 @@ fun TasksTab(projectID: String) {
 }
 
 @Composable
-fun EmployeesTab(employees: List<UserDTO>, projectID: String) {
+fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> Unit = {}) {
     var searchQuery by remember { mutableStateOf("") }
     val showAddEmployeeDialog = remember { mutableStateOf(false) }
+    val showRemoveConfirmDialog = remember { mutableStateOf(false) }
+    val selectedEmployee = remember { mutableStateOf<UserDTO?>(null) }
     val scope = rememberCoroutineScope()
 
     val filteredEmployees = remember(employees, searchQuery) {
@@ -634,35 +613,36 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String) {
                             val user = User(
                                 id = employee.id,
                                 displayName = employee.displayName,
+                                username = employee.username,
+                                role = employee.role,
                             )
 
-                            EmployeeListItem(
-                                user = user,
-                                simple = false,
-                                onSetTasks = {
-                                    // TODO: Implement set tasks functionality
-                                },
-                                onRemoveFromProject = {
-                                    scope.launch {
-                                        try {
-                                            val result = ProjectService.removeEmployeeFromProject(user.id, projectID)
-                                            result.fold(
-                                                onSuccess = {
-                                                    // TODO: Refresh UI if necessary
-                                                },
-                                                onFailure = { e ->
-                                                    Log.e("EmployeesTab", "Failed to remove employee", e)
-                                                }
-                                            )
-                                        } catch (e: Exception) {
-                                            Log.e("EmployeesTab", "Error removing employee from project", e)
-                                        }
+                            UserListItem(user = user) {
+                                UserAction(
+                                    icon = Icons.AutoMirrored.Rounded.Assignment,
+                                    name = stringResource(R.string.set_tasks),
+                                    onClick = {
+                                        // TODO: Implement set tasks functionality
                                     }
-                                },
-                                onExportStats = {
-                                    // TODO: Implement export stats functionality
-                                }
-                            )
+                                )
+
+                                UserAction(
+                                    icon = Icons.Rounded.RemoveCircle,
+                                    name = stringResource(R.string.remove_from_project),
+                                    onClick = {
+                                        selectedEmployee.value = employee
+                                        showRemoveConfirmDialog.value = true
+                                    }
+                                )
+
+                                UserAction(
+                                    icon = Icons.Rounded.Download,
+                                    name = stringResource(R.string.export_stats),
+                                    onClick = {
+                                        // TODO: Implement export stats functionality
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -691,22 +671,58 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String) {
                 onClick = { selectedUser ->
                     scope.launch {
                         try {
-                            val result = ProjectService.AddEmployeeToProject(selectedUser.id, projectID)
+                            val result = addEmployeeToProject(selectedUser.id, projectID)
                             result.fold(
                                 onSuccess = {
-                                    // TODO: Refresh the employees list or show success message
+                                    onRefresh()
                                 },
                                 onFailure = { exception ->
                                     Log.e("EmployeesTab", "Failed to add employee to project", exception)
+                                    // TODO: Show error message to user
                                 }
                             )
                         } catch (e: Exception) {
                             Log.e("EmployeesTab", "Error adding employee to project", e)
+                            // TODO: Show error message to user
                         }
                     }
                     showAddEmployeeDialog.value = false
                 },
                 userRole = Role.EMPLOYEE
+            )
+        }
+
+        if (showRemoveConfirmDialog.value && selectedEmployee.value != null) {
+            ConfirmDialog(
+                onDismiss = {
+                    showRemoveConfirmDialog.value = false
+                    selectedEmployee.value = null
+                },
+                onConfirm = {
+                    selectedEmployee.value?.let { employee ->
+                        scope.launch {
+                            try {
+                                val result = removeEmployeeFromProject(employee.id, projectID)
+                                result.fold(
+                                    onSuccess = {
+                                        onRefresh() // Refresh the employees list
+                                        // TODO: Show success message
+                                    },
+                                    onFailure = { exception ->
+                                        Log.e("EmployeesTab", "Failed to remove employee", exception)
+                                        // TODO: Show error message to user
+                                    }
+                                )
+                            } catch (e: Exception) {
+                                Log.e("EmployeesTab", "Error removing employee from project", e)
+                                // TODO: Show error message to user
+                            }
+                        }
+                    }
+                    showRemoveConfirmDialog.value = false
+                    selectedEmployee.value = null
+                },
+                message = "Are you sure you want to remove ${selectedEmployee.value?.displayName} from this project?"
             )
         }
     }

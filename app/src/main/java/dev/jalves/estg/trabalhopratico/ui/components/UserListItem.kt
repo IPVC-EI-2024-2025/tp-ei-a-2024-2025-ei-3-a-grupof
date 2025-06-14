@@ -13,10 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
 import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material.icons.rounded.Cancel
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Download
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,25 +25,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.objects.User
-import dev.jalves.estg.trabalhopratico.R
 
 @Composable
 fun UserListItem(
     user: User,
-    simple: Boolean? = null,
+    simple: Boolean = false,
     onClick: (() -> Unit)? = null,
-    onEditUser: () -> Unit = {},
-    onSetStatusUser: () -> Unit = {}
+    actions: @Composable () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val isSimple = simple == true
 
     Column(
         modifier = Modifier
@@ -55,7 +48,7 @@ fun UserListItem(
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .clickable(enabled = true) {
-                if (isSimple) {
+                if (simple) {
                     onClick?.invoke()
                 } else {
                     expanded = !expanded
@@ -66,8 +59,7 @@ fun UserListItem(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             ProfilePicture(user = user, size = 36.dp)
 
@@ -88,7 +80,7 @@ fun UserListItem(
                 )
             }
 
-            if (!isSimple) {
+            if (!simple) {
                 UserRoleBadge(user.role)
                 Icon(
                     imageVector = if (expanded) Icons.Rounded.ArrowDropDown else Icons.AutoMirrored.Rounded.ArrowRight,
@@ -98,7 +90,7 @@ fun UserListItem(
             }
         }
 
-        if (!isSimple) {
+        if (!simple) {
             AnimatedVisibility(visible = expanded) {
                 Column(
                     modifier = Modifier
@@ -106,28 +98,7 @@ fun UserListItem(
                         .padding(top = 12.dp, bottom = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    UserAction(
-                        icon = Icons.Rounded.Edit,
-                        name = stringResource(R.string.edit),
-                        onClick = onEditUser
-                    )
-                    if (user.status)
-                        UserAction(
-                            icon = Icons.Rounded.Cancel,
-                            name = stringResource(R.string.disable),
-                            onClick = onSetStatusUser
-                        )
-                    else
-                        UserAction(
-                            icon = Icons.Rounded.CheckCircle,
-                            name = stringResource(R.string.enable),
-                            onClick = onSetStatusUser
-                        )
-                    UserAction(
-                        icon = Icons.Rounded.Download,
-                        name = stringResource(R.string.export_stats),
-                        onClick = {}
-                    )
+                    actions()
                 }
             }
         }
@@ -136,7 +107,7 @@ fun UserListItem(
 
 @Composable
 fun UserAction(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     name: String,
     onClick: () -> Unit
 ) {

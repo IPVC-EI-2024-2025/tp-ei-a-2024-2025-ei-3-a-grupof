@@ -10,6 +10,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Cancel
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -37,6 +41,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserFilter
 
 @Composable
@@ -111,17 +116,32 @@ fun UserListView() {
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
                 items(users) { user ->
-                    UserListItem(
-                        user = user,
-                        onEditUser = {
-                            selectedUser.value = user
-                            openEditUserDialog.value = true
-                        },
-                        onSetStatusUser = {
-                            selectedUser.value = user
-                            openDeleteUserDialog.value = true
-                        }
-                    )
+                    UserListItem(user = user) {
+                        UserAction(
+                            icon = Icons.Rounded.Edit,
+                            name = stringResource(R.string.edit),
+                            onClick = {
+                                selectedUser.value = user
+                                openEditUserDialog.value = true
+                            }
+                        )
+
+                        UserAction(
+                            icon = if (user.status) Icons.Rounded.Cancel else Icons.Rounded.CheckCircle,
+                            name = stringResource(if (user.status) R.string.disable else R.string.enable),
+                            onClick = {
+                                selectedUser.value = user
+                                openDeleteUserDialog.value = true
+                            }
+                        )
+
+                        UserAction(
+                            icon = Icons.Rounded.Download,
+                            name = stringResource(R.string.export_stats),
+                            onClick = {
+                            }
+                        )
+                    }
                 }
             }
         }

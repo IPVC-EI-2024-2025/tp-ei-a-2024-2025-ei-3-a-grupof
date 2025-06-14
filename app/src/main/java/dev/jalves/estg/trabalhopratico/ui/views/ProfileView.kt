@@ -142,7 +142,6 @@ fun NormalProfile(
                 }
             }
 
-            /* Card that is clicable to send email to the user */
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
