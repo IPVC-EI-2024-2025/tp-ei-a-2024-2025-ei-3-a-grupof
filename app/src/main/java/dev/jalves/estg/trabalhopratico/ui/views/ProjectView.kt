@@ -5,11 +5,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Folder
@@ -74,6 +78,9 @@ import kotlinx.coroutines.launch
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.formatDate
 import dev.jalves.estg.trabalhopratico.objects.Role
+import dev.jalves.estg.trabalhopratico.objects.Task
+import dev.jalves.estg.trabalhopratico.services.TaskService
+import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditTaskDialog
 
@@ -413,9 +420,48 @@ fun Tabs(project: ProjectDTO) {
 
 @Composable
 fun TasksTab(projectID: String) {
-    val showActionDialog = remember { mutableStateOf(false) }
     val showCreateDialog = remember { mutableStateOf(false) }
-    val showEditDialog = remember { mutableStateOf(false) }
+
+    var tasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(projectID) {
+        scope.launch {
+            try {
+                isLoading = true
+                error = null
+                val result = TaskService.listProjectTasks(projectID)
+                result.fold(
+                    onSuccess = { taskList ->
+                        tasks = taskList
+                        isLoading = false
+                    },
+                    onFailure = { exception ->
+                        error = exception.message
+                        isLoading = false
+                    }
+                )
+            } catch (e: Exception) {
+                error = e.message
+                isLoading = false
+            }
+        }
+    }
+
+    val filteredTasks = remember(tasks, searchQuery) {
+        if (searchQuery.isBlank()) {
+            tasks
+        } else {
+            tasks.filter { task ->
+                task.name.contains(searchQuery, ignoreCase = true) ||
+                        task.description.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -427,64 +473,108 @@ fun TasksTab(projectID: String) {
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(8.dp)
+                .padding(bottom = 80.dp)
         ) {
             SearchBar(
-                onSearch = { query -> },
+                onSearch = { query -> searchQuery = query },
                 onFilter = {}
             )
+
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                error != null -> {
+                    Text(
+                        text = "Error loading tasks: $error",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                filteredTasks.isEmpty() && searchQuery.isNotBlank() -> {
+                    Text(
+                        text = "No tasks found matching \"$searchQuery\"",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                filteredTasks.isEmpty() -> {
+                    Text(
+                        text = "No tasks yet. Create your first task!",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(filteredTasks) { task ->
+                            TaskListItem(
+                                task = task,
+                                onClick = {
+
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         FloatingActionButton(
-            onClick = { showActionDialog.value = true },
+            onClick = { showCreateDialog.value = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            Icon(Icons.Rounded.Person, contentDescription = "Add or Edit Task")
-        }
-
-        if (showActionDialog.value) {
-            AlertDialog(
-                onDismissRequest = { showActionDialog.value = false },
-                title = { Text("Choose Action") },
-                text = { Text("Would you like to create a new task or edit an existing one?") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showActionDialog.value = false
-                        showCreateDialog.value = true
-                    }) {
-                        Text("Create")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
-                        showActionDialog.value = false
-                        showEditDialog.value = true
-                    }) {
-                        Text("Edit")
-                    }
-                }
-            )
+            Icon(Icons.Rounded.Add, contentDescription = "Create Task")
         }
 
         if (showCreateDialog.value) {
             CreateTaskDialog(
                 projectId = projectID,
-                onDismiss = { showCreateDialog.value = false },
-                onSubmit = { showCreateDialog.value = false }
-            )
-        }
-
-        if (showEditDialog.value) {
-            EditTaskDialog(
-                onDismiss = { showEditDialog.value = false },
-                onSubmit = { showEditDialog.value = false }
+                onDismiss = {
+                    showCreateDialog.value = false
+                    scope.launch {
+                        try {
+                            val result = TaskService.listProjectTasks(projectID)
+                            result.fold(
+                                onSuccess = { taskList -> tasks = taskList },
+                                onFailure = {  }
+                            )
+                        } catch (e: Exception) {
+                        }
+                    }
+                },
+                onSubmit = {
+                    showCreateDialog.value = false
+                    scope.launch {
+                        try {
+                            val result = TaskService.listProjectTasks(projectID)
+                            result.fold(
+                                onSuccess = { taskList -> tasks = taskList },
+                                onFailure = {  }
+                            )
+                        } catch (e: Exception) {
+                        }
+                    }
+                }
             )
         }
     }
 }
-
-
 @Composable
 fun EmployeesTab(employees: List<UserDTO>) {
     Column(
