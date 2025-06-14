@@ -88,6 +88,7 @@ object UserService {
                         updatedUser.profilePicture
                     )
                     if (updatedUser.role != null) put("role", updatedUser.role.value)
+                    if (updatedUser.status != null) put("status", updatedUser.status)
                 }
             }
     }
@@ -115,8 +116,14 @@ object UserService {
         }
     }
 
-    suspend fun getProfilePictureURL(pictureSize: Int, userId: String): String {
+    suspend fun getProfilePictureURL(pictureSize: Int, userId: String): String? {
         val bucket = supabase.storage.from("profile-pictures")
+        val fileExists = bucket
+            .exists(path = userId)
+
+        if (!fileExists)
+            return null
+
         return bucket.createSignedUrl(path = userId, expiresIn = 3.minutes) {
             size(pictureSize, pictureSize)
             fill()

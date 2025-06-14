@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EmployeeProject(
     @SerialName("project_id")
-    val projectId: String,
+    val projectId: String = "",
     @SerialName("user_id")
-    val userId: String,
+    val userId: String = "",
     @SerialName("assigned_at")
-    val assignedAt: String
+    val assignedAt: String = ""
 )

@@ -9,6 +9,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import dev.jalves.estg.trabalhopratico.dto.CreateTaskDTO
+import dev.jalves.estg.trabalhopratico.objects.TaskStatus
 import dev.jalves.estg.trabalhopratico.services.TaskService
 import kotlinx.coroutines.launch
 
@@ -53,6 +54,7 @@ fun CreateTaskDialog(
                             val dto = CreateTaskDTO(
                                 name = name,
                                 description = description,
+                                status = TaskStatus.IN_PROGRESS
                             )
 
                             val result = TaskService.createTask(dto, projectId)

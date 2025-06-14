@@ -10,7 +10,7 @@
     <string name="search">Search</string>
     <string name="tasks">Tasks</string>
     <string name="role_admin">Administrator</string>
-    <string name="role_employee">Employee</string>
+    <string name="role_employee">Employee</string>More actions
     <string name="role_manager">Manager</string>
     <string name="edit">Edit</string>
     <string name="disable">Disable</string>
@@ -61,4 +61,12 @@
     <string name="clear_filters">Clear Filters</string>
     <string name="apply_filters">Apply Filters</string>
     <string name="role">Role</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="error_password_mismatch">New passwords do not match</string>
+    <string name="success_profile_updated">Profile updated successfully</string>
+    <string name="error_update_failed">Failed to update profile: %1$s</string>
+    <string name="set_tasks">Set Tasks</string>
+    <string name="remove_from_project">Remove from Project</string>
 </resources>

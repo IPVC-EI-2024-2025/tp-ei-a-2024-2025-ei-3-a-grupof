@@ -58,8 +58,16 @@
     <string name="filter_by_status">Filtrar por Estado</string>
     <string name="all_statuses">Todos Estados</string>
     <string name="active_users">Utilizadores Ativos</string>
-    <string name="inactive_users">Utilizadores Destivados</string>
+    <string name="inactive_users">Utilizadores Destivados</string>Add commentMore actions
     <string name="clear_filters">Limpar Filtros</string>
     <string name="apply_filters">Aplicar Filtros</string>
     <string name="role">Cargo</string>
+    <string name="current_password">Senha Atual</string>
+    <string name="new_password">Nova Senha</string>
+    <string name="confirm_password">Confirmar Senha</string>
+    <string name="error_password_mismatch">As novas senhas não coincidem</string>
+    <string name="success_profile_updated">Perfil atualizado com sucesso</string>
+    <string name="error_update_failed">Falha ao atualizar perfil: %1$s</string>
+    <string name="set_tasks">Colocar Tasks</string>
+    <string name="remove_from_project">Remover do Projeto</string>
 </resources>

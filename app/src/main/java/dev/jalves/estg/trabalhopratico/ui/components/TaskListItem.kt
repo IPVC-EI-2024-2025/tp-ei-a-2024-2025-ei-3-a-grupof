@@ -99,7 +99,7 @@ fun TaskStatusBadge(
             .padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
         Text(
-            text = status.toString(),
+            text = status.value,
             style = TextStyle(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,

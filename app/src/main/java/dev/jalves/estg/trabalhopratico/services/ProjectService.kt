@@ -5,6 +5,7 @@ import android.util.Log
 import dev.jalves.estg.trabalhopratico.dto.CreateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
+import dev.jalves.estg.trabalhopratico.objects.EmployeeProject
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
@@ -37,6 +38,44 @@ object ProjectService {
                 Result.success(Unit)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to create project", e)
+                Result.failure(e)
+            }
+        }
+
+
+    suspend fun addEmployeeToProject(userID:String,ProjectId: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+
+                val EmployeeProject = EmployeeProject(
+                    userId = userID,
+                    projectId = ProjectId
+                )
+
+                supabase.from("employee_project").insert(EmployeeProject)
+
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to Asssign Project to Employee", e)
+                Result.failure(e)
+            }
+        }
+
+
+    suspend fun removeEmployeeFromProject(userID: String, projectId: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                supabase.from("employee_project")
+                    .delete {
+                        filter {
+                            eq("user_id", userID)
+                            eq("project_id", projectId)
+                        }
+                    }
+
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to remove employee $userID from project $projectId", e)
                 Result.failure(e)
             }
         }

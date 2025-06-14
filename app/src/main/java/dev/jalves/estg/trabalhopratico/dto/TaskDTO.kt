@@ -14,6 +14,7 @@ data class CreateTaskDTO(
     @SerialName("created_by")
     val createdBy: String = ""
 )
+
 data class UpdateTask(
     val name: String,
     val description: String,

@@ -1,5 +1,6 @@
 package dev.jalves.estg.trabalhopratico.dto
 
+import dev.jalves.estg.trabalhopratico.objects.Role
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -28,7 +29,9 @@ data class UpdateProjectDTO (
 data class UserDTO (
     val id: String,
     @SerialName("display_name")
-    val displayName: String
+    val displayName: String,
+    val username: String,
+    val role: Role
 )
 
 @Serializable

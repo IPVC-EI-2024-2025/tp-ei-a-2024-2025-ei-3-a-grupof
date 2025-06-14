@@ -1,10 +1,16 @@
 package dev.jalves.estg.trabalhopratico.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,28 +76,61 @@ fun ProfilePicture(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier
-            .size(size)
-            .clip(CircleShape)
-            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+        modifier = modifier.size(size)
     ) {
-        when {
-            isLoading && showLoadingIndicator -> {
-                CircularProgressIndicator(modifier = Modifier.size(size * 0.5f))
-            }
-            !imageLoadFailed && profilePicUrl != null -> {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(profilePicUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Profile picture for ${user?.displayName ?: "Unknown"}",
-                    modifier = Modifier.size(size).clip(CircleShape),
-                    onError = { imageLoadFailed = true }
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(size)
+                .clip(CircleShape)
+                .then(
+                    if (onClick != null) Modifier.border(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    ) else Modifier
                 )
+                .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+        ) {
+            when {
+                isLoading && showLoadingIndicator -> {
+                    CircularProgressIndicator(modifier = Modifier.size(size * 0.5f))
+                }
+                !imageLoadFailed && profilePicUrl != null -> {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(profilePicUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Profile picture for ${user?.displayName ?: "Unknown"}",
+                        modifier = Modifier
+                            .size(size)
+                            .clip(CircleShape),
+                        onError = { imageLoadFailed = true }
+                    )
+                }
+                else -> {
+                    PlaceholderProfilePic(name = user?.displayName ?: "", size = size)
+                }
             }
-            else -> {
-                PlaceholderProfilePic(name = user?.displayName ?: "", size = size)
+        }
+
+        if (onClick != null) {
+            val badgeSize = size * 0.3f
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(badgeSize)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.CameraAlt,
+                    contentDescription = "Change profile picture",
+                    modifier = Modifier.size(badgeSize * 0.6f),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     }
