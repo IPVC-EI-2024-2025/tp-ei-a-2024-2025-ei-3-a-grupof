@@ -10,7 +10,7 @@ import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
@@ -21,22 +21,24 @@ import kotlinx.serialization.json.put
 import kotlin.time.Duration.Companion.minutes
 
 object UserService {
-    private val adminClient = SupabaseAdminService.supabase
-
     suspend fun createUser(user: CreateUserDTO): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
-                adminClient.auth.signUpWith(Email) {
-                    email = user.email
-                    password = user.password
-                    data = buildJsonObject {
-                        put("username", user.username)
-                        put("display_name", user.displayName)
-                        put("profile_picture", "")
-                        put("role", user.role.value)
-                        put("status", true)
+                supabase.functions.invoke(
+                    function = "create-user",
+                    body = buildJsonObject {
+                        put("email", user.email)
+                        put("password", user.password)
+                        put("user_metadata", buildJsonObject {
+                            put("username", user.username)
+                            put("display_name", user.displayName)
+                            put("profile_picture", "")
+                            put("role", user.role.value)
+                            put("status", true)
+                        })
                     }
-                }
+                )
+
                 Result.success(Unit)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to create user", e)
@@ -45,56 +47,27 @@ object UserService {
         }
 
 
-    suspend fun updateUser(id: String, user: CreateUserDTO): Result<Unit> =
+    suspend fun updateUser(user: UpdateUserDTO): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
-                SupabaseAdminService.initAdminSession()
-
-                SupabaseAdminService.supabase.auth.admin.updateUserById(uid = id) {
-                    userMetadata = buildJsonObject {
-                        put("username", user.username)
-                        put("display_name", user.displayName)
-                        put("profile_picture", "")
-                        put("role", user.role.value)
+                supabase.functions.invoke(
+                    function = "edit-user",
+                    body = buildJsonObject {
+                        put("user_id", user.id)
+                        user.email?.let { put("email", it) }
+                        user.password?.let { put("password", it) }
+                        put("user_metadata", buildJsonObject {
+                            user.username?.let { put("username", it) }
+                            user.displayName?.let { put("display_name", it) }
+                            user.role?.let { put("role", it.value) }
+                            user.status?.let { put("status", it) }
+                        })
                     }
-                }
+                )
 
                 Result.success(Unit)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to update user", e)
-                Result.failure(e)
-            }
-        }
-
-
-    suspend fun setUserStatus(id: String, status: Boolean): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            try {
-                SupabaseAdminService.initAdminSession()
-
-                SupabaseAdminService.supabase.auth.admin.updateUserById(uid = id) {
-                    userMetadata = buildJsonObject {
-                        put("status", !status)
-                    }
-                }
-
-                Result.success(Unit)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to disable user", e)
-                Result.failure(e)
-            }
-        }
-
-    suspend fun getUsers(): Result<List<User>> =
-        withContext(Dispatchers.IO) {
-            try {
-                val result = supabase.from("users")
-                    .select {
-                    }.decodeList<User>()
-
-                Result.success(result)
-            } catch (e: Exception) {
-                Log.e("UserService", "Failed to retrieve users", e)
                 Result.failure(e)
             }
         }
@@ -185,7 +158,7 @@ object UserService {
         }.decodeSingle()
     }
 
-    suspend fun getCurrentUserRole(): Role {
+    fun getCurrentUserRole(): Role {
         return try {
             val currentUser = supabase.auth.currentUserOrNull()
             val roleString = currentUser?.userMetadata?.get("role")?.toString()?.replace("\"", "")

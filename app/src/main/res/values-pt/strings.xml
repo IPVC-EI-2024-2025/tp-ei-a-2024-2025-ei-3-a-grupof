@@ -61,6 +61,7 @@
     <string name="inactive_users">Utilizadores Destivados</string>Add commentMore actions
     <string name="clear_filters">Limpar Filtros</string>
     <string name="apply_filters">Aplicar Filtros</string>
+    <string name="role">Cargo</string>
     <string name="current_password">Senha Atual</string>
     <string name="new_password">Nova Senha</string>
     <string name="confirm_password">Confirmar Senha</string>

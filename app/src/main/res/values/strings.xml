@@ -60,6 +60,7 @@
     <string name="inactive_users">Inactive Users</string>
     <string name="clear_filters">Clear Filters</string>
     <string name="apply_filters">Apply Filters</string>
+    <string name="role">Role</string>
     <string name="current_password">Current Password</string>
     <string name="new_password">New Password</string>
     <string name="confirm_password">Confirm Password</string>

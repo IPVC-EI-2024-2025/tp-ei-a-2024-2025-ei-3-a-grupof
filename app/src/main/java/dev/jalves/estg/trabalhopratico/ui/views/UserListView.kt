@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.objects.User
-import dev.jalves.estg.trabalhopratico.services.SupabaseAdminService
 import dev.jalves.estg.trabalhopratico.services.UserService
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
@@ -41,6 +40,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
 import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserFilter
 
@@ -182,8 +182,10 @@ fun UserListView() {
                         selectedUser.value?.id?.let { userId ->
                             openDeleteUserDialog.value = false
                             coroutineScope.launch(Dispatchers.IO) {
-                                SupabaseAdminService.initAdminSession()
-                                UserService.setUserStatus(userId, selectedUser.value!!.status)
+                                UserService.updateUser(UpdateUserDTO(
+                                    id = userId,
+                                    status = !(selectedUser.value!!.status)
+                                ))
                                 withContext(Dispatchers.Main) {
                                     fetchUsers()
                                 }
