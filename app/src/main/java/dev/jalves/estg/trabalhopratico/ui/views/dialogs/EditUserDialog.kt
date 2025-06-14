@@ -3,8 +3,13 @@ package dev.jalves.estg.trabalhopratico.ui.views.dialogs
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -14,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -21,9 +27,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
+import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.services.UserService
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUserDialog(
     onDismiss: () -> Unit,
@@ -34,7 +43,10 @@ fun EditUserDialog(
     var username by remember { mutableStateOf(user?.username ?: "") }
     var email by remember { mutableStateOf(user?.email ?: "") }
     var password by remember { mutableStateOf("") }
-    var role by remember { mutableStateOf("") }
+    var selectedRole by remember { mutableStateOf(
+        if (user != null) user.role else Role.EMPLOYEE
+    ) }
+    var expanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -50,28 +62,60 @@ fun EditUserDialog(
                     value = displayName,
                     onValueChange = { displayName = it },
                     label = { Text(stringResource(R.string.name_setting)) },
+                    modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
                     label = { Text(stringResource(R.string.username)) },
+                    modifier = Modifier.fillMaxWidth()
                 )
-                if (user == null) {
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text(stringResource(R.string.email)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    modifier = Modifier.fillMaxWidth()
                 )
-                    }
-                if (user == null) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.password)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text(stringResource(R.string.password)) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        value = stringResource(selectedRole.descriptionId),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.role)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
                     )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        Role.entries.forEach { role ->
+                            DropdownMenuItem(
+                                text = { Text(stringResource(role.descriptionId)) },
+                                onClick = {
+                                    selectedRole = role
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -82,15 +126,14 @@ fun EditUserDialog(
                     isLoading = true
                     scope.launch {
                         try {
-                            val dto = CreateUserDTO(
-                                displayName = displayName,
-                                email = email,
-                                username = username,
-                                password = password
-                            )
-
                             if (user == null) {
-                                val result = UserService.createUser(dto)
+                                val result = UserService.createUser(CreateUserDTO(
+                                    displayName = displayName,
+                                    email = email,
+                                    username = username,
+                                    password = password,
+                                    role = selectedRole
+                                ))
 
                                 if (result.isSuccess) {
                                     Toast.makeText(context, "User created!", Toast.LENGTH_SHORT).show()
@@ -99,10 +142,17 @@ fun EditUserDialog(
                                     Toast.makeText(context, "Error: $errorMessage", Toast.LENGTH_LONG).show()
                                 }
                             } else {
-                                val result = UserService.updateUser(user.id, dto)
+                                val result = UserService.updateUser(UpdateUserDTO(
+                                    id = user.id,
+                                    displayName = displayName,
+                                    email = email,
+                                    username = username,
+                                    password = password,
+                                    role = selectedRole
+                                ))
 
                                 if (result.isSuccess) {
-                                    Toast.makeText(context, "User created!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Edit successful!", Toast.LENGTH_SHORT).show()
                                 } else {
                                     val errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"
                                     Toast.makeText(context, "Error: $errorMessage", Toast.LENGTH_LONG).show()
@@ -117,9 +167,7 @@ fun EditUserDialog(
                             isLoading = false
                         }
                     }
-
-
-        }
+                }
             ) {
                 Text(stringResource(R.string.submit))
             }

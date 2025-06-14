@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.ktor.utils)
     implementation(libs.dotenv.kotlin)
     implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.functions.kt)
     implementation(libs.supabase.postgrest.kt)
     implementation(libs.supabase.storage.kt)
     implementation(libs.supabase.auth.kt)

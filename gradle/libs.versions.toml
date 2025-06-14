@@ -29,6 +29,7 @@ ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "k
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 ktor-utils = { module = "io.ktor:ktor-utils", version.ref = "ktorUtils" }
 supabase-storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "supabase" }
+supabase-functions-kt = { module = "io.github.jan-tennert.supabase:functions-kt", version.ref = "supabase" }
 supabase-realtime-kt = { module = "io.github.jan-tennert.supabase:realtime-kt" }
 supabase-auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }
 supabase-postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }

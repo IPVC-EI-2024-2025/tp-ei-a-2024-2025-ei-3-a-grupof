@@ -60,4 +60,5 @@
     <string name="inactive_users">Inactive Users</string>
     <string name="clear_filters">Clear Filters</string>
     <string name="apply_filters">Apply Filters</string>
+    <string name="role">Role</string>
 </resources>
