@@ -60,4 +60,10 @@
     <string name="inactive_users">Inactive Users</string>
     <string name="clear_filters">Clear Filters</string>
     <string name="apply_filters">Apply Filters</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="error_password_mismatch">New passwords do not match</string>
+    <string name="success_profile_updated">Profile updated successfully</string>
+    <string name="error_update_failed">Failed to update profile: %1$s</string>
 </resources>

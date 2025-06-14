@@ -18,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlin.math.log
 import kotlin.time.Duration.Companion.minutes
 
 object UserService {
@@ -116,6 +115,7 @@ object UserService {
                         updatedUser.profilePicture
                     )
                     if (updatedUser.role != null) put("role", updatedUser.role.value)
+                    if (updatedUser.status != null) put("status", updatedUser.status)
                 }
             }
     }
