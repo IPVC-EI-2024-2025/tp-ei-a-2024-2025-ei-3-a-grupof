@@ -1,5 +1,4 @@
 package dev.jalves.estg.trabalhopratico.ui.views.dialogs
-
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
@@ -9,26 +8,26 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import dev.jalves.estg.trabalhopratico.dto.CreateTaskDTO
-import dev.jalves.estg.trabalhopratico.objects.TaskStatus
+import dev.jalves.estg.trabalhopratico.dto.UpdateTask
 import dev.jalves.estg.trabalhopratico.services.TaskService
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateTaskDialog(
-    projectId: String,
+fun EditTaskDialog(
     onDismiss: () -> Unit,
     onSubmit: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("Pending") }
+    var status by remember { mutableStateOf("") }
+    var TaskId by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
 
     AlertDialog(
-        title = { Text("Add Task") },
+        title = { Text("Edit Task") },
         text = {
             Column {
                 OutlinedTextField(
@@ -41,7 +40,16 @@ fun CreateTaskDialog(
                     onValueChange = { description = it },
                     label = { Text("Description") },
                 )
-
+                OutlinedTextField(
+                    value = status,
+                    onValueChange = { status = it },
+                    label = { Text("Status") },
+                )
+                OutlinedTextField(
+                    value = TaskId,
+                    onValueChange = { TaskId = it },
+                    label = { Text("TaskId") },
+                )
             }
         },
         onDismissRequest = onDismiss,
@@ -51,16 +59,16 @@ fun CreateTaskDialog(
                     isLoading = true
                     scope.launch {
                         try {
-                            val dto = CreateTaskDTO(
+                            val dto = UpdateTask(
                                 name = name,
                                 description = description,
-                                status = TaskStatus.IN_PROGRESS
+                                status = status
                             )
 
-                            val result = TaskService.createTask(dto, projectId)
+                            val result = TaskService.updateTask(dto, TaskId)
 
                             if (result.isSuccess) {
-                                Toast.makeText(context, "Task created!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Task Edited!", Toast.LENGTH_SHORT).show()
                                 onSubmit()
                             } else {
                                 val error = result.exceptionOrNull()?.message ?: "Unknown error"

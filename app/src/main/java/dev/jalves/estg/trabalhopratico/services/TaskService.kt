@@ -6,44 +6,37 @@ import dev.jalves.estg.trabalhopratico.dto.CreateTaskDTO
 
 import dev.jalves.estg.trabalhopratico.dto.UpdateTask
 import dev.jalves.estg.trabalhopratico.objects.Task
+import dev.jalves.estg.trabalhopratico.objects.TaskStatus
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 
 object TaskService {
-    suspend fun createTask(dto: CreateTaskDTO, id: String): Result<Unit> =
+    suspend fun createTask(dto: CreateTaskDTO,id: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
                 val currentUserId = supabase.auth.currentUserOrNull()?.id
                     ?: return@withContext Result.failure(Exception("User not authenticated"))
 
-                val currentMoment = Clock.System.now()
-                val dateTime = currentMoment.toLocalDateTime(TimeZone.currentSystemDefault()).toString()
+                val task = Task(
+                    name = dto.name,
+                    description = dto.description,
+                    projectId = id,
+                    status = dto.status,
+                    createdBy = currentUserId,
+                    )
 
-                supabase.from("tasks").insert(
-                    buildMap {
-                        put("name", dto.name)
-                        put("description", dto.description)
-                        put("project_id", id)
-                        put("status", dto.status)
-                        put("created_by", currentUserId)
-                        put("created_at", dateTime)
-                    }
-                )
+                supabase.from("tasks").insert(task)
 
                 Result.success(Unit)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to create Task", e)
+                Log.e(TAG, "Failed to create project", e)
                 Result.failure(e)
             }
         }
-
 
     suspend fun listTasks(): Result<List<Task>> =
         withContext(Dispatchers.IO) {
@@ -89,14 +82,20 @@ object TaskService {
     suspend fun updateTask(updatedTask: UpdateTask,id: String ) =
         withContext(Dispatchers.IO) {
             try {
-                val currentMoment = Clock.System.now()
-                val dateTime = currentMoment.toLocalDateTime(TimeZone.currentSystemDefault())
-                supabase.from("tasks").update(
-                    buildMap {
-                        put("updated_at", dateTime)
-                        put("description", updatedTask.description)
-                        put("status", updatedTask.status.value)
-                    }
+                val status = if (updatedTask.status == "Complete") {
+                    TaskStatus.COMPLETE
+                } else {
+                    TaskStatus.IN_PROGRESS
+                }
+
+                val task = Task(
+                    name = updatedTask.name,
+                    description = updatedTask.description,
+                    status = status,
+
+                )
+
+                supabase.from("tasks").update(task
                 ) {
                     filter {
                         eq("id", id)
@@ -104,7 +103,7 @@ object TaskService {
                 }
                 Result.success(Unit)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to update project", e)
+                Log.e(TAG, "Failed to update Task", e)
                 Result.failure(e)
             }
         }
