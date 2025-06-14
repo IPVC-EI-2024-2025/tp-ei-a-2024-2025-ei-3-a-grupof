@@ -72,25 +72,6 @@ object UserService {
             }
         }
 
-
-    suspend fun setUserStatus(id: String, status: Boolean): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            try {
-                SupabaseAdminService.initAdminSession()
-
-                SupabaseAdminService.supabase.auth.admin.updateUserById(uid = id) {
-                    userMetadata = buildJsonObject {
-                        put("status", !status)
-                    }
-                }
-
-                Result.success(Unit)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to disable user", e)
-                Result.failure(e)
-            }
-        }
-
     suspend fun updateUserInfo(updatedUser: UpdateUserDTO) {
         supabase.auth
             .updateUser {
