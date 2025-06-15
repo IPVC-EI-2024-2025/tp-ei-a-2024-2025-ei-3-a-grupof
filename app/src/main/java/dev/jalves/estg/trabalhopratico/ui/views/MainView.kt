@@ -50,6 +50,10 @@ fun MainView(
                 HomeView(rootNavController, profileViewModel)
             }
 
+            composable(route = "tasks") {
+                TaskListView()
+            }
+
             composable(route = "projects") {
                 ProjectListView(rootNavController, projectsViewModel)
             }

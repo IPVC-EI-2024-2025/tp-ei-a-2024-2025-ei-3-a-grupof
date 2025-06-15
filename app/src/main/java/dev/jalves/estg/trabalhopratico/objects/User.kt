@@ -1,5 +1,6 @@
 package dev.jalves.estg.trabalhopratico.objects
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -34,6 +35,8 @@ enum class Role(
 
     companion object {
         fun fromString(value: String): Role? {
+            Log.d("FROMSTRING", value)
+            Log.d("FROMSTRING", entries.find { it.value.equals(value, ignoreCase = true) }.toString())
             return entries.find { it.value.equals(value, ignoreCase = true) }
         }
     }

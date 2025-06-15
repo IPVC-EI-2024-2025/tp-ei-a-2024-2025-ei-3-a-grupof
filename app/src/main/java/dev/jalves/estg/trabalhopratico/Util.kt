@@ -1,5 +1,7 @@
 package dev.jalves.estg.trabalhopratico
 
+import dev.jalves.estg.trabalhopratico.objects.Role
+import io.github.jan.supabase.auth.user.UserInfo
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -21,4 +23,11 @@ fun formatDate(input: String): String {
     val outputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val date = inputFormat.parse(input)
     return outputFormat.format(date!!)
+}
+
+fun UserInfo?.hasAccess(vararg allowedRoles: Role): Boolean {
+    val roleString = this?.userMetadata!!["role"].toString()
+        .removeSurrounding("\"")
+        .trim()
+    return Role.fromString(roleString) in allowedRoles
 }
