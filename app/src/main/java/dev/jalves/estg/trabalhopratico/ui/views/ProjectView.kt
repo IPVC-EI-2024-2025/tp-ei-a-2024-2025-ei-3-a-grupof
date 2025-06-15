@@ -234,8 +234,7 @@ fun ProjectView(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 8.dp),
+                .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             when {
@@ -247,26 +246,33 @@ fun ProjectView(
                     CircularProgressIndicator()
                 }
                 else -> {
-                    Text(project!!.name, style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(horizontal = 8.dp))
-                    Text(
-                        project!!.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                    Column (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
                     ) {
+                        Text(project!!.name, style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(horizontal = 8.dp))
                         Text(
-                            "${stringResource(R.string.created)}: ${formatDate(project!!.startDate)}",
-                            style = MaterialTheme.typography.bodySmall
+                            project!!.description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
-                        Text(
-                            "${stringResource(R.string.due)}: ${formatDate(project!!.dueDate)}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        ) {
+                            Text(
+                                "${stringResource(R.string.created)}: ${formatDate(project!!.startDate)}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                "${stringResource(R.string.due)}: ${formatDate(project!!.dueDate)}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
+                    
                     ManagedBy(project!!)
                     Tabs(navController, project!!) {
                         projectViewModel.loadProject(projectID)
@@ -381,7 +387,6 @@ enum class Destination(
     EMPLOYEES("employees", R.string.employees)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Tabs(
     rootNavController: NavHostController,
@@ -435,7 +440,6 @@ fun TasksTab(
     var tasks by remember { mutableStateOf<List<Task>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
-    var searchQuery by remember { mutableStateOf("") }
 
     val user = supabase.auth.currentUserOrNull()!!
 
@@ -460,17 +464,6 @@ fun TasksTab(
             } catch (e: Exception) {
                 error = e.message
                 isLoading = false
-            }
-        }
-    }
-
-    val filteredTasks = remember(tasks, searchQuery) {
-        if (searchQuery.isBlank()) {
-            tasks
-        } else {
-            tasks.filter { task ->
-                task.name.contains(searchQuery, ignoreCase = true) ||
-                        task.description.contains(searchQuery, ignoreCase = true)
             }
         }
     }
@@ -500,16 +493,7 @@ fun TasksTab(
                     )
                 }
 
-                filteredTasks.isEmpty() && searchQuery.isNotBlank() -> {
-                    Text(
-                        text = stringResource(R.string.no_tasks_matching_search, searchQuery),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
-                filteredTasks.isEmpty() -> {
+                tasks.isEmpty() -> {
                     Text(
                         text = stringResource(R.string.no_tasks_yet),
                         style = MaterialTheme.typography.bodyMedium,
@@ -523,7 +507,7 @@ fun TasksTab(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
-                        items(filteredTasks) { task ->
+                        items(tasks) { task ->
                             TaskListItem(
                                 task = task,
                                 onClick = {
@@ -597,7 +581,6 @@ fun TasksTab(
 
 @Composable
 fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> Unit = {}) {
-    var searchQuery by remember { mutableStateOf("") }
     val showAddEmployeeDialog = remember { mutableStateOf(false) }
     val showRemoveConfirmDialog = remember { mutableStateOf(false) }
     val selectedEmployee = remember { mutableStateOf<UserDTO?>(null) }
@@ -611,16 +594,6 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
 
     LaunchedEffect(projectID) {
         userRole = AuthService.getCurrentUserRole()
-    }
-
-    val filteredEmployees = remember(employees, searchQuery) {
-        if (searchQuery.isBlank()) {
-            employees
-        } else {
-            employees.filter { employee ->
-                employee.displayName.contains(searchQuery, ignoreCase = true)
-            }
-        }
     }
 
     fun showToast(message: String) {
@@ -644,21 +617,12 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                     )
                 }
 
-                filteredEmployees.isEmpty() && searchQuery.isNotBlank() -> {
-                    Text(
-                        text = stringResource(R.string.no_employees_matching_search, searchQuery),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
                 else -> {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
-                        items(filteredEmployees) { employee ->
+                        items(employees) { employee ->
                             val user = User(
                                 id = employee.id,
                                 displayName = employee.displayName,
