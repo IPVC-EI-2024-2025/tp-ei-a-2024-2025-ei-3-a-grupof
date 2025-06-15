@@ -21,9 +21,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.theme.ThemedApp
-import dev.jalves.estg.trabalhopratico.ui.views.HomeView
 import dev.jalves.estg.trabalhopratico.ui.views.IntroView
 import dev.jalves.estg.trabalhopratico.ui.views.NewTaskLogView
+import dev.jalves.estg.trabalhopratico.ui.views.MainView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectView
@@ -33,7 +33,6 @@ import dev.jalves.estg.trabalhopratico.ui.views.SettingsView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
 import dev.jalves.estg.trabalhopratico.ui.views.TaskLogView
 import dev.jalves.estg.trabalhopratico.ui.views.TaskView
-import dev.jalves.estg.trabalhopratico.ui.views.admin.AdminMain
 import io.github.jan.supabase.auth.auth
 import java.util.Locale
 
@@ -95,7 +94,7 @@ class MainActivity : ComponentActivity() {
                                 } else {
                                     navController.navigate(
                                         if (supabase.auth.currentUserOrNull() == null)
-                                            "login" else "adminMain"
+                                            "login" else "main"
                                     ) {
                                         popUpTo(0)
                                     }
@@ -123,7 +122,7 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("register")
                             },
                             onSuccessfulSignIn = {
-                                navController.navigate("adminMain") {
+                                navController.navigate("main") {
                                     popUpTo(0)
                                 }
                                 bottomBarState.value = true
@@ -137,17 +136,13 @@ class MainActivity : ComponentActivity() {
                                 navController.navigateUp()
                             },
                             onSuccessfulRegister = {
-                                navController.navigate("adminMain")
+                                navController.navigate("main")
                             }
                         )
                     }
 
-                    composable(route = "home") {
-                        HomeView()
-                    }
-
-                    composable(route = "adminMain") {
-                        AdminMain(navController, profileViewModel, projectsViewModel)
+                    composable(route = "main") {
+                        MainView(navController, profileViewModel, projectsViewModel)
                     }
 
                     composable(route = "profile") {
