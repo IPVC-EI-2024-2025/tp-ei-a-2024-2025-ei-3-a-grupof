@@ -70,7 +70,6 @@ import dev.jalves.estg.trabalhopratico.services.TaskLogService
 import dev.jalves.estg.trabalhopratico.services.TaskService
 import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
 import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
-import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.components.TaskLogItem
 import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
@@ -578,11 +577,6 @@ fun TaskEmployeesTab(
                 .padding(vertical = 8.dp, horizontal = 6.dp)
                 .padding(bottom = 80.dp)
         ) {
-            SearchBar(
-                onSearch = { query -> searchQuery = query },
-                onFilter = {}
-            )
-
             when {
                 employees.isEmpty() -> {
                     Text(
