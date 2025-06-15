@@ -13,7 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.CameraAlt
-import androidx.compose.material.icons.rounded.Castle
+import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,7 +30,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.objects.TaskLog
 import dev.jalves.estg.trabalhopratico.objects.User
+import dev.jalves.estg.trabalhopratico.objects.LogPhotos
 import dev.jalves.estg.trabalhopratico.services.UserService
+import dev.jalves.estg.trabalhopratico.services.TaskLogService
 
 @Composable
 fun TaskLogItem(
@@ -39,6 +41,8 @@ fun TaskLogItem(
 ) {
     var user by remember { mutableStateOf<User?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+    var photos by remember { mutableStateOf<List<LogPhotos>>(emptyList()) }
+    var photosLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(log.userId) {
         try {
@@ -47,6 +51,19 @@ fun TaskLogItem(
             Log.e("TaskLogItem", "Failed to fetch user", e)
         } finally {
             isLoading = false
+        }
+    }
+
+    LaunchedEffect(log.id) {
+        try {
+            val result = TaskLogService.getLogPhotos(log.id)
+            if (result.isSuccess) {
+                photos = result.getOrNull() ?: emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e("TaskLogItem", "Failed to fetch log photos", e)
+        } finally {
+            photosLoading = false
         }
     }
 
@@ -90,7 +107,7 @@ fun TaskLogItem(
 
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
@@ -110,30 +127,34 @@ fun TaskLogItem(
                         )
                     }
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            Icons.Rounded.CameraAlt,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "2 photos",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    log.location.let { location ->
+                    if (!photosLoading && photos.isNotEmpty()) {
+                        Text("•")
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Icon(
-                                Icons.Rounded.Castle,
+                                Icons.Rounded.CameraAlt,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "${photos.size} ${if (photos.size == 1) "photo" else "photos"}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    log.location.let { location ->
+                        Text("•")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                Icons.Rounded.LocationOn,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
