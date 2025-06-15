@@ -296,7 +296,7 @@ fun AssignedTo() {
     val assignedEmployees by taskViewModel.assignedEmployees.collectAsState()
 
     Row(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -379,6 +379,7 @@ enum class TaskDestination(
     EMPLOYEES("employees", R.string.employees)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Tabs(navController: NavHostController, task: Task, employees: List<User>, onRefresh: () -> Unit) {
     val startDestination = TaskDestination.LOGS
