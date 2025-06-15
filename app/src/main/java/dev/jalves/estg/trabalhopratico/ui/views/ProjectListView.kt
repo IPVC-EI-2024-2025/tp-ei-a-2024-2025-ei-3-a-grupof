@@ -49,6 +49,8 @@ fun ProjectListView(
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
+    var filteredProjects by remember { mutableStateOf<List<Project>>(emptyList()) }
+
     var userRole by remember { mutableStateOf<Role?>(null) }
     val user = supabase.auth.currentUserOrNull()!!
 
@@ -64,6 +66,7 @@ fun ProjectListView(
         }
         result.onSuccess {
             projects = it
+            filteredProjects = it
             loading = false
         }.onFailure { exception ->
             error = exception.message ?: "Unknown error"
@@ -87,8 +90,13 @@ fun ProjectListView(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             SearchBar(
-                onSearch = {query -> },
-                onFilter = {}
+                onSearch = {query ->
+                    if(query.isEmpty()) filteredProjects = projects
+
+                    filteredProjects = projects.filter {
+                        it.name.contains(query, ignoreCase = true)
+                    }
+                }
             )
 
             when {
@@ -107,7 +115,7 @@ fun ProjectListView(
                     LazyColumn (
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(projects) { project ->
+                        items(filteredProjects) { project ->
                             ProjectListItem(
                                 onClick = {
                                     rootNavController.navigate("project/${project.id}")

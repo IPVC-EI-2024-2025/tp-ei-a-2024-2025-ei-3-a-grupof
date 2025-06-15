@@ -29,7 +29,7 @@ import dev.jalves.estg.trabalhopratico.R
 @Composable
 fun SearchBar(
     onSearch: (query: String) -> Unit,
-    onFilter: () -> Unit
+    onFilter: (() -> Unit)? = null
 ) {
     var query by remember { mutableStateOf("") }
 
@@ -61,17 +61,18 @@ fun SearchBar(
                 unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
             ),
         )
-        IconButton(
-            modifier = Modifier.size(56.dp),
-            colors = IconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            ),
-            onClick = onFilter
-        ) {
-            Icon(Icons.Rounded.FilterAlt, contentDescription = "Filter")
-        }
+        if(onFilter != null)
+            IconButton(
+                modifier = Modifier.size(56.dp),
+                colors = IconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                onClick = onFilter
+            ) {
+                Icon(Icons.Rounded.FilterAlt, contentDescription = "Filter")
+            }
     }
 }
