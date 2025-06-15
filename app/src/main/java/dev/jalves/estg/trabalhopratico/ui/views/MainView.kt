@@ -22,8 +22,7 @@ import dev.jalves.estg.trabalhopratico.R
 @Composable
 fun MainView(
     rootNavController: NavHostController,
-    profileViewModel: ProfileViewModel,
-    projectsViewModel: ProjectsViewModel
+    profileViewModel: ProfileViewModel
 ) {
     val navController = rememberNavController()
 
@@ -60,7 +59,7 @@ fun MainView(
             }
 
             composable(route = "projects") {
-                ProjectListView(rootNavController, projectsViewModel)
+                ProjectListView(rootNavController)
             }
 
             composable(route = "users") {

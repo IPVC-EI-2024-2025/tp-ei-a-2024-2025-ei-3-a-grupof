@@ -33,7 +33,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import dev.jalves.estg.trabalhopratico.R
+import dev.jalves.estg.trabalhopratico.hasAccess
 import dev.jalves.estg.trabalhopratico.objects.Project
+import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
@@ -47,6 +49,8 @@ fun HomeView(
     profileViewModel: ProfileViewModel
 ) {
     val profile by profileViewModel.profile.collectAsState()
+
+    val user = supabase.auth.currentUserOrNull()!!
 
     var projects by remember { mutableStateOf<List<Project>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
@@ -64,7 +68,11 @@ fun HomeView(
     LaunchedEffect(Unit) {
         val currentUserId = supabase.auth.currentUserOrNull()?.id
         if (currentUserId == null) return@LaunchedEffect
-        val result = ProjectService.listProjectsByCreator(currentUserId)
+        val result = when {
+            user.hasAccess(Role.ADMIN) -> ProjectService.listProjectsByCreator(currentUserId)
+            user.hasAccess(Role.MANAGER) -> ProjectService.listProjectsByManager(currentUserId)
+            else -> ProjectService.listProjectsByEmployee(currentUserId)
+        }
         result.onSuccess {
             projects = it
             loading = false
@@ -176,72 +184,74 @@ fun HomeView(
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                stringResource(R.string.your_tasks), style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                ), modifier = Modifier.padding(start = 12.dp)
-            )
+        if(user.hasAccess(Role.EMPLOYEE)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    stringResource(R.string.your_tasks), style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    ), modifier = Modifier.padding(start = 12.dp)
+                )
 
-            when {
-                tasks == null -> {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-
-                errorMessage != null -> {
-                    Text(
-                        text = "Error loading tasks: $error",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
-                else -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(tasks!!) { task ->
-                            TaskListItem(
-                                task = task,
-                                onClick = {
-                                    rootNavController.navigate("task/${task.id}")
-                                }
-                            )
-                        }
-                    }
-
-                    if (tasks!!.isNotEmpty()) {
+                when {
+                    tasks == null -> {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            Button(
-                                onClick = {
-                                    navController.navigate("tasks")
-                                }
-                            ) {
-                                Text("${stringResource(R.string.see_all)} (${tasks!!.size}+)")
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    errorMessage != null -> {
+                        Text(
+                            text = "Error loading tasks: $error",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+
+                    else -> {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(tasks!!) { task ->
+                                TaskListItem(
+                                    task = task,
+                                    onClick = {
+                                        rootNavController.navigate("task/${task.id}")
+                                    }
+                                )
                             }
                         }
-                    } else {
-                        Text(
-                            stringResource(R.string.no_tasks),
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )                    }
+
+                        if (tasks!!.isNotEmpty()) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Button(
+                                    onClick = {
+                                        navController.navigate("tasks")
+                                    }
+                                ) {
+                                    Text("${stringResource(R.string.see_all)} (${tasks!!.size}+)")
+                                }
+                            }
+                        } else {
+                            Text(
+                                stringResource(R.string.no_tasks),
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.padding(start = 10.dp)
+                            )                    }
+                    }
                 }
             }
         }

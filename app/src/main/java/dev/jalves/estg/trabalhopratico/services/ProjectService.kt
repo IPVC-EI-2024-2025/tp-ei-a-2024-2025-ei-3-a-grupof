@@ -13,10 +13,12 @@ import dev.jalves.estg.trabalhopratico.dto.ProjectOverviewDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
 import dev.jalves.estg.trabalhopratico.objects.EmployeeProject
 import dev.jalves.estg.trabalhopratico.objects.Project
+import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.buildJsonObject
@@ -120,6 +122,42 @@ object ProjectService {
                 Result.success(projects)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to fetch projects for creator $creatorId", e)
+                Result.failure(e)
+            }
+        }
+
+    suspend fun listProjectsByManager(managerId: String): Result<List<Project>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val projects = supabase.from("projects")
+                    .select {
+                        filter {
+                            eq("manager_id", managerId)
+                        }
+                    }
+                    .decodeList<Project>()
+
+                Result.success(projects)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch projects for manager $managerId", e)
+                Result.failure(e)
+            }
+        }
+
+    suspend fun listProjectsByEmployee(employeeId: String): Result<List<Project>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val projects = supabase.from("projects")
+                    .select(Columns.raw("id, name, description, start_date, due_date, status, created_by_id, manager_id, employee_project!inner(user_id)")) {
+                        filter {
+                            eq("employee_project.user_id", employeeId)
+                        }
+                    }
+                    .decodeList<Project>()
+
+                Result.success(projects)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch projects for employee $employeeId", e)
                 Result.failure(e)
             }
         }

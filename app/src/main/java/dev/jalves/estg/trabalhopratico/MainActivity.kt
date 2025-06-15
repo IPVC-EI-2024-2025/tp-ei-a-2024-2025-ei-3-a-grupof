@@ -72,7 +72,6 @@ class MainActivity : ComponentActivity() {
                 val bottomBarState = rememberSaveable { (mutableStateOf(false)) }
 
                 val profileViewModel: ProfileViewModel = viewModel()
-                val projectsViewModel: ProjectsViewModel = viewModel()
 
                 NavHost(
                     navController = navController,
@@ -143,7 +142,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(route = "main") {
-                        MainView(navController, profileViewModel, projectsViewModel)
+                        MainView(navController, profileViewModel)
                     }
 
                     composable(route = "profile") {
