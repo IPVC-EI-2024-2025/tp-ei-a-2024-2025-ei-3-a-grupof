@@ -96,4 +96,8 @@
     <string name="photos">Photos</string>
     <string name="location">Location</string>
     <string name="task_log">Task Log</string>
+    <string name="no_projects">No Projects</string>
+    <string name="your_tasks">Your Tasks</string>
+    <string name="no_tasks">No Tasks</string>
+    <string name="status">status</string>
 </resources>

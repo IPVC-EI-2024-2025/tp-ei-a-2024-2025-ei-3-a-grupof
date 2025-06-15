@@ -75,7 +75,6 @@ import dev.jalves.estg.trabalhopratico.ui.components.TaskLogItem
 import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
-import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditTaskDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
@@ -225,11 +224,6 @@ fun TaskView(
 
         when {
             openEditDialog.value -> {
-                EditTaskDialog(
-                    onDismiss = {openEditDialog.value = false},
-                    onSubmit = {openEditDialog.value = false},
-                    task!!
-                )
             }
             openAssigneeSelectionDialog.value -> {
                 UserSelectionDialog(
