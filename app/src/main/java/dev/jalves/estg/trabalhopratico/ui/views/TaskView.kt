@@ -216,7 +216,7 @@ fun TaskView(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(16.dp))
-                        Text("Exporting PDF...", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.exporting_pdf), style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -239,7 +239,7 @@ fun TaskView(
             }
             confirmCompleteDialog.value -> {
                 ConfirmDialog(
-                    message = "Mark task as complete?",
+                    message = stringResource(R.string.confirm_mark_complete),
                     onConfirm = {
                         scope.launch {
                             TaskService.markTaskComplete(taskID)
@@ -253,7 +253,7 @@ fun TaskView(
             }
             confirmArchiveDialog.value -> {
                 ConfirmDialog(
-                    message = "Archive task?",
+                    message = stringResource(R.string.confirm_archive_task),
                     onConfirm = {
                         scope.launch {
                             confirmArchiveDialog.value = false
@@ -362,9 +362,9 @@ fun AssignedTo() {
         }
 
         Column {
-            Text("Part of", style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.part_of), style = MaterialTheme.typography.labelSmall)
             Text(
-                projectName ?: "Loading project...",
+                projectName ?: "...",
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -462,7 +462,7 @@ fun LogsTab(navController: NavHostController, taskID: String) {
 
             error != null -> {
                 Text(
-                    text = "Error loading logs: $error",
+                    text = stringResource(R.string.error_loading_logs) + ": $error",
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(16.dp)
                 )
@@ -470,7 +470,7 @@ fun LogsTab(navController: NavHostController, taskID: String) {
 
             logs.isEmpty() -> {
                 Text(
-                    text = "No logs yet for this task",
+                    text = stringResource(R.string.no_logs_found),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(16.dp)
@@ -578,16 +578,7 @@ fun TaskEmployeesTab(
             when {
                 employees.isEmpty() -> {
                     Text(
-                        text = "No employees assigned to this task",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
-                filteredEmployees.isEmpty() && searchQuery.isNotBlank() -> {
-                    Text(
-                        text = "No employees found matching \"$searchQuery\"",
+                        text = stringResource(R.string.no_employees_assigned),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -600,7 +591,7 @@ fun TaskEmployeesTab(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 8.dp),
-                        contentPadding = PaddingValues(bottom = 80.dp) // Space for FAB
+                        contentPadding = PaddingValues(bottom = 80.dp)
                     ) {
                         items(filteredEmployees) { employee ->
                             UserListItem(
@@ -660,16 +651,16 @@ fun TaskEmployeesTab(
                             result.fold(
                                 onSuccess = {
                                     onRefresh()
-                                    showToast("Employee assigned to task successfully!")
+                                    showToast(context.getString(R.string.employee_assigned_successfully))
                                 },
                                 onFailure = { exception ->
                                     Log.e("TaskEmployeesTab", "Failed to assign employee to task", exception)
-                                    showToast("Failed to assign employee to task")
+                                    showToast(context.getString(R.string.failed_to_assign_employee))
                                 }
                             )
                         } catch (e: Exception) {
                             Log.e("TaskEmployeesTab", "Error assigning employee to task", e)
-                            showToast("Error assigning employee to task")
+                            showToast(context.getString(R.string.error_assigning_employee))
                         }
                     }
                     showAddEmployeeDialog.value = false
@@ -700,23 +691,23 @@ fun TaskEmployeesTab(
                                 result.fold(
                                     onSuccess = {
                                         onRefresh()
-                                        showToast("Employee removed from task successfully!")
+                                        showToast(context.getString(R.string.employee_removed_successfully))
                                     },
                                     onFailure = { exception ->
                                         Log.e("TaskEmployeesTab", "Failed to remove employee from task", exception)
-                                        showToast("Failed to remove employee from task")
+                                        showToast(context.getString(R.string.failed_to_remove_employee))
                                     }
                                 )
                             } catch (e: Exception) {
                                 Log.e("TaskEmployeesTab", "Error removing employee from task", e)
-                                showToast("Error removing employee from task")
+                                showToast(context.getString(R.string.error_removing_employee))
                             }
                         }
                     }
                     showRemoveConfirmDialog.value = false
                     selectedEmployee.value = null
                 },
-                message = "Are you sure you want to remove ${selectedEmployee.value?.displayName} from this task?"
+                message = context.getString(R.string.confirm_remove_employee, selectedEmployee.value?.displayName)
             )
         }
     }
