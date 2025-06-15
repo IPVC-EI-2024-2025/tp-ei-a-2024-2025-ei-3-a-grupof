@@ -11,6 +11,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -29,62 +30,75 @@ data class NavigationItem(
 )
 
 @Composable
-fun NavBar(navController: NavController) {
-    val user = supabase.auth.currentUserOrNull()!!
+fun NavBar(
+    navController: NavController,
+    rootNavController: NavController
+) {
+    val user = supabase.auth.currentUserOrNull()
 
-    val navigationItems = listOfNotNull(
-        NavigationItem(
-            title = stringResource(R.string.nav_home),
-            icon = Icons.Rounded.Home,
-            route = "home"
-        ),
-        if(user.hasAccess(Role.EMPLOYEE)) {
-            NavigationItem(
-                title = stringResource(R.string.tasks),
-                icon = Icons.AutoMirrored.Default.Assignment,
-                route = "tasks"
-            )
-        } else null,
-        NavigationItem(
-            title = stringResource(R.string.projects),
-            icon = Icons.Rounded.Work,
-            route = "projects"
-        ),
-        if(user.hasAccess(Role.ADMIN)) {
-            NavigationItem(
-                title = stringResource(R.string.users),
-                icon = Icons.Rounded.People,
-                route = "users"
-            )
-        } else null,
-        NavigationItem(
-            title = stringResource(R.string.menu),
-            icon = Icons.Rounded.Menu,
-            route = "menu"
-        ),
-    )
-
-    val selectedNavigationIndex = rememberSaveable {
-        mutableIntStateOf(0)
+    LaunchedEffect(user) {
+        if (user == null) {
+            rootNavController.navigate("login") {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
     }
+    user?.let { currentUser ->
+        val navigationItems = listOfNotNull(
+            NavigationItem(
+                title = stringResource(R.string.nav_home),
+                icon = Icons.Rounded.Home,
+                route = "home"
+            ),
+            if(currentUser.hasAccess(Role.EMPLOYEE)) {
+                NavigationItem(
+                    title = stringResource(R.string.tasks),
+                    icon = Icons.AutoMirrored.Default.Assignment,
+                    route = "tasks"
+                )
+            } else null,
+            NavigationItem(
+                title = stringResource(R.string.projects),
+                icon = Icons.Rounded.Work,
+                route = "projects"
+            ),
+            if(currentUser.hasAccess(Role.ADMIN)) {
+                NavigationItem(
+                    title = stringResource(R.string.users),
+                    icon = Icons.Rounded.People,
+                    route = "users"
+                )
+            } else null,
+            NavigationItem(
+                title = stringResource(R.string.menu),
+                icon = Icons.Rounded.Menu,
+                route = "menu"
+            ),
+        )
 
-    NavigationBar {
-        navigationItems.forEachIndexed { index, item ->
-            NavigationBarItem(
-                selected = selectedNavigationIndex.intValue == index,
-                onClick = {
-                    selectedNavigationIndex.intValue = index
-                    navController.navigate(item.route)
-                },
-                icon = {
-                    Icon(imageVector = item.icon, contentDescription = item.title)
-                },
-                label = {
-                    Text(
-                        item.title
-                    )
-                }
-            )
+        val selectedNavigationIndex = rememberSaveable {
+            mutableIntStateOf(0)
+        }
+
+        NavigationBar {
+            navigationItems.forEachIndexed { index, item ->
+                NavigationBarItem(
+                    selected = selectedNavigationIndex.intValue == index,
+                    onClick = {
+                        selectedNavigationIndex.intValue = index
+                        navController.navigate(item.route)
+                    },
+                    icon = {
+                        Icon(imageVector = item.icon, contentDescription = item.title)
+                    },
+                    label = {
+                        Text(
+                            item.title
+                        )
+                    }
+                )
+            }
         }
     }
 }

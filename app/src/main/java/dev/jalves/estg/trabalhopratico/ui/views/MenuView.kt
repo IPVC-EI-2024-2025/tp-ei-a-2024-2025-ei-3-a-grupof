@@ -1,5 +1,6 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
@@ -75,10 +76,19 @@ fun MenuView(rootNavController: NavController) {
             },
             modifier = Modifier.clickable {
                 scope.launch {
-                    supabase.auth.signOut(SignOutScope.LOCAL)
-                    rootNavController.navigate("login") {
-                        popUpTo(0)
-                        launchSingleTop = true
+                    try {
+                        // Check if supabase and auth are initialized
+                        supabase.auth.signOut(SignOutScope.LOCAL)
+
+                        // Only navigate after successful logout
+                        rootNavController.navigate("login") {
+                            popUpTo(0)
+                            launchSingleTop = true
+                        }
+                    } catch (e: Exception) {
+                        Log.e("Auth", "Sign out failed: ${e.message}", e)
+                        // Handle the error appropriately
+                        // Maybe show a toast or error message to user
                     }
                 }
             },
