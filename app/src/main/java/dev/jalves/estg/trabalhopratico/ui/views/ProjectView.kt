@@ -68,6 +68,7 @@ import dev.jalves.estg.trabalhopratico.formatDate
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.User
+import dev.jalves.estg.trabalhopratico.services.AuthService
 import dev.jalves.estg.trabalhopratico.services.ProjectService.addEmployeeToProject
 import dev.jalves.estg.trabalhopratico.services.ProjectService.removeEmployeeFromProject
 import dev.jalves.estg.trabalhopratico.services.TaskService
@@ -92,6 +93,8 @@ fun ProjectView(
 
     val projectViewModel: ProjectViewModel = viewModel()
 
+    var userRole by remember { mutableStateOf<Role?>(null) }
+
     val project by projectViewModel.project.collectAsState()
     val error by projectViewModel.error.collectAsState()
 
@@ -99,6 +102,7 @@ fun ProjectView(
 
     LaunchedEffect(Unit) {
         projectViewModel.loadProject(projectID)
+        userRole = AuthService.getCurrentUserRole()
     }
 
     Scaffold(
@@ -116,52 +120,79 @@ fun ProjectView(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { expanded = true }) {
-                        Icon(Icons.Rounded.MoreVert, contentDescription = "Menu")
-                    }
+                    if (userRole != Role.EMPLOYEE) {
+                        IconButton(onClick = { expanded = true }) {
+                            Icon(Icons.Rounded.MoreVert, contentDescription = "Menu")
+                        }
 
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Person, stringResource(R.string.edit_manager)) },
-                            onClick = {
-                                expanded = false
-                                openManagerSelectionDialog.value = true
-                            }
-                        )
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.Person,
+                                        stringResource(R.string.edit_manager)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    openManagerSelectionDialog.value = true
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Edit, stringResource(R.string.edit)) },
-                            onClick = {
-                                expanded = false
-                                openEditDialog.value = true
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.Edit,
+                                        stringResource(R.string.edit)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    openEditDialog.value = true
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.TableChart, stringResource(R.string.export_stats)) },
-                            onClick = {
-                                expanded = false
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.TableChart,
+                                        stringResource(R.string.export_stats)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Check, stringResource(R.string.mark_complete)) },
-                            onClick = {
-                                expanded = false
-                                confirmCompleteDialog.value = true
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.Check,
+                                        stringResource(R.string.mark_complete)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    confirmCompleteDialog.value = true
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Folder, stringResource(R.string.archive_project)) },
-                            onClick = {
-                                expanded = false
-                                confirmArchiveDialog.value = true
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.Folder,
+                                        stringResource(R.string.archive_project)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    confirmArchiveDialog.value = true
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -472,6 +503,7 @@ fun TasksTab(
             }
         }
 
+
         FloatingActionButton(
             onClick = { showCreateDialog.value = true },
             modifier = Modifier
@@ -533,7 +565,13 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
     val selectedEmployee = remember { mutableStateOf<UserDTO?>(null) }
     val scope = rememberCoroutineScope()
 
+    var userRole by remember { mutableStateOf<Role?>(null) }
+
     val context = LocalContext.current
+
+    LaunchedEffect(projectID) {
+        userRole = AuthService.getCurrentUserRole()
+    }
 
     val filteredEmployees = remember(employees, searchQuery) {
         if (searchQuery.isBlank()) {
@@ -593,23 +631,28 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                                 role = employee.role,
                             )
 
-                            UserListItem(user = user) {
-                                UserAction(
-                                    icon = Icons.Rounded.RemoveCircle,
-                                    name = stringResource(R.string.remove_from_project),
-                                    onClick = {
-                                        selectedEmployee.value = employee
-                                        showRemoveConfirmDialog.value = true
-                                    }
-                                )
+                            UserListItem(
+                                user = user,
+                                simple = userRole != Role.EMPLOYEE
+                            ) {
+                                if(userRole != Role.EMPLOYEE){
+                                    UserAction(
+                                        icon = Icons.Rounded.RemoveCircle,
+                                        name = stringResource(R.string.remove_from_project),
+                                        onClick = {
+                                            selectedEmployee.value = employee
+                                            showRemoveConfirmDialog.value = true
+                                        }
+                                    )
 
-                                UserAction(
-                                    icon = Icons.Rounded.Download,
-                                    name = stringResource(R.string.export_stats),
-                                    onClick = {
-                                        // TODO: Implement export stats functionality
-                                    }
-                                )
+                                    UserAction(
+                                        icon = Icons.Rounded.Download,
+                                        name = stringResource(R.string.export_stats),
+                                        onClick = {
+                                            // TODO: Implement export stats functionality
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -617,18 +660,20 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
             }
         }
 
-        FloatingActionButton(
-            onClick = {
-                showAddEmployeeDialog.value = true
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add Employee"
-            )
+        if(userRole != Role.EMPLOYEE) {
+            FloatingActionButton(
+                onClick = {
+                    showAddEmployeeDialog.value = true
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Employee"
+                )
+            }
         }
 
         if (showAddEmployeeDialog.value) {

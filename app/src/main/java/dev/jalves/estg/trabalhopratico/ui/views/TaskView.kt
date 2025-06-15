@@ -66,6 +66,7 @@ import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.TaskLog
 import dev.jalves.estg.trabalhopratico.objects.User
+import dev.jalves.estg.trabalhopratico.services.AuthService
 import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
 import dev.jalves.estg.trabalhopratico.ui.components.TaskLogItem
@@ -369,7 +370,11 @@ fun LogsTab(navController: NavHostController, taskID: String) {
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
+    var userRole by remember { mutableStateOf<Role?>(null) }
+
     LaunchedEffect(taskID) {
+        userRole = AuthService.getCurrentUserRole()
+
         scope.launch {
             try {
                 isLoading = true
@@ -446,15 +451,17 @@ fun LogsTab(navController: NavHostController, taskID: String) {
             }
         }
 
-        FloatingActionButton(
-            onClick = {
-                navController.navigate("newTaskLog/$taskID")
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(Icons.Rounded.Add, contentDescription = "Add Log")
+        if (userRole != Role.MANAGER) {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate("newTaskLog/$taskID")
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(Icons.Rounded.Add, contentDescription = "Add Log")
+            }
         }
     }
 }
@@ -472,6 +479,9 @@ fun TaskEmployeesTab(
     val selectedEmployee = remember { mutableStateOf<User?>(null) }
     var projectEmployees by remember { mutableStateOf<List<UserDTO>>(emptyList()) }
     var isLoadingProjectEmployees by remember { mutableStateOf(false) }
+
+    var userRole by remember { mutableStateOf<Role?>(null) }
+
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
@@ -487,6 +497,8 @@ fun TaskEmployeesTab(
     }
 
     LaunchedEffect(projectID) {
+        userRole = AuthService.getCurrentUserRole()
+
         isLoadingProjectEmployees = true
         scope.launch {
             try {
@@ -548,22 +560,27 @@ fun TaskEmployeesTab(
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
                         items(filteredEmployees) { employee ->
-                            UserListItem(user = employee) {
-                                UserAction(
-                                    icon = Icons.Rounded.RemoveCircle,
-                                    name = stringResource(R.string.remove_from_task),
-                                    onClick = {
-                                        selectedEmployee.value = employee
-                                        showRemoveConfirmDialog.value = true
-                                    }
-                                )
+                            UserListItem(
+                                user = employee,
+                                simple = userRole != Role.EMPLOYEE
+                            ) {
+                                if (userRole != Role.EMPLOYEE) {
+                                    UserAction(
+                                        icon = Icons.Rounded.RemoveCircle,
+                                        name = stringResource(R.string.remove_from_task),
+                                        onClick = {
+                                            selectedEmployee.value = employee
+                                            showRemoveConfirmDialog.value = true
+                                        }
+                                    )
 
-                                UserAction(
-                                    icon = Icons.Rounded.Download,
-                                    name = stringResource(R.string.export_stats),
-                                    onClick = {
-                                    }
-                                )
+                                    UserAction(
+                                        icon = Icons.Rounded.Download,
+                                        name = stringResource(R.string.export_stats),
+                                        onClick = {
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -571,18 +588,21 @@ fun TaskEmployeesTab(
             }
         }
 
-        FloatingActionButton(
-            onClick = {
-                showAddEmployeeDialog.value = true
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add Employee"
-            )
+        // Only show FAB if user is not an employee
+        if (userRole != Role.EMPLOYEE) {
+            FloatingActionButton(
+                onClick = {
+                    showAddEmployeeDialog.value = true
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Employee"
+                )
+            }
         }
 
         if (showAddEmployeeDialog.value) {

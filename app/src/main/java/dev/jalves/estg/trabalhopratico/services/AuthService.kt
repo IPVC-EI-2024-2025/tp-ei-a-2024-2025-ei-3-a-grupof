@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
+import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
@@ -185,4 +186,23 @@ object AuthService {
                 Result.failure(exception)
             }
         }
+
+    suspend fun getCurrentUserRole(): Role? {
+        try {
+            val currentUser = supabase.auth.currentUserOrNull() ?: return null
+
+            val result = supabase.from("users")
+                .select {
+                    filter {
+                        eq("id", currentUser.id)
+                    }
+                }
+                .decodeSingle<Map<String, Any>>()
+
+            val roleStr = result["role"]?.toString()?.removeSurrounding("\"")
+            return roleStr?.let { Role.fromString(it) } ?: Role.EMPLOYEE
+        } catch (e: Exception) {
+            return Role.EMPLOYEE
+        }
+    }
 }
