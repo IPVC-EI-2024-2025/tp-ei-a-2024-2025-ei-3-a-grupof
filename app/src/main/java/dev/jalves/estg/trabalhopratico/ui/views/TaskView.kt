@@ -57,25 +57,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
-import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
-import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
-import kotlinx.coroutines.launch
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.dto.UserDTO
+import dev.jalves.estg.trabalhopratico.hasAccess
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.TaskLog
 import dev.jalves.estg.trabalhopratico.objects.User
-import dev.jalves.estg.trabalhopratico.services.AuthService
 import dev.jalves.estg.trabalhopratico.services.ProjectService
+import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
+import dev.jalves.estg.trabalhopratico.services.TaskLogService
+import dev.jalves.estg.trabalhopratico.services.TaskService
 import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
+import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
+import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.components.TaskLogItem
 import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
-import dev.jalves.estg.trabalhopratico.services.TaskService
-import dev.jalves.estg.trabalhopratico.services.TaskLogService
-import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
+import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -420,11 +422,9 @@ fun LogsTab(navController: NavHostController, taskID: String) {
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
-    var userRole by remember { mutableStateOf<Role?>(null) }
+    val user = supabase.auth.currentUserOrNull()!!
 
     LaunchedEffect(taskID) {
-        userRole = AuthService.getCurrentUserRole()
-
         scope.launch {
             try {
                 isLoading = true
@@ -501,7 +501,7 @@ fun LogsTab(navController: NavHostController, taskID: String) {
             }
         }
 
-        if (userRole != Role.MANAGER) {
+        if (user.hasAccess(Role.EMPLOYEE)) {
             FloatingActionButton(
                 onClick = {
                     navController.navigate("newTaskLog/$taskID")
@@ -530,7 +530,7 @@ fun TaskEmployeesTab(
     var projectEmployees by remember { mutableStateOf<List<UserDTO>>(emptyList()) }
     var isLoadingProjectEmployees by remember { mutableStateOf(false) }
 
-    var userRole by remember { mutableStateOf<Role?>(null) }
+    val user = supabase.auth.currentUserOrNull()!!
 
     val scope = rememberCoroutineScope()
 
@@ -547,8 +547,6 @@ fun TaskEmployeesTab(
     }
 
     LaunchedEffect(projectID) {
-        userRole = AuthService.getCurrentUserRole()
-
         isLoadingProjectEmployees = true
         scope.launch {
             try {
@@ -612,9 +610,9 @@ fun TaskEmployeesTab(
                         items(filteredEmployees) { employee ->
                             UserListItem(
                                 user = employee,
-                                simple = userRole == Role.EMPLOYEE
+                                simple = user.hasAccess(Role.EMPLOYEE)
                             ) {
-                                if (userRole != Role.EMPLOYEE) {
+                                if (user.hasAccess(Role.MANAGER, Role.ADMIN)) {
                                     UserAction(
                                         icon = Icons.Rounded.RemoveCircle,
                                         name = stringResource(R.string.remove_from_task),
@@ -639,7 +637,7 @@ fun TaskEmployeesTab(
             }
         }
 
-        if (userRole != Role.EMPLOYEE) {
+        if (user.hasAccess(Role.MANAGER, Role.ADMIN)) {
             FloatingActionButton(
                 onClick = {
                     showAddEmployeeDialog.value = true
