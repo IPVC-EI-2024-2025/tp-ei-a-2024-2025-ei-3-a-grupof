@@ -8,31 +8,26 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CalendarToday
-import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import dev.jalves.estg.trabalhopratico.dto.CreateTaskLogDTO
 import dev.jalves.estg.trabalhopratico.objects.TaskLog
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.services.TaskLogService
+import dev.jalves.estg.trabalhopratico.ui.components.PhotoCarousel
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -174,190 +169,177 @@ fun NewTaskLogView(
             }
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            OutlinedTextField(
-                value = logDate,
-                onValueChange = { },
-                label = {
-                    Text(
-                        "Log date"
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = {
-                    IconButton(onClick = { showDatePicker = true }) {
-                        Icon(
-                            Icons.Rounded.CalendarToday,
-                            contentDescription = "Select date"
-                        )
-                    }
-                }
-            )
-
-            OutlinedTextField(
-                value = location,
-                onValueChange = { location = it },
-                label = {
-                    Text(
-                        "Location"
-                    )
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                OutlinedTextField(
-                    value = completionPercentage,
-                    onValueChange = { completionPercentage = it },
-                    label = {
-                        Text(
-                            "Completion percentage",
-                        )
-                    },
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    suffix = {
-                        Text(
-                            "%",
-                        )
-                    },
-                    enabled = !isLoadingPreviousLogs
-                )
-
-                OutlinedTextField(
-                    value = timeSpent,
-                    onValueChange = { timeSpent = it },
-                    label = {
-                        Text(
-                            "Time spent"
-                        )
-                    },
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                )
-            }
-
-            OutlinedTextField(
-                value = observations,
-                onValueChange = { observations = it },
-                label = {
-                    Text(
-                        "Observations"
-                    )
-                },
-                placeholder = {
-                    Text(
-                        "Add some notes..."
-                    )
-                },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                maxLines = 10
-            )
-
-            Button(
-                onClick = { imagePickerLauncher.launch("image/*") }
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(20.dp)
+                    .padding(bottom = 80.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    "Add image"
-                )
-            }
-
-            if (selectedImages.isNotEmpty()) {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(vertical = 8.dp)
-                ) {
-                    items(selectedImages) { uri ->
-                        Box {
-                            AsyncImage(
-                                model = uri,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .clip(RoundedCornerShape(12.dp)),
-                                contentScale = ContentScale.Crop
+                OutlinedTextField(
+                    value = logDate,
+                    onValueChange = { },
+                    label = {
+                        Text(
+                            "Log date"
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = {
+                        IconButton(onClick = { showDatePicker = true }) {
+                            Icon(
+                                Icons.Rounded.CalendarToday,
+                                contentDescription = "Select date"
                             )
-                            IconButton(
-                                onClick = {
-                                    selectedImages = selectedImages.filter { it != uri }
-                                },
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .padding(4.dp)
-                            ) {
-                                Icon(
-                                    Icons.Rounded.Close,
-                                    contentDescription = "Remove",
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .background(
-                                            Color.Black.copy(alpha = 0.7f),
-                                            RoundedCornerShape(16.dp)
-                                        )
-                                        .padding(4.dp)
-                                        .size(16.dp)
-                                )
-                            }
                         }
                     }
-                }
-            }
+                )
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Button(
-                    onClick = { handleSave() },
-                    enabled = !isLoading && !isLoadingPreviousLogs
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = Color.White,
-                            strokeWidth = 2.dp
-                        )
-                    } else {
+                OutlinedTextField(
+                    value = location,
+                    onValueChange = { location = it },
+                    label = {
                         Text(
-                            "Save"
+                            "Location"
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = completionPercentage,
+                        onValueChange = { completionPercentage = it },
+                        label = {
+                            Text(
+                                "Completion percentage",
+                            )
+                        },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        suffix = {
+                            Text(
+                                "%",
+                            )
+                        },
+                        enabled = !isLoadingPreviousLogs
+                    )
+
+                    OutlinedTextField(
+                        value = timeSpent,
+                        onValueChange = { timeSpent = it },
+                        label = {
+                            Text(
+                                "Time spent"
+                            )
+                        },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    )
+                }
+
+                OutlinedTextField(
+                    value = observations,
+                    onValueChange = { observations = it },
+                    label = {
+                        Text(
+                            "Observations"
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            "Add some notes..."
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    maxLines = 10
+                )
+
+                Button(
+                    onClick = { imagePickerLauncher.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        Icons.Rounded.Image,
+                        contentDescription = "Add Images",
+                        modifier = Modifier.size(20.dp).padding(end = 8.dp)
+                    )
+                    Text("Add Images")
+                }
+
+                if (selectedImages.isNotEmpty()) {
+                    PhotoCarousel(
+                        photos = selectedImages,
+                        showDeleteButton = true,
+                        onDeletePhoto = { uri ->
+                            selectedImages = selectedImages.filter { it != uri }
+                        },
+                        handlePhotoViewInternally = true
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                if (isLoadingPreviousLogs) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "Loading previous completion rate..."
                         )
                     }
                 }
-
-                OutlinedButton(
-                    onClick = onNavigateBack
-                ) {
-                    Text(
-                        "Cancel"
-                    )
-                }
             }
 
-            if (isLoadingPreviousLogs) {
+            // Buttons anchored to the bottom
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(),
+                shadowElevation = 8.dp
+            ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "Loading previous completion rate..."
-                    )
+                    OutlinedButton(
+                        onClick = onNavigateBack,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancel")
+                    }
+
+                    Button(
+                        onClick = { handleSave() },
+                        enabled = !isLoading && !isLoadingPreviousLogs,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Save")
+                        }
+                    }
                 }
             }
         }
@@ -371,8 +353,10 @@ fun NewTaskLogView(
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
                             val date = Date(millis)
-                            val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                            logDate = formatter.format(date)
+                            val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                            val currentTime = timeFormat.format(Date())
+                            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                            logDate = "${dateFormat.format(date)} $currentTime"
                         }
                         showDatePicker = false
                     }
@@ -381,7 +365,9 @@ fun NewTaskLogView(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
+                TextButton(
+                    onClick = { showDatePicker = false }
+                ) {
                     Text("Cancel")
                 }
             }

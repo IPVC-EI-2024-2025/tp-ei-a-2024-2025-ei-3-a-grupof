@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -379,7 +380,6 @@ enum class TaskDestination(
     EMPLOYEES("employees", R.string.employees)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Tabs(navController: NavHostController, task: Task, employees: List<User>, onRefresh: () -> Unit) {
     val startDestination = TaskDestination.LOGS
@@ -450,52 +450,49 @@ fun LogsTab(navController: NavHostController, taskID: String) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .padding(vertical = 8.dp)
-                .padding(bottom = 80.dp)
-        ) {
-            when {
-                isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+        when {
+            isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
+            }
 
-                error != null -> {
-                    Text(
-                        text = "Error loading logs: $error",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+            error != null -> {
+                Text(
+                    text = "Error loading logs: $error",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
 
-                logs.isEmpty() -> {
-                    Text(
-                        text = "No logs yet for this task",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+            logs.isEmpty() -> {
+                Text(
+                    text = "No logs yet for this task",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
 
-                else -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    ) {
-                        items(logs) { log ->
-                            TaskLogItem(
-                                log = log,
-                                onClick = { logId ->
-                                    navController.navigate("taskLog/$logId")
-                                }
-                            )
-                        }
+            else -> {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 8.dp)
+                        .padding(top = 8.dp),
+                    contentPadding = PaddingValues(bottom = 80.dp)
+                ) {
+                    items(logs) { log ->
+                        TaskLogItem(
+                            log = log,
+                            onClick = { logId ->
+                                navController.navigate("taskLog/$logId")
+                            }
+                        )
                     }
                 }
             }
@@ -575,8 +572,8 @@ fun TaskEmployeesTab(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
+                .fillMaxSize()
                 .padding(vertical = 8.dp, horizontal = 6.dp)
-                .padding(bottom = 80.dp)
         ) {
             SearchBar(
                 onSearch = { query -> searchQuery = query },
@@ -605,7 +602,10 @@ fun TaskEmployeesTab(
                 else -> {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 8.dp),
+                        contentPadding = PaddingValues(bottom = 80.dp) // Space for FAB
                     ) {
                         items(filteredEmployees) { employee ->
                             UserListItem(

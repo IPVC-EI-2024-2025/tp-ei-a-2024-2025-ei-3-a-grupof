@@ -2,6 +2,7 @@ package dev.jalves.estg.trabalhopratico.ui.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,11 +31,15 @@ fun MainView(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Image(
-                    painter = painterResource(id = R.drawable.logo_h),
-                    contentDescription = "TaskSync logo",
-                    modifier = Modifier.size(128.dp)
-                ) }
+                title = {
+                    Image(
+                        painter = painterResource(id = R.drawable.logo_h),
+                        contentDescription = "TaskSync logo",
+                        modifier = Modifier.size(128.dp)
+                    )
+                },
+                modifier = Modifier
+                    .height(86.dp)
             )
         },
         bottomBar = {
