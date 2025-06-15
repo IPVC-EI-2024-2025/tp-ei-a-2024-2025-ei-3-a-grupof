@@ -9,8 +9,6 @@ data class CreateTaskAssignmentDTO(
     val taskId: String,
     @SerialName("employee_id")
     val employeeId: String,
-    @SerialName("assigned_at")
-    val assignedAt: String,
     @SerialName("completion_rate")
     val completionRate: Float = 0.0f,
     @SerialName("completed_at")

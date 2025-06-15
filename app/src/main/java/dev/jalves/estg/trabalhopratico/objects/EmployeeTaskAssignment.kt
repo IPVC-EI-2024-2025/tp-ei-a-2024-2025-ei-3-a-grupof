@@ -9,12 +9,8 @@ data class EmployeeTaskAssignment(
     val taskId: String,
     @SerialName("employee_id")
     val employeeId: String,
-    @SerialName("assignment_id")
-    val assignmentId: String,
-    @SerialName("assigned_at")
-    val assignedAt: String,
     @SerialName("completion_rate")
     val completionRate: Float,
     @SerialName("completed_at")
-    val completedAt: String?
+    val completedAt: String? = null
 )

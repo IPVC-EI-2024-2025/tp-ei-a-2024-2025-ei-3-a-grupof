@@ -18,5 +18,5 @@ data class TaskLog(
     val timeSpent: Float,
     val notes: String?,
     @SerialName("created_at")
-    val createdAt: String
+    val createdAt: String? = null
 )

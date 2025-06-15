@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class LogPhotos(
     val id: String,
     @SerialName("uploaded_at")
-    val uploadedAt: String,
+    val uploadedAt: String? = null,
     @SerialName("photo_url")
     val photoUrl: String,
     @SerialName("log_id")

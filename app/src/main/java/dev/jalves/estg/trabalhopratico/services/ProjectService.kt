@@ -43,16 +43,16 @@ object ProjectService {
         }
 
 
-    suspend fun addEmployeeToProject(userID:String,ProjectId: String): Result<Unit> =
+    suspend fun addEmployeeToProject(userID:String, projectId: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
 
-                val EmployeeProject = EmployeeProject(
+                val employeeProject = EmployeeProject(
                     userId = userID,
-                    projectId = ProjectId
+                    projectId = projectId
                 )
 
-                supabase.from("employee_project").insert(EmployeeProject)
+                supabase.from("employee_project").insert(employeeProject)
 
                 Result.success(Unit)
             } catch (e: Exception) {
@@ -152,6 +152,25 @@ object ProjectService {
                 Result.success(Unit)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to update project", e)
+                Result.failure(e)
+            }
+        }
+
+    suspend fun listProjectsForEmployee(employeeId: String): Result<List<ProjectDTO>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val result = supabase.postgrest.rpc(
+                    "get_employee_projects",
+                    parameters = buildJsonObject {
+                        put("employee_id", employeeId)
+                    }
+                )
+
+                val projects = result.decodeList<ProjectDTO>()
+
+                Result.success(projects)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch projects for employee $employeeId", e)
                 Result.failure(e)
             }
         }

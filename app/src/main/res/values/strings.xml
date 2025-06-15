@@ -39,6 +39,7 @@
     <string name="mark_complete">Mark as complete</string>
     <string name="archive_project">Archive project</string>
     <string name="project">Project</string>
+    <string name="task">Task</string>
     <string name="search_employee">Search employee</string>
     <string name="edit_user">Edit user</string>
     <string name="add_user">Add user</string>
@@ -69,4 +70,30 @@
     <string name="error_update_failed">Failed to update profile: %1$s</string>
     <string name="set_tasks">Set Tasks</string>
     <string name="remove_from_project">Remove from Project</string>
+    <string name="logs" translatable="false">Logs</string>
+    <string name="remove_from_task">Remove From Task</string>
+    <string name="error_loading_tasks">Error loading tasks: %1$s</string>
+    <string name="no_tasks_matching_search">No tasks found matching "%1$s"</string>
+    <string name="no_tasks_yet">No tasks yet. Create your first task!</string>
+    <string name="no_employees_assigned">No employees assigned to this project</string>
+    <string name="no_employees_matching_search">No employees found matching "%1$s"</string>
+    <string name="error_loading_projects">Error loading projects: %1$s</string>
+    <string name="see_all_count">See all (%1$d+)</string>
+    <string name="no_projects_found">No projects found</string>
+    <string name="hours_spent">%1$dh. spent</string>
+    <string name="photo_count">%1$d photos</string>
+    <string name="hello_name">Hello %1$s</string>
+    <string name="fill_required_fields">Please fill in all required fields</string>
+    <string name="auth_error">User authentication error</string>
+    <string name="task_log_created">Task log created successfully</string>
+    <string name="photo_upload_failed">Log created but failed to upload photos: %1$s</string>
+    <string name="save_log_failed">Failed to save log: %1$s</string>
+    <string name="general_error">Error: %1$s</string>
+    <string name="signin_success">Signed in successfully!</string>
+    <string name="new_task_log">New Task Log</string>
+    <string name="completion_rate">Completion Rate</string>
+    <string name="notes">Notes:</string>
+    <string name="photos">Photos</string>
+    <string name="location">Location</string>
+    <string name="task_log">Task Log</string>
 </resources>

@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,13 +9,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.Assignment
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
@@ -50,25 +48,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UserDTO
 import dev.jalves.estg.trabalhopratico.services.ProjectService
-import dev.jalves.estg.trabalhopratico.services.UserService
-import dev.jalves.estg.trabalhopratico.ui.components.PlaceholderProfilePic
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
@@ -79,10 +68,12 @@ import dev.jalves.estg.trabalhopratico.formatDate
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.User
+import dev.jalves.estg.trabalhopratico.services.AuthService
 import dev.jalves.estg.trabalhopratico.services.ProjectService.addEmployeeToProject
 import dev.jalves.estg.trabalhopratico.services.ProjectService.removeEmployeeFromProject
 import dev.jalves.estg.trabalhopratico.services.TaskService
 import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
+import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
 import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
 import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
@@ -102,6 +93,8 @@ fun ProjectView(
 
     val projectViewModel: ProjectViewModel = viewModel()
 
+    var userRole by remember { mutableStateOf<Role?>(null) }
+
     val project by projectViewModel.project.collectAsState()
     val error by projectViewModel.error.collectAsState()
 
@@ -109,6 +102,7 @@ fun ProjectView(
 
     LaunchedEffect(Unit) {
         projectViewModel.loadProject(projectID)
+        userRole = AuthService.getCurrentUserRole()
     }
 
     Scaffold(
@@ -126,52 +120,79 @@ fun ProjectView(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { expanded = true }) {
-                        Icon(Icons.Rounded.MoreVert, contentDescription = "Menu")
-                    }
+                    if (userRole != Role.EMPLOYEE) {
+                        IconButton(onClick = { expanded = true }) {
+                            Icon(Icons.Rounded.MoreVert, contentDescription = "Menu")
+                        }
 
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Person, stringResource(R.string.edit_manager)) },
-                            onClick = {
-                                expanded = false
-                                openManagerSelectionDialog.value = true
-                            }
-                        )
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.Person,
+                                        stringResource(R.string.edit_manager)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    openManagerSelectionDialog.value = true
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Edit, stringResource(R.string.edit)) },
-                            onClick = {
-                                expanded = false
-                                openEditDialog.value = true
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.Edit,
+                                        stringResource(R.string.edit)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    openEditDialog.value = true
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.TableChart, stringResource(R.string.export_stats)) },
-                            onClick = {
-                                expanded = false
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.TableChart,
+                                        stringResource(R.string.export_stats)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Check, stringResource(R.string.mark_complete)) },
-                            onClick = {
-                                expanded = false
-                                confirmCompleteDialog.value = true
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.Check,
+                                        stringResource(R.string.mark_complete)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    confirmCompleteDialog.value = true
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Folder, stringResource(R.string.archive_project)) },
-                            onClick = {
-                                expanded = false
-                                confirmArchiveDialog.value = true
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = {
+                                    MenuItem(
+                                        Icons.Rounded.Folder,
+                                        stringResource(R.string.archive_project)
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    confirmArchiveDialog.value = true
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -211,7 +232,9 @@ fun ProjectView(
                         )
                     }
                     ManagedBy(project!!)
-                    Tabs(project!!)
+                    Tabs(navController, project!!) {
+                        projectViewModel.loadProject(projectID)
+                    }
                 }
             }
         }
@@ -281,61 +304,24 @@ fun ProjectView(
 }
 
 @Composable
-fun ManagedBy(project: ProjectDTO) {
-    var profilePicUrl by remember { mutableStateOf<String?>(null) }
-    var imageLoadFailed by remember { mutableStateOf(false) }
-    var profilePicLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        if(project.manager == null) {
-            imageLoadFailed = true
-            profilePicLoading = false
-        } else {
-            try {
-                profilePicUrl = UserService.getProfilePictureURL(
-                    pictureSize = 128,
-                    userId = project.manager.id
-                )
-            } catch (_: Exception) {
-                imageLoadFailed = true
-                null
-            } finally {
-                profilePicLoading = false
-            }
-        }
-    }
+fun ManagedBy(
+    project: ProjectDTO
+) {
+    val manager = User(
+        id = project.manager?.id ?: "",
+        displayName = project.manager?.displayName ?: stringResource(R.string.no_manager),
+        username = project.manager?.username ?: "",
+        role = project.manager?.role ?: Role.EMPLOYEE
+    )
 
     Row(
         modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        when {
-            project.manager == null -> {
-                PlaceholderProfilePic(name = "?", size = 48.dp)
-            }
-            profilePicLoading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp)
-                )
-            }
-            !imageLoadFailed && profilePicUrl != null -> {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(profilePicUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Profile picture",
-                    modifier = Modifier.size(48.dp).clip(CircleShape),
-                    onError = {
-                        imageLoadFailed = true
-                    }
-                )
-            }
-            else -> {
-                PlaceholderProfilePic(name = project.manager.displayName, size = 48.dp)
-            }
-        }
+        ProfilePicture(
+            manager
+        )
         Column {
             Text(stringResource(R.string.managed_by), style = MaterialTheme.typography.labelSmall)
             when {
@@ -361,8 +347,11 @@ enum class Destination(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Tabs(project: ProjectDTO) {
-    val navController = rememberNavController()
+fun Tabs(
+    rootNavController: NavHostController,
+    project: ProjectDTO,
+    onProjectRefresh: () -> Unit
+) {
     val startDestination = Destination.TASKS
     var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 
@@ -372,7 +361,6 @@ fun Tabs(project: ProjectDTO) {
                 Tab(
                     selected = selectedDestination == index,
                     onClick = {
-                        navController.navigate(route = destination.route)
                         selectedDestination = index
                     },
                     text = {
@@ -385,24 +373,27 @@ fun Tabs(project: ProjectDTO) {
                 )
             }
         }
-        NavHost(
-            navController,
-            startDestination = startDestination.route
-        ) {
-            Destination.entries.forEach { destination ->
-                composable(destination.route) {
-                    when (destination) {
-                        Destination.TASKS -> TasksTab(project.id)
-                        Destination.EMPLOYEES -> EmployeesTab(project.employees,project.id)
-                    }
-                }
+
+        when (selectedDestination) {
+            Destination.TASKS.ordinal -> {
+                TasksTab(rootNavController, project.id)
+            }
+            Destination.EMPLOYEES.ordinal -> {
+                EmployeesTab(
+                    employees = project.employees,
+                    projectID = project.id,
+                    onRefresh = onProjectRefresh
+                )
             }
         }
     }
 }
 
 @Composable
-fun TasksTab(projectID: String) {
+fun TasksTab(
+    rootNavController: NavHostController,
+    projectID: String
+) {
     val showCreateDialog = remember { mutableStateOf(false) }
 
     var tasks by remember { mutableStateOf<List<Task>>(emptyList()) }
@@ -470,7 +461,7 @@ fun TasksTab(projectID: String) {
 
                 error != null -> {
                     Text(
-                        text = "Error loading tasks: $error",
+                        text = stringResource(R.string.error_loading_tasks) + ": $error",
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(16.dp)
                     )
@@ -478,7 +469,7 @@ fun TasksTab(projectID: String) {
 
                 filteredTasks.isEmpty() && searchQuery.isNotBlank() -> {
                     Text(
-                        text = "No tasks found matching \"$searchQuery\"",
+                        text = stringResource(R.string.no_tasks_matching_search, searchQuery),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -487,7 +478,7 @@ fun TasksTab(projectID: String) {
 
                 filteredTasks.isEmpty() -> {
                     Text(
-                        text = "No tasks yet. Create your first task!",
+                        text = stringResource(R.string.no_tasks_yet),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -503,14 +494,15 @@ fun TasksTab(projectID: String) {
                             TaskListItem(
                                 task = task,
                                 onClick = {
-
-                                }
+                                    rootNavController.navigate("task/${task.id}")
+                                },
                             )
                         }
                     }
                 }
             }
         }
+
 
         FloatingActionButton(
             onClick = { showCreateDialog.value = true },
@@ -531,9 +523,14 @@ fun TasksTab(projectID: String) {
                             val result = TaskService.listProjectTasks(projectID)
                             result.fold(
                                 onSuccess = { taskList -> tasks = taskList },
-                                onFailure = {  }
+                                onFailure = { exception ->
+                                    Log.e("TasksTab", "Failed to refresh tasks after dialog dismiss", exception)
+                                    error = exception.message
+                                }
                             )
                         } catch (e: Exception) {
+                            Log.e("TasksTab", "Error refreshing tasks after dialog dismiss", e)
+                            error = e.message
                         }
                     }
                 },
@@ -544,9 +541,14 @@ fun TasksTab(projectID: String) {
                             val result = TaskService.listProjectTasks(projectID)
                             result.fold(
                                 onSuccess = { taskList -> tasks = taskList },
-                                onFailure = {  }
+                                onFailure = { exception ->
+                                    Log.e("TasksTab", "Failed to refresh tasks after task creation", exception)
+                                    error = exception.message
+                                }
                             )
                         } catch (e: Exception) {
+                            Log.e("TasksTab", "Error refreshing tasks after task creation", e)
+                            error = e.message
                         }
                     }
                 }
@@ -563,14 +565,26 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
     val selectedEmployee = remember { mutableStateOf<UserDTO?>(null) }
     val scope = rememberCoroutineScope()
 
+    var userRole by remember { mutableStateOf<Role?>(null) }
+
+    val context = LocalContext.current
+
+    LaunchedEffect(projectID) {
+        userRole = AuthService.getCurrentUserRole()
+    }
+
     val filteredEmployees = remember(employees, searchQuery) {
         if (searchQuery.isBlank()) {
             employees
         } else {
             employees.filter { employee ->
-                employee.displayName?.contains(searchQuery, ignoreCase = true) == true
+                employee.displayName.contains(searchQuery, ignoreCase = true)
             }
         }
+    }
+
+    fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -588,7 +602,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
             when {
                 employees.isEmpty() -> {
                     Text(
-                        text = "No employees assigned to this project",
+                        text = stringResource(R.string.no_employees_assigned),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -597,7 +611,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
 
                 filteredEmployees.isEmpty() && searchQuery.isNotBlank() -> {
                     Text(
-                        text = "No employees found matching \"$searchQuery\"",
+                        text = stringResource(R.string.no_employees_matching_search, searchQuery),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -617,31 +631,28 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                                 role = employee.role,
                             )
 
-                            UserListItem(user = user) {
-                                UserAction(
-                                    icon = Icons.AutoMirrored.Rounded.Assignment,
-                                    name = stringResource(R.string.set_tasks),
-                                    onClick = {
-                                        // TODO: Implement set tasks functionality
-                                    }
-                                )
+                            UserListItem(
+                                user = user,
+                                simple = userRole == Role.EMPLOYEE
+                            ) {
+                                if(userRole != Role.EMPLOYEE){
+                                    UserAction(
+                                        icon = Icons.Rounded.RemoveCircle,
+                                        name = stringResource(R.string.remove_from_project),
+                                        onClick = {
+                                            selectedEmployee.value = employee
+                                            showRemoveConfirmDialog.value = true
+                                        }
+                                    )
 
-                                UserAction(
-                                    icon = Icons.Rounded.RemoveCircle,
-                                    name = stringResource(R.string.remove_from_project),
-                                    onClick = {
-                                        selectedEmployee.value = employee
-                                        showRemoveConfirmDialog.value = true
-                                    }
-                                )
-
-                                UserAction(
-                                    icon = Icons.Rounded.Download,
-                                    name = stringResource(R.string.export_stats),
-                                    onClick = {
-                                        // TODO: Implement export stats functionality
-                                    }
-                                )
+                                    UserAction(
+                                        icon = Icons.Rounded.Download,
+                                        name = stringResource(R.string.export_stats),
+                                        onClick = {
+                                            // TODO: Implement export stats functionality
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -649,18 +660,20 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
             }
         }
 
-        FloatingActionButton(
-            onClick = {
-                showAddEmployeeDialog.value = true
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add Employee"
-            )
+        if(userRole != Role.EMPLOYEE) {
+            FloatingActionButton(
+                onClick = {
+                    showAddEmployeeDialog.value = true
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Employee"
+                )
+            }
         }
 
         if (showAddEmployeeDialog.value) {
@@ -675,20 +688,28 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                             result.fold(
                                 onSuccess = {
                                     onRefresh()
+                                    showToast("Employee added successfully!")
                                 },
                                 onFailure = { exception ->
                                     Log.e("EmployeesTab", "Failed to add employee to project", exception)
-                                    // TODO: Show error message to user
+                                    showToast("Failed to add employee")
                                 }
                             )
                         } catch (e: Exception) {
                             Log.e("EmployeesTab", "Error adding employee to project", e)
-                            // TODO: Show error message to user
+                            showToast("Error adding employee")
                         }
                     }
                     showAddEmployeeDialog.value = false
                 },
-                userRole = Role.EMPLOYEE
+                userRole = Role.EMPLOYEE,
+                filterUsers = { allUsers ->
+                    val assignedEmployeeIds = employees.map { it.id }.toSet()
+
+                    allUsers.filter { user ->
+                        !assignedEmployeeIds.contains(user.id)
+                    }
+                }
             )
         }
 
@@ -705,17 +726,17 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                                 val result = removeEmployeeFromProject(employee.id, projectID)
                                 result.fold(
                                     onSuccess = {
-                                        onRefresh() // Refresh the employees list
-                                        // TODO: Show success message
+                                        onRefresh()
+                                        showToast("Employee removed successfully!")
                                     },
                                     onFailure = { exception ->
                                         Log.e("EmployeesTab", "Failed to remove employee", exception)
-                                        // TODO: Show error message to user
+                                        showToast("Failed to remove employee")
                                     }
                                 )
                             } catch (e: Exception) {
                                 Log.e("EmployeesTab", "Error removing employee from project", e)
-                                // TODO: Show error message to user
+                                showToast("Error removing employee")
                             }
                         }
                     }

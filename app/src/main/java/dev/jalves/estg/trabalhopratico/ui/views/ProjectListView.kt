@@ -17,14 +17,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import dev.jalves.estg.trabalhopratico.objects.Role
+import dev.jalves.estg.trabalhopratico.services.AuthService
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
@@ -37,6 +41,12 @@ fun ProjectListView(
     val openAddProjectDialog = remember { mutableStateOf(false) }
     val projects by projectsViewModel.projects.collectAsState()
     val errorMessage by projectsViewModel.errorMessage.collectAsState()
+
+    var userRole by remember { mutableStateOf<Role?>(null) }
+
+    LaunchedEffect(projects) {
+        userRole = AuthService.getCurrentUserRole()
+    }
 
     Box (
         modifier = Modifier.fillMaxSize()
@@ -79,19 +89,20 @@ fun ProjectListView(
             }
         }
 
-        FloatingActionButton(
-            onClick = {
-                openAddProjectDialog.value = true
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Add,
-                contentDescription = "Create Project"
-            )
-        }
+        if(userRole != Role.EMPLOYEE)
+            FloatingActionButton(
+                onClick = {
+                    openAddProjectDialog.value = true
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = "Create Project"
+                )
+            }
     }
 
     when {

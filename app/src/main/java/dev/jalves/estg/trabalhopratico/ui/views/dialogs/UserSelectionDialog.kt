@@ -43,6 +43,7 @@ fun UserSelectionDialog(
     onDismiss: () -> Unit,
     onClick: (user: User) -> Unit,
     userRole: Role? = null,
+    filterUsers: (List<User>) -> List<User> = { it },
 ) {
     var userFilter by remember { mutableStateOf("") }
     var users by remember { mutableStateOf<List<User>>(emptyList()) }
@@ -51,9 +52,14 @@ fun UserSelectionDialog(
     val coroutineScope = rememberCoroutineScope()
     var fetchJob by remember { mutableStateOf<Job?>(null) }
 
+    suspend fun fetchUsers(query: String) {
+        val allUsers = UserService.fetchUsersByQuery(query, userRole)
+        users = filterUsers(allUsers)
+    }
+
     LaunchedEffect(Unit) {
         isLoading = true
-        users = UserService.fetchUsersByQuery("", userRole)
+        fetchUsers("")
         isLoading = false
     }
 
@@ -64,7 +70,7 @@ fun UserSelectionDialog(
         fetchJob = coroutineScope.launch {
             delay(500)
             isLoading = true
-            users = UserService.fetchUsersByQuery(query, userRole)
+            fetchUsers(query)
             isLoading = false
         }
     }

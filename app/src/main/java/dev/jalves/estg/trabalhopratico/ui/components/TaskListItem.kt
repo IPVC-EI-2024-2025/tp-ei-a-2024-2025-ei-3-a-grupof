@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
@@ -19,8 +20,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -28,12 +36,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.TaskStatus
+import dev.jalves.estg.trabalhopratico.objects.User
+import dev.jalves.estg.trabalhopratico.services.TaskService
+import kotlinx.coroutines.launch
 
 @Composable
 fun TaskListItem(
     onClick: () -> Unit,
     task: Task,
 ) {
+    var assignedEmployees by remember { mutableStateOf<List<User>>(emptyList()) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(task.id) {
+        scope.launch {
+            TaskService.getTaskEmployees(task.id).fold(
+                onSuccess = { employees ->
+                    assignedEmployees = employees
+                },
+                onFailure = {
+                    // Handle error silently or log if needed
+                    assignedEmployees = emptyList()
+                }
+            )
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -60,7 +88,7 @@ fun TaskListItem(
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 CompositionLocalProvider(
                     LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant,
@@ -70,8 +98,7 @@ fun TaskListItem(
                     )
                 ) {
                     TaskStatusBadge(status = task.status)
-                    Text("•")
-                    PlaceholderProfilePic(name = "John Doe", size = 20.dp)
+                    AssignedEmployeesPreview(employees = assignedEmployees)
                 }
             }
         }
@@ -82,6 +109,59 @@ fun TaskListItem(
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(24.dp)
         )
+    }
+}
+
+@Composable
+fun AssignedEmployeesPreview(employees: List<User>) {
+    if (employees.isNotEmpty()) {
+        Text("•")
+        Row(
+            horizontalArrangement = Arrangement.spacedBy((-8).dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            when (employees.size) {
+                1 -> {
+                    ProfilePicture(
+                        user = employees[0],
+                        size = 20.dp
+                    )
+                }
+                2 -> {
+                    ProfilePicture(
+                        user = employees[0],
+                        size = 20.dp
+                    )
+                    ProfilePicture(
+                        user = employees[1],
+                        size = 20.dp
+                    )
+                }
+                else -> {
+                    ProfilePicture(
+                        user = employees[0],
+                        size = 20.dp
+                    )
+                    ProfilePicture(
+                        user = employees[1],
+                        size = 20.dp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "+${employees.size - 2}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
