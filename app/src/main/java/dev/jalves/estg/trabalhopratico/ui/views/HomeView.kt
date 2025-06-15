@@ -103,14 +103,8 @@ fun HomeView(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Icon(Icons.Rounded.LocationOn, contentDescription = "Location")
-                Text("Viana do Castelo")
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
                 Icon(Icons.Rounded.Schedule, contentDescription = "Time")
-                Text("20/04/2025 13:00")
+                Text(java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date()))
             }
         }
 
