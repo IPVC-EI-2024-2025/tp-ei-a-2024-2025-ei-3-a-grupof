@@ -65,12 +65,14 @@ import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
 import kotlinx.coroutines.launch
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.formatDate
+import dev.jalves.estg.trabalhopratico.hasAccess
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.AuthService
 import dev.jalves.estg.trabalhopratico.services.ProjectService.addEmployeeToProject
 import dev.jalves.estg.trabalhopratico.services.ProjectService.removeEmployeeFromProject
+import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.services.TaskService
 import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
 import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
@@ -78,6 +80,7 @@ import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
 import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
+import io.github.jan.supabase.auth.auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +96,7 @@ fun ProjectView(
 
     val projectViewModel: ProjectViewModel = viewModel()
 
-    var userRole by remember { mutableStateOf<Role?>(null) }
+    val user = supabase.auth.currentUserOrNull()!!
 
     val project by projectViewModel.project.collectAsState()
     val error by projectViewModel.error.collectAsState()
@@ -102,7 +105,6 @@ fun ProjectView(
 
     LaunchedEffect(Unit) {
         projectViewModel.loadProject(projectID)
-        userRole = AuthService.getCurrentUserRole()
     }
 
     Scaffold(
@@ -120,7 +122,10 @@ fun ProjectView(
                     }
                 },
                 actions = {
-                    if (userRole != Role.EMPLOYEE) {
+                    if (
+                        user.hasAccess(Role.ADMIN)
+                        || (project != null && project!!.manager != null && project!!.manager!!.id == user.id)
+                    ) {
                         IconButton(onClick = { expanded = true }) {
                             Icon(Icons.Rounded.MoreVert, contentDescription = "Menu")
                         }
