@@ -38,7 +38,7 @@ fun MainView(
             )
         },
         bottomBar = {
-            NavBar(navController)
+            NavBar(navController, rootNavController)
         }
     ) { innerPadding ->
         NavHost(
