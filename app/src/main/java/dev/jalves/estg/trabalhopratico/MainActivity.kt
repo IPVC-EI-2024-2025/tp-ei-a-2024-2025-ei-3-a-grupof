@@ -23,6 +23,7 @@ import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.theme.ThemedApp
 import dev.jalves.estg.trabalhopratico.ui.views.HomeView
 import dev.jalves.estg.trabalhopratico.ui.views.IntroView
+import dev.jalves.estg.trabalhopratico.ui.views.NewTaskLogView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectView
@@ -30,6 +31,8 @@ import dev.jalves.estg.trabalhopratico.ui.views.ProjectsViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
 import dev.jalves.estg.trabalhopratico.ui.views.SettingsView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
+import dev.jalves.estg.trabalhopratico.ui.views.TaskLogView
+import dev.jalves.estg.trabalhopratico.ui.views.TaskView
 import dev.jalves.estg.trabalhopratico.ui.views.admin.AdminMain
 import io.github.jan.supabase.auth.auth
 import java.util.Locale
@@ -159,6 +162,30 @@ class MainActivity : ComponentActivity() {
                         val projectID = navBackStackEntry.arguments?.getString("id")
 
                         ProjectView(navController, projectID ?: "")
+                    }
+
+                    composable(route = "task/{id}") { navBackStackEntry ->
+                        val taskID = navBackStackEntry.arguments?.getString("id")
+
+                        TaskView(navController, taskID ?: "")
+                    }
+
+                    composable(route = "taskLog/{id}") { navBackStackEntry ->
+                        val logId = navBackStackEntry.arguments?.getString("id")
+
+                        TaskLogView (
+                            logId = logId ?: "",
+                            onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable(route = "newTaskLog/{taskId}") { navBackStackEntry ->
+                        val taskId = navBackStackEntry.arguments?.getString("taskId")
+
+                        NewTaskLogView(
+                            taskId = taskId ?: "",
+                            onNavigateBack = { navController.popBackStack() }
+                        )
                     }
                 }
             }

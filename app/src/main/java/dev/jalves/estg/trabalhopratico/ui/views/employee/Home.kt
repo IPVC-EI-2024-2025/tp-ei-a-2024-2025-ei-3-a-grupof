@@ -24,11 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
@@ -48,8 +50,7 @@ fun EmployeeHome(
     var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        val currentUserId = supabase.auth.currentUserOrNull()?.id
-        if (currentUserId == null) return@LaunchedEffect
+        val currentUserId = supabase.auth.currentUserOrNull()?.id ?: return@LaunchedEffect
         val result = ProjectService.listProjectsByCreator(currentUserId)
         result.onSuccess {
             projects = it
@@ -73,7 +74,8 @@ fun EmployeeHome(
         ) {
             Text(
                 // todo: add loading
-                if (profile == null) "Hello Asdrúbal" else "Hello " + profile!!.displayName,
+                if (profile == null) stringResource(R.string.hello) + " Asdrúbal"
+                else stringResource(R.string.hello_name, profile!!.displayName),
                 style = MaterialTheme.typography.headlineLarge)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -97,7 +99,7 @@ fun EmployeeHome(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                "Your projects", style = TextStyle(
+                stringResource(R.string.your_projects), style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -116,7 +118,7 @@ fun EmployeeHome(
 
                 error != null -> {
                     Text(
-                        text = "Error loading projects: $error",
+                        text = stringResource(R.string.error_loading_projects) + ": $error",
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(16.dp)
                     )
@@ -143,19 +145,19 @@ fun EmployeeHome(
                         ) {
                             Button(
                                 onClick = {
-                                    // Navigate to all projects view
                                     rootNavController.navigate("all_projects")
                                 }
                             ) {
-                                Text("See all (${projects.size}+)")
+                                Text(stringResource(R.string.see_all_count, projects.size))
                             }
                         }
                     } else {
                         Text(
-                            "No projects found",
+                            stringResource(R.string.no_projects_found),
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(start = 10.dp)
-                        )                    }
+                        )
+                    }
                 }
             }
         }

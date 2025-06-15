@@ -2,6 +2,7 @@ package dev.jalves.estg.trabalhopratico.ui.views
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,8 +10,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -18,9 +21,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.RemoveCircle
 import androidx.compose.material.icons.rounded.TableChart
 import androidx.compose.material3.CircularProgressIndicator
@@ -48,63 +49,60 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
-import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
-import dev.jalves.estg.trabalhopratico.dto.UserDTO
-import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
-import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
 import kotlinx.coroutines.launch
 import dev.jalves.estg.trabalhopratico.R
-import dev.jalves.estg.trabalhopratico.formatDate
+import dev.jalves.estg.trabalhopratico.dto.UserDTO
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.Task
+import dev.jalves.estg.trabalhopratico.objects.TaskLog
 import dev.jalves.estg.trabalhopratico.objects.User
-import dev.jalves.estg.trabalhopratico.services.ProjectService.addEmployeeToProject
-import dev.jalves.estg.trabalhopratico.services.ProjectService.removeEmployeeFromProject
-import dev.jalves.estg.trabalhopratico.services.TaskService
+import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
-import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
-import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
+import dev.jalves.estg.trabalhopratico.ui.components.TaskLogItem
 import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
-import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
+import dev.jalves.estg.trabalhopratico.services.TaskService
+import dev.jalves.estg.trabalhopratico.services.TaskLogService
+import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProjectView(
+fun TaskView(
     navController: NavHostController,
-    projectID: String
+    taskID: String
 ) {
     var expanded by remember { mutableStateOf(false) }
     val openEditDialog = remember { mutableStateOf(false) }
-    val openManagerSelectionDialog = remember { mutableStateOf(false) }
+    val openAssigneeSelectionDialog = remember { mutableStateOf(false) }
     val confirmCompleteDialog = remember { mutableStateOf(false) }
     val confirmArchiveDialog = remember { mutableStateOf(false) }
 
-    val projectViewModel: ProjectViewModel = viewModel()
+    val taskViewModel: TaskViewModel = viewModel()
 
-    val project by projectViewModel.project.collectAsState()
-    val error by projectViewModel.error.collectAsState()
+    val task by taskViewModel.task.collectAsState()
+    val employees by taskViewModel.assignedEmployees.collectAsState()
+    val error by taskViewModel.error.collectAsState()
 
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        projectViewModel.loadProject(projectID)
+        taskViewModel.loadTask(taskID)
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {Text(stringResource(R.string.project))},
+                title = { Text(stringResource(R.string.task)) },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
@@ -124,14 +122,6 @@ fun ProjectView(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Person, stringResource(R.string.edit_manager)) },
-                            onClick = {
-                                expanded = false
-                                openManagerSelectionDialog.value = true
-                            }
-                        )
-
                         DropdownMenuItem(
                             text = { MenuItem(Icons.Rounded.Edit, stringResource(R.string.edit)) },
                             onClick = {
@@ -154,55 +144,43 @@ fun ProjectView(
                                 confirmCompleteDialog.value = true
                             }
                         )
-
-                        DropdownMenuItem(
-                            text = { MenuItem(Icons.Rounded.Folder, stringResource(R.string.archive_project)) },
-                            onClick = {
-                                expanded = false
-                                confirmArchiveDialog.value = true
-                            }
-                        )
                     }
                 }
             )
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(horizontal = 8.dp),
+            modifier = Modifier.padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             when {
-                // todo: styling
                 error != null -> {
-                    Text("error")
+                    Text("Error loading task")
                 }
-                project == null -> {
+                task == null -> {
                     CircularProgressIndicator()
                 }
                 else -> {
-                    Text(project!!.name, style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(horizontal = 8.dp))
-                    Text(
-                        project!!.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                    Column (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
                     ) {
                         Text(
-                            "${stringResource(R.string.created)}: ${formatDate(project!!.startDate)}",
-                            style = MaterialTheme.typography.bodySmall
+                            task!!.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
                         Text(
-                            "${stringResource(R.string.due)}: ${formatDate(project!!.dueDate)}",
-                            style = MaterialTheme.typography.bodySmall
+                            task!!.description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
-                    ManagedBy(project!!)
-                    Tabs(navController, project!!) {
-                        projectViewModel.loadProject(projectID)
+
+                    AssignedTo()
+                    Tabs(navController, task!!, employees) {
+                        taskViewModel.loadTask(taskID)
                     }
                 }
             }
@@ -210,39 +188,25 @@ fun ProjectView(
 
         when {
             openEditDialog.value -> {
-                EditProjectDialog(
-                    onDismiss = {
-                        openEditDialog.value = false
-                        projectViewModel.loadProject(projectID)
-                    },
-                    project = project
-                )
             }
-            openManagerSelectionDialog.value -> {
+            openAssigneeSelectionDialog.value -> {
                 UserSelectionDialog(
-                    onDismiss = { openManagerSelectionDialog.value = false },
-                    onClick = { user ->
+                    onDismiss = { openAssigneeSelectionDialog.value = false },
+                    onClick = {
                         scope.launch {
-                            ProjectService.updateProject(UpdateProjectDTO(
-                                id = project!!.id,
-                                managerID = user.id
-                            ))
-                            projectViewModel.loadProject(projectID)
-                            openManagerSelectionDialog.value = false
+                            taskViewModel.loadTask(taskID)
+                            openAssigneeSelectionDialog.value = false
                         }
                     },
-                    userRole = Role.MANAGER,
+                    userRole = Role.EMPLOYEE,
                 )
             }
             confirmCompleteDialog.value -> {
                 ConfirmDialog(
-                    message = "Mark project as complete?",
+                    message = "Mark task as complete?",
                     onConfirm = {
                         scope.launch {
-                            ProjectService.updateProject(UpdateProjectDTO(
-                                id = projectID,
-                                status = "complete"
-                            ))
+                            TaskService.markTaskComplete(taskID)
                             confirmCompleteDialog.value = false
                         }
                     },
@@ -253,13 +217,9 @@ fun ProjectView(
             }
             confirmArchiveDialog.value -> {
                 ConfirmDialog(
-                    message = "Archive project?",
+                    message = "Archive task?",
                     onConfirm = {
                         scope.launch {
-                            ProjectService.updateProject(UpdateProjectDTO(
-                                id = projectID,
-                                status = "archived"
-                            ))
                             confirmArchiveDialog.value = false
                         }
                     },
@@ -273,60 +233,108 @@ fun ProjectView(
 }
 
 @Composable
-fun ManagedBy(
-    project: ProjectDTO
-) {
-    val manager = User(
-        id = project.manager?.id ?: "",
-        displayName = project.manager?.displayName ?: stringResource(R.string.no_manager),
-        username = project.manager?.username ?: "",
-        role = project.manager?.role ?: Role.EMPLOYEE
-    )
+fun AssignedTo() {
+    val taskViewModel: TaskViewModel = viewModel()
+    val projectName by taskViewModel.projectName.collectAsState()
+    val assignedEmployees by taskViewModel.assignedEmployees.collectAsState()
 
     Row(
         modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        ProfilePicture(
-            manager
-        )
-        Column {
-            Text(stringResource(R.string.managed_by), style = MaterialTheme.typography.labelSmall)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy((-8).dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             when {
-                project.manager == null -> {
-                    Text(stringResource(R.string.no_manager), style = MaterialTheme.typography.labelLarge)
+                assignedEmployees.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "0",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                assignedEmployees.size == 1 -> {
+                    ProfilePicture(
+                        user = assignedEmployees[0],
+                        size = 36.dp
+                    )
+                }
+
+                assignedEmployees.size == 2 -> {
+                    ProfilePicture(
+                        user = assignedEmployees[0],
+                        size = 36.dp
+                    )
+                    ProfilePicture(
+                        user = assignedEmployees[1],
+                        size = 36.dp
+                    )
                 }
 
                 else -> {
-                    Text(project.manager.displayName, style = MaterialTheme.typography.labelLarge)
+                    ProfilePicture(
+                        user = assignedEmployees[0],
+                        size = 36.dp
+                    )
+                    ProfilePicture(
+                        user = assignedEmployees[1],
+                        size = 36.dp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "+${assignedEmployees.size - 2}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 }
             }
+        }
+
+        Column {
+            Text("Part of", style = MaterialTheme.typography.labelSmall)
+            Text(
+                projectName ?: "Loading project...",
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }
 
-enum class Destination(
+enum class TaskDestination(
     val route: String,
     val labelId: Int
 ) {
-    TASKS("tasks", R.string.tasks),
+    LOGS("logs", R.string.logs),
     EMPLOYEES("employees", R.string.employees)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Tabs(
-    rootNavController: NavHostController,
-    project: ProjectDTO,
-    onProjectRefresh: () -> Unit
-) {
-    val startDestination = Destination.TASKS
+fun Tabs(navController: NavHostController, task: Task, employees: List<User>, onRefresh: () -> Unit) {
+    val startDestination = TaskDestination.LOGS
     var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 
     Column {
         PrimaryTabRow(selectedTabIndex = selectedDestination) {
-            Destination.entries.forEachIndexed { index, destination ->
+            TaskDestination.entries.forEachIndexed { index, destination ->
                 Tab(
                     selected = selectedDestination == index,
                     onClick = {
@@ -344,64 +352,44 @@ fun Tabs(
         }
 
         when (selectedDestination) {
-            Destination.TASKS.ordinal -> {
-                TasksTab(rootNavController, project.id)
+            TaskDestination.LOGS.ordinal -> {
+                LogsTab(navController, task.id)
             }
-            Destination.EMPLOYEES.ordinal -> {
-                EmployeesTab(
-                    employees = project.employees,
-                    projectID = project.id,
-                    onRefresh = onProjectRefresh
-                )
+            TaskDestination.EMPLOYEES.ordinal -> {
+                TaskEmployeesTab(employees, task.id, task.projectId, onRefresh)
             }
         }
     }
 }
 
 @Composable
-fun TasksTab(
-    rootNavController: NavHostController,
-    projectID: String
-) {
-    val showCreateDialog = remember { mutableStateOf(false) }
-
-    var tasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+fun LogsTab(navController: NavHostController, taskID: String) {
+    var logs by remember { mutableStateOf<List<TaskLog>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
-    var searchQuery by remember { mutableStateOf("") }
-
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(projectID) {
+    LaunchedEffect(taskID) {
         scope.launch {
             try {
                 isLoading = true
                 error = null
-                val result = TaskService.listProjectTasks(projectID)
+
+                val result = TaskLogService.getTaskLogsByTaskId(taskID)
                 result.fold(
-                    onSuccess = { taskList ->
-                        tasks = taskList
-                        isLoading = false
+                    onSuccess = { fetchedLogs ->
+                        logs = fetchedLogs
                     },
                     onFailure = { exception ->
                         error = exception.message
-                        isLoading = false
+                        Log.e("LogsTab", "Failed to fetch task logs", exception)
                     }
                 )
+                isLoading = false
             } catch (e: Exception) {
                 error = e.message
                 isLoading = false
-            }
-        }
-    }
-
-    val filteredTasks = remember(tasks, searchQuery) {
-        if (searchQuery.isBlank()) {
-            tasks
-        } else {
-            tasks.filter { task ->
-                task.name.contains(searchQuery, ignoreCase = true) ||
-                        task.description.contains(searchQuery, ignoreCase = true)
+                Log.e("LogsTab", "Exception while fetching logs", e)
             }
         }
     }
@@ -413,11 +401,6 @@ fun TasksTab(
                 .padding(vertical = 8.dp)
                 .padding(bottom = 80.dp)
         ) {
-            SearchBar(
-                onSearch = { query -> searchQuery = query },
-                onFilter = {}
-            )
-
             when {
                 isLoading -> {
                     Box(
@@ -430,24 +413,15 @@ fun TasksTab(
 
                 error != null -> {
                     Text(
-                        text = stringResource(R.string.error_loading_tasks) + ": $error",
+                        text = "Error loading logs: $error",
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
 
-                filteredTasks.isEmpty() && searchQuery.isNotBlank() -> {
+                logs.isEmpty() -> {
                     Text(
-                        text = stringResource(R.string.no_tasks_matching_search, searchQuery),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
-                filteredTasks.isEmpty() -> {
-                    Text(
-                        text = stringResource(R.string.no_tasks_yet),
+                        text = "No logs yet for this task",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -459,12 +433,12 @@ fun TasksTab(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
-                        items(filteredTasks) { task ->
-                            TaskListItem(
-                                task = task,
-                                onClick = {
-                                    rootNavController.navigate("task/${task.id}")
-                                },
+                        items(logs) { log ->
+                            TaskLogItem(
+                                log = log,
+                                onClick = { logId ->
+                                    navController.navigate("taskLog/$logId")
+                                }
                             )
                         }
                     }
@@ -473,64 +447,31 @@ fun TasksTab(
         }
 
         FloatingActionButton(
-            onClick = { showCreateDialog.value = true },
+            onClick = {
+                navController.navigate("newTaskLog/$taskID")
+            },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            Icon(Icons.Rounded.Add, contentDescription = "Create Task")
-        }
-
-        if (showCreateDialog.value) {
-            CreateTaskDialog(
-                projectId = projectID,
-                onDismiss = {
-                    showCreateDialog.value = false
-                    scope.launch {
-                        try {
-                            val result = TaskService.listProjectTasks(projectID)
-                            result.fold(
-                                onSuccess = { taskList -> tasks = taskList },
-                                onFailure = { exception ->
-                                    Log.e("TasksTab", "Failed to refresh tasks after dialog dismiss", exception)
-                                    error = exception.message
-                                }
-                            )
-                        } catch (e: Exception) {
-                            Log.e("TasksTab", "Error refreshing tasks after dialog dismiss", e)
-                            error = e.message
-                        }
-                    }
-                },
-                onSubmit = {
-                    showCreateDialog.value = false
-                    scope.launch {
-                        try {
-                            val result = TaskService.listProjectTasks(projectID)
-                            result.fold(
-                                onSuccess = { taskList -> tasks = taskList },
-                                onFailure = { exception ->
-                                    Log.e("TasksTab", "Failed to refresh tasks after task creation", exception)
-                                    error = exception.message
-                                }
-                            )
-                        } catch (e: Exception) {
-                            Log.e("TasksTab", "Error refreshing tasks after task creation", e)
-                            error = e.message
-                        }
-                    }
-                }
-            )
+            Icon(Icons.Rounded.Add, contentDescription = "Add Log")
         }
     }
 }
 
 @Composable
-fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> Unit = {}) {
+fun TaskEmployeesTab(
+    employees: List<User> = emptyList(),
+    taskID: String,
+    projectID: String,
+    onRefresh: () -> Unit
+) {
     var searchQuery by remember { mutableStateOf("") }
     val showAddEmployeeDialog = remember { mutableStateOf(false) }
     val showRemoveConfirmDialog = remember { mutableStateOf(false) }
-    val selectedEmployee = remember { mutableStateOf<UserDTO?>(null) }
+    val selectedEmployee = remember { mutableStateOf<User?>(null) }
+    var projectEmployees by remember { mutableStateOf<List<UserDTO>>(emptyList()) }
+    var isLoadingProjectEmployees by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
@@ -545,6 +486,27 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
         }
     }
 
+    LaunchedEffect(projectID) {
+        isLoadingProjectEmployees = true
+        scope.launch {
+            try {
+                val result = ProjectService.getProjectByID(projectID)
+                result.fold(
+                    onSuccess = { projectDto ->
+                        projectEmployees = projectDto.employees
+                    },
+                    onFailure = { exception ->
+                        Log.e("TaskEmployeesTab", "Failed to load project employees", exception)
+                    }
+                )
+            } catch (e: Exception) {
+                Log.e("TaskEmployeesTab", "Error loading project employees", e)
+            } finally {
+                isLoadingProjectEmployees = false
+            }
+        }
+    }
+
     fun showToast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
@@ -553,7 +515,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp, horizontal = 6.dp)
                 .padding(bottom = 80.dp)
         ) {
             SearchBar(
@@ -564,7 +526,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
             when {
                 employees.isEmpty() -> {
                     Text(
-                        text = stringResource(R.string.no_employees_assigned),
+                        text = "No employees assigned to this task",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -573,7 +535,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
 
                 filteredEmployees.isEmpty() && searchQuery.isNotBlank() -> {
                     Text(
-                        text = stringResource(R.string.no_employees_matching_search, searchQuery),
+                        text = "No employees found matching \"$searchQuery\"",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -586,17 +548,10 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
                         items(filteredEmployees) { employee ->
-                            val user = User(
-                                id = employee.id,
-                                displayName = employee.displayName,
-                                username = employee.username,
-                                role = employee.role,
-                            )
-
-                            UserListItem(user = user) {
+                            UserListItem(user = employee) {
                                 UserAction(
                                     icon = Icons.Rounded.RemoveCircle,
-                                    name = stringResource(R.string.remove_from_project),
+                                    name = stringResource(R.string.remove_from_task),
                                     onClick = {
                                         selectedEmployee.value = employee
                                         showRemoveConfirmDialog.value = true
@@ -607,7 +562,6 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                                     icon = Icons.Rounded.Download,
                                     name = stringResource(R.string.export_stats),
                                     onClick = {
-                                        // TODO: Implement export stats functionality
                                     }
                                 )
                             }
@@ -639,20 +593,20 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                 onClick = { selectedUser ->
                     scope.launch {
                         try {
-                            val result = addEmployeeToProject(selectedUser.id, projectID)
+                            val result = TaskService.assignTaskToEmployee(selectedUser.id, taskID)
                             result.fold(
                                 onSuccess = {
                                     onRefresh()
-                                    showToast("Employee added successfully!")
+                                    showToast("Employee assigned to task successfully!")
                                 },
                                 onFailure = { exception ->
-                                    Log.e("EmployeesTab", "Failed to add employee to project", exception)
-                                    showToast("Failed to add employee")
+                                    Log.e("TaskEmployeesTab", "Failed to assign employee to task", exception)
+                                    showToast("Failed to assign employee to task")
                                 }
                             )
                         } catch (e: Exception) {
-                            Log.e("EmployeesTab", "Error adding employee to project", e)
-                            showToast("Error adding employee")
+                            Log.e("TaskEmployeesTab", "Error assigning employee to task", e)
+                            showToast("Error assigning employee to task")
                         }
                     }
                     showAddEmployeeDialog.value = false
@@ -660,9 +614,10 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                 userRole = Role.EMPLOYEE,
                 filterUsers = { allUsers ->
                     val assignedEmployeeIds = employees.map { it.id }.toSet()
+                    val projectEmployeeIds = projectEmployees.map { it.id }.toSet()
 
                     allUsers.filter { user ->
-                        !assignedEmployeeIds.contains(user.id)
+                        projectEmployeeIds.contains(user.id) && !assignedEmployeeIds.contains(user.id)
                     }
                 }
             )
@@ -678,27 +633,27 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                     selectedEmployee.value?.let { employee ->
                         scope.launch {
                             try {
-                                val result = removeEmployeeFromProject(employee.id, projectID)
+                                val result = TaskService.removeEmployeeFromTask(taskID, employee.id)
                                 result.fold(
                                     onSuccess = {
                                         onRefresh()
-                                        showToast("Employee removed successfully!")
+                                        showToast("Employee removed from task successfully!")
                                     },
                                     onFailure = { exception ->
-                                        Log.e("EmployeesTab", "Failed to remove employee", exception)
-                                        showToast("Failed to remove employee")
+                                        Log.e("TaskEmployeesTab", "Failed to remove employee from task", exception)
+                                        showToast("Failed to remove employee from task")
                                     }
                                 )
                             } catch (e: Exception) {
-                                Log.e("EmployeesTab", "Error removing employee from project", e)
-                                showToast("Error removing employee")
+                                Log.e("TaskEmployeesTab", "Error removing employee from task", e)
+                                showToast("Error removing employee from task")
                             }
                         }
                     }
                     showRemoveConfirmDialog.value = false
                     selectedEmployee.value = null
                 },
-                message = "Are you sure you want to remove ${selectedEmployee.value?.displayName} from this project?"
+                message = "Are you sure you want to remove ${selectedEmployee.value?.displayName} from this task?"
             )
         }
     }

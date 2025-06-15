@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.UserService
+import dev.jalves.estg.trabalhopratico.services.TaskService
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.formatDate
 
@@ -41,9 +43,16 @@ fun ProjectListItem(
     project: Project
 ) {
     var manager by remember { mutableStateOf<User?>(null) }
+    var taskCount by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(project.id) {
         manager = project.managerID?.let { UserService.fetchUserById(it) }
+
+        TaskService.getProjectTaskCount(project.id).onSuccess { count ->
+            taskCount = count
+        }.onFailure {
+            taskCount = 0 // Default to 0 if we can't fetch the count
+        }
     }
 
     Row(
@@ -83,7 +92,7 @@ fun ProjectListItem(
                         size = 24.dp
                     )
                     Text("•")
-                    Text("? " + stringResource(R.string.tasks))
+                    Text("$taskCount ${stringResource(R.string.tasks)}")
                     Text("•")
                     Text("${stringResource(R.string.due)} ${formatDate(project.dueDate)}")
                 }

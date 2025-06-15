@@ -40,6 +40,7 @@
     <string name="mark_complete">Marcar como completo</string>
     <string name="archive_project">Arquivar projeto</string>
     <string name="project">Projeto</string>
+    <string name="task">Tarefa</string>
     <string name="search_employee">Pesquisar empregado</string>
     <string name="edit_user">Editar utilizador</string>
     <string name="add_user">Adicionar utilizador</string>
@@ -70,4 +71,29 @@
     <string name="error_update_failed">Falha ao atualizar perfil: %1$s</string>
     <string name="set_tasks">Colocar Tasks</string>
     <string name="remove_from_project">Remover do Projeto</string>
+    <string name="remove_from_task">Remover da Tarefa</string>
+    <string name="error_loading_tasks">Erro ao carregar tarefas: %1$s</string>
+    <string name="no_tasks_matching_search">Nenhuma tarefa encontrada correspondente a "%1$s"</string>
+    <string name="no_tasks_yet">Ainda não há tarefas. Crie a sua primeira tarefa!</string>
+    <string name="no_employees_assigned">Nenhum funcionário atribuído a este projeto</string>
+    <string name="no_employees_matching_search">Nenhum funcionário encontrado correspondente a "%1$s"</string>
+    <string name="error_loading_projects">Erro ao carregar projetos: %1$s</string>
+    <string name="see_all_count">Ver tudo (%1$d+)</string>
+    <string name="no_projects_found">Nenhum projeto encontrado</string>
+    <string name="hours_spent">%1$dh. gastas</string>
+    <string name="photo_count">%1$d fotos</string>
+    <string name="hello_name">Olá %1$s</string>
+    <string name="fill_required_fields">Por favor, preencha todos os campos obrigatórios</string>
+    <string name="auth_error">Erro de autenticação do usuário</string>
+    <string name="task_log_created">Registro de tarefa criado com sucesso</string>
+    <string name="photo_upload_failed">Registro criado, mas falha ao carregar fotos: %1$s</string>
+    <string name="save_log_failed">Falha ao salvar registro: %1$s</string>
+    <string name="general_error">Erro: %1$s</string>
+    <string name="signin_success">Login efetuado com sucesso!</string>
+    <string name="new_task_log">Novo Registro de Tarefa</string>
+    <string name="completion_rate">Taxa de Conclusão</string>
+    <string name="notes">Notas:</string>
+    <string name="photos">Fotos</string>
+    <string name="location">Localização</string>
+    <string name="task_log">Registro de Tarefa</string>
 </resources>
