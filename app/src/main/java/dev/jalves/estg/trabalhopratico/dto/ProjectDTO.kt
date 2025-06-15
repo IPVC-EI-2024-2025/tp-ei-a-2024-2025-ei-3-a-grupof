@@ -11,7 +11,8 @@ data class CreateProjectDTO (
     @SerialName("start_date")
     val startDate: String,
     @SerialName("due_date")
-    val dueDate: String
+    val dueDate: String,
+    val managerID: String? = null
 )
 
 @Serializable

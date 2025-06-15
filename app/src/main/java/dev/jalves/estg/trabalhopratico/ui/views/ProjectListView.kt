@@ -27,11 +27,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import dev.jalves.estg.trabalhopratico.hasAccess
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.services.AuthService
+import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
 import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
+import io.github.jan.supabase.auth.auth
 
 @Composable
 fun ProjectListView(
@@ -43,6 +46,7 @@ fun ProjectListView(
     val errorMessage by projectsViewModel.errorMessage.collectAsState()
 
     var userRole by remember { mutableStateOf<Role?>(null) }
+    val user = supabase.auth.currentUserOrNull()!!
 
     LaunchedEffect(projects) {
         userRole = AuthService.getCurrentUserRole()
@@ -89,7 +93,7 @@ fun ProjectListView(
             }
         }
 
-        if(userRole != Role.EMPLOYEE)
+        if(user.hasAccess(Role.ADMIN, Role.MANAGER))
             FloatingActionButton(
                 onClick = {
                     openAddProjectDialog.value = true

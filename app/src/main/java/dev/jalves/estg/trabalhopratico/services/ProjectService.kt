@@ -30,7 +30,7 @@ object ProjectService {
                     dueDate = projectDto.dueDate,
                     status = "unknown",
                     createdByID = currentUserId,
-                    managerID = null
+                    managerID = projectDto.managerID
                 )
 
                 supabase.from("projects").insert(project)

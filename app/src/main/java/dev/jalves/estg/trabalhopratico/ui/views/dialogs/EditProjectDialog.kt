@@ -18,8 +18,12 @@ import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.dto.CreateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
+import dev.jalves.estg.trabalhopratico.hasAccess
+import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.services.ProjectService
+import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.components.DatePickerInput
+import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +40,8 @@ fun EditProjectDialog(
     var description by remember { mutableStateOf("") }
     var startDate by rememberSaveable { mutableStateOf("") }
     var dueDate by rememberSaveable { mutableStateOf("") }
+
+    val user = supabase.auth.currentUserOrNull()!!
 
     if (project != null) {
         title = stringResource(R.string.edit_project)
@@ -82,7 +88,8 @@ fun EditProjectDialog(
                     scope.launch {
                         if (project == null) {
                             ProjectService.createProject(CreateProjectDTO(
-                                name, description, startDate, dueDate
+                                name, description, startDate, dueDate,
+                                managerID = if (user.hasAccess(Role.MANAGER)) user.id else null
                             ))
                         } else {
                             ProjectService.updateProject(UpdateProjectDTO(
