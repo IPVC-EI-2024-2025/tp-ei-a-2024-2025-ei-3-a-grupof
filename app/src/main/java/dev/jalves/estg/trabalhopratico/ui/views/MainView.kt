@@ -56,7 +56,7 @@ fun MainView(
             }
 
             composable(route = "tasks") {
-                TaskListView()
+                TaskListView(rootNavController, TasksViewModel())
             }
 
             composable(route = "projects") {

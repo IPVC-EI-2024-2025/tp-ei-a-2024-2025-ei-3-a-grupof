@@ -11,16 +11,15 @@ import dev.jalves.estg.trabalhopratico.dto.CreateTaskAssignmentDTO
 import dev.jalves.estg.trabalhopratico.dto.CreateTaskDTO
 import dev.jalves.estg.trabalhopratico.dto.TaskOverviewDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateTask
-import dev.jalves.estg.trabalhopratico.dto.UserOverviewDTO
 import dev.jalves.estg.trabalhopratico.objects.EmployeeTaskAssignment
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.TaskStatus
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
-import dev.jalves.estg.trabalhopratico.services.UserService.getUserOverview
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.buildJsonObject
@@ -98,6 +97,24 @@ object TaskService {
             try {
                 val tasks = supabase.from("tasks")
                     .select()
+                    .decodeList<Task>()
+
+                Result.success(tasks)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch tasks", e)
+                Result.failure(e)
+            }
+        }
+
+    suspend fun listTasksByUser(userID: String): Result<List<Task>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val tasks = supabase.from("tasks")
+                    .select(Columns.raw("id, name, description, status, created_at, employee_task_assignments!inner(employee_id)")) {
+                        filter {
+                            eq("employee_task_assignments.employee_id", userID)
+                        }
+                    }
                     .decodeList<Task>()
 
                 Result.success(tasks)
