@@ -1,4 +1,4 @@
-package dev.jalves.estg.trabalhopratico.ui.views.admin
+package dev.jalves.estg.trabalhopratico.ui.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,15 +16,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.R
-import dev.jalves.estg.trabalhopratico.ui.views.MenuView
-import dev.jalves.estg.trabalhopratico.ui.views.ProfileViewModel
-import dev.jalves.estg.trabalhopratico.ui.views.ProjectListView
-import dev.jalves.estg.trabalhopratico.ui.views.ProjectsViewModel
-import dev.jalves.estg.trabalhopratico.ui.views.UserListView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminMain(
+fun MainView(
     rootNavController: NavHostController,
     profileViewModel: ProfileViewModel,
     projectsViewModel: ProjectsViewModel
@@ -43,7 +38,7 @@ fun AdminMain(
             )
         },
         bottomBar = {
-            AdminNavBar(navController)
+            NavBar(navController)
         }
     ) { innerPadding ->
         NavHost(
@@ -52,7 +47,7 @@ fun AdminMain(
             startDestination = "home"
         ) {
             composable(route = "home") {
-                AdminHome(rootNavController, profileViewModel)
+                HomeView(rootNavController, profileViewModel)
             }
 
             composable(route = "projects") {

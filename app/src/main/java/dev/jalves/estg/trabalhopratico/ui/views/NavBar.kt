@@ -1,9 +1,9 @@
-package dev.jalves.estg.trabalhopratico.ui.views.employee
+package dev.jalves.estg.trabalhopratico.ui.views
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Assignment
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.People
 import androidx.compose.material.icons.rounded.Work
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -12,29 +12,31 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.ui.components.NavigationItem
 
 @Composable
-fun EmployeeNavBar(navController: NavController) {
+fun NavBar(navController: NavController) {
     val navigationItems = listOf(
         NavigationItem(
-            title = "Home",
+            title = stringResource(R.string.nav_home),
             icon = Icons.Rounded.Home,
             route = "home"
         ),
         NavigationItem(
-            title = "Tasks",
-            icon = Icons.AutoMirrored.Rounded.Assignment,
-            route = "tasks"
-        ),
-        NavigationItem(
-            title = "Projects",
+            title = stringResource(R.string.projects),
             icon = Icons.Rounded.Work,
             route = "projects"
         ),
         NavigationItem(
-            title = "Menu",
+            title = stringResource(R.string.users),
+            icon = Icons.Rounded.People,
+            route = "users"
+        ),
+        NavigationItem(
+            title = stringResource(R.string.menu),
             icon = Icons.Rounded.Menu,
             route = "menu"
         ),
