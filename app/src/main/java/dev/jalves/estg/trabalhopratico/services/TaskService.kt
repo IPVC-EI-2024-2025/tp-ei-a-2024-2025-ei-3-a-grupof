@@ -55,6 +55,8 @@ object TaskService {
         }
 
 
+
+
     suspend fun assignTaskToEmployee(userID:String,taskID: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
@@ -166,26 +168,17 @@ object TaskService {
             }
         }
 
-    suspend fun updateTask(updatedTask: UpdateTask,id: String ) =
+    suspend fun updateTask(updatedTask: UpdateTask ) =
         withContext(Dispatchers.IO) {
             try {
-                val status = if (updatedTask.status == "Complete") {
-                    TaskStatus.COMPLETE
-                } else {
-                    TaskStatus.IN_PROGRESS
-                }
-
-                val task = Task(
-                    name = updatedTask.name,
-                    description = updatedTask.description,
-                    status = status,
-
-                    )
-
-                supabase.from("tasks").update(task
+                supabase.from("tasks").update(
+                    buildMap {
+                        updatedTask.name?.let { put("name", it) }
+                        updatedTask.description?.let { put("description", it) }
+                    }
                 ) {
                     filter {
-                        eq("id", id)
+                        eq("id", updatedTask.id)
                     }
                 }
                 Result.success(Unit)

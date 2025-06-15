@@ -7,21 +7,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import dev.jalves.estg.trabalhopratico.dto.CreateTaskDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateTask
+import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.services.TaskService
 import kotlinx.coroutines.launch
 
 @Composable
 fun EditTaskDialog(
     onDismiss: () -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    task: Task
 ) {
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("") }
-    var TaskId by remember { mutableStateOf("") }
-
+    var name by remember { mutableStateOf(task.name) }
+    var description by remember { mutableStateOf(task.description) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
@@ -40,16 +38,6 @@ fun EditTaskDialog(
                     onValueChange = { description = it },
                     label = { Text("Description") },
                 )
-                OutlinedTextField(
-                    value = status,
-                    onValueChange = { status = it },
-                    label = { Text("Status") },
-                )
-                OutlinedTextField(
-                    value = TaskId,
-                    onValueChange = { TaskId = it },
-                    label = { Text("TaskId") },
-                )
             }
         },
         onDismissRequest = onDismiss,
@@ -60,12 +48,12 @@ fun EditTaskDialog(
                     scope.launch {
                         try {
                             val dto = UpdateTask(
+                                id = task.id,
                                 name = name,
-                                description = description,
-                                status = status
+                                description = description
                             )
 
-                            val result = TaskService.updateTask(dto, TaskId)
+                            val result = TaskService.updateTask(dto)
 
                             if (result.isSuccess) {
                                 Toast.makeText(context, "Task Edited!", Toast.LENGTH_SHORT).show()

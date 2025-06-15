@@ -1,6 +1,5 @@
 package dev.jalves.estg.trabalhopratico.dto
 
-import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.TaskStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -18,10 +17,10 @@ data class CreateTaskDTO(
 
 @Serializable
 data class UpdateTask(
-    val name: String,
-    val description: String,
-    val status: String = "",
-    val updatedAt: String = "",
+    val id: String,
+    val name: String? = null,
+    val description: String? = null,
+    val status: String? = null
 )
 
 @Serializable
