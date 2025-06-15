@@ -5,6 +5,8 @@ import android.util.Log
 import dev.jalves.estg.trabalhopratico.dto.CreateTaskDTO
 
 import dev.jalves.estg.trabalhopratico.dto.UpdateTask
+import dev.jalves.estg.trabalhopratico.objects.EmployeeProject
+import dev.jalves.estg.trabalhopratico.objects.EmployeeTaskAssignment
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.TaskStatus
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
@@ -37,6 +39,27 @@ object TaskService {
                 Result.failure(e)
             }
         }
+
+
+    suspend fun AssignTaskToEmployee(userID:String,taskID: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+
+                val TaskAssigment = EmployeeTaskAssignment(
+                    taskId = taskID,
+                    employeeId = userID,
+                    completionRate = 0.0f,
+                )
+
+                supabase.from("employee_task_assignments").insert(TaskAssigment)
+
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to Asssign Task to Employee", e)
+                Result.failure(e)
+            }
+        }
+
 
     suspend fun listTasks(): Result<List<Task>> =
         withContext(Dispatchers.IO) {

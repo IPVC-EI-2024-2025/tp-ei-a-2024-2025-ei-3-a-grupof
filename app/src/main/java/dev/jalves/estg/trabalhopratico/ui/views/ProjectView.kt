@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico.ui.views
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,11 +83,13 @@ import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.ProjectService.addEmployeeToProject
 import dev.jalves.estg.trabalhopratico.services.ProjectService.removeEmployeeFromProject
 import dev.jalves.estg.trabalhopratico.services.TaskService
+import dev.jalves.estg.trabalhopratico.services.TaskService.AssignTaskToEmployee
 import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
 import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
 import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.TaskAssignmentDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -211,8 +214,9 @@ fun ProjectView(
                         )
                     }
                     ManagedBy(project!!)
-                    Tabs(project!!)
-                }
+                    Tabs(project!!) {
+                        projectViewModel.loadProject(projectID)
+                    }                }
             }
         }
 
@@ -361,7 +365,8 @@ enum class Destination(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Tabs(project: ProjectDTO) {
+
+fun Tabs(project: ProjectDTO, onProjectRefresh: () -> Unit) {
     val navController = rememberNavController()
     val startDestination = Destination.TASKS
     var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
@@ -393,8 +398,11 @@ fun Tabs(project: ProjectDTO) {
                 composable(destination.route) {
                     when (destination) {
                         Destination.TASKS -> TasksTab(project.id)
-                        Destination.EMPLOYEES -> EmployeesTab(project.employees,project.id)
-                    }
+                        Destination.EMPLOYEES -> EmployeesTab(
+                            employees = project.employees,
+                            projectID = project.id,
+                            onRefresh = onProjectRefresh
+                        )                    }
                 }
             }
         }
@@ -560,8 +568,12 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
     var searchQuery by remember { mutableStateOf("") }
     val showAddEmployeeDialog = remember { mutableStateOf(false) }
     val showRemoveConfirmDialog = remember { mutableStateOf(false) }
+    val showTaskAssignmentDialog = remember { mutableStateOf(false) }
     val selectedEmployee = remember { mutableStateOf<UserDTO?>(null) }
+    val selectedEmployeeForTask = remember { mutableStateOf<UserDTO?>(null) }
     val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
 
     val filteredEmployees = remember(employees, searchQuery) {
         if (searchQuery.isBlank()) {
@@ -571,6 +583,10 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                 employee.displayName?.contains(searchQuery, ignoreCase = true) == true
             }
         }
+    }
+
+    fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -622,7 +638,8 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                                     icon = Icons.AutoMirrored.Rounded.Assignment,
                                     name = stringResource(R.string.set_tasks),
                                     onClick = {
-                                        // TODO: Implement set tasks functionality
+                                        selectedEmployeeForTask.value = employee
+                                        showTaskAssignmentDialog.value = true
                                     }
                                 )
 
@@ -675,15 +692,16 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                             result.fold(
                                 onSuccess = {
                                     onRefresh()
+                                    showToast("Employee added successfully!")
                                 },
                                 onFailure = { exception ->
                                     Log.e("EmployeesTab", "Failed to add employee to project", exception)
-                                    // TODO: Show error message to user
+                                    showToast("Failed to add employee")
                                 }
                             )
                         } catch (e: Exception) {
                             Log.e("EmployeesTab", "Error adding employee to project", e)
-                            // TODO: Show error message to user
+                            showToast("Error adding employee")
                         }
                     }
                     showAddEmployeeDialog.value = false
@@ -705,17 +723,17 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                                 val result = removeEmployeeFromProject(employee.id, projectID)
                                 result.fold(
                                     onSuccess = {
-                                        onRefresh() // Refresh the employees list
-                                        // TODO: Show success message
+                                        onRefresh()
+                                        showToast("Employee removed successfully!")
                                     },
                                     onFailure = { exception ->
                                         Log.e("EmployeesTab", "Failed to remove employee", exception)
-                                        // TODO: Show error message to user
+                                        showToast("Failed to remove employee")
                                     }
                                 )
                             } catch (e: Exception) {
                                 Log.e("EmployeesTab", "Error removing employee from project", e)
-                                // TODO: Show error message to user
+                                showToast("Error removing employee")
                             }
                         }
                     }
@@ -723,6 +741,40 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                     selectedEmployee.value = null
                 },
                 message = "Are you sure you want to remove ${selectedEmployee.value?.displayName} from this project?"
+            )
+        }
+
+        if (showTaskAssignmentDialog.value && selectedEmployeeForTask.value != null) {
+            TaskAssignmentDialog(
+                projectId = projectID,
+                onDismiss = {
+                    showTaskAssignmentDialog.value = false
+                    selectedEmployeeForTask.value = null
+                },
+                onTaskSelected = { selectedTask ->
+                    selectedEmployeeForTask.value?.let { employee ->
+                        scope.launch {
+                            Log.d("TASK_ASSIGNMENT", "Assigning task ${selectedTask.name} to ${employee.displayName}")
+                            try {
+                                val result = AssignTaskToEmployee(employee.id, selectedTask.id)
+                                result.fold(
+                                    onSuccess = {
+                                        onRefresh()
+                                        showToast("Task assigned successfully!")
+                                    },
+                                    onFailure = { exception ->
+                                        Log.e("EmployeesTab", "Failed to assign task to employee", exception)
+                                        showToast("Failed to assign task")
+                                    }
+                                )
+                            } catch (e: Exception) {
+                                Log.e("EmployeesTab", "Error assigning task to employee", e)
+                            }
+                        }
+                    }
+                    showTaskAssignmentDialog.value = false
+                    selectedEmployeeForTask.value = null
+                }
             )
         }
     }
