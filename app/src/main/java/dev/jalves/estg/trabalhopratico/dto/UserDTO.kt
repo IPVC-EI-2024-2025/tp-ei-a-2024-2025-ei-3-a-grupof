@@ -58,12 +58,12 @@ data class UserTaskAssignmentDTO(
 
 
 
+
 @Serializable
 data class UserTaskLogDTO(
-    val Location: String?,
-    val Notes: String?
+    val Location: String? = null,
+    val Notes: String? = null
 )
-
 
 @Serializable
 data class UserProjectDetailsDTO(

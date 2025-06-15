@@ -77,6 +77,7 @@ import dev.jalves.estg.trabalhopratico.services.ProjectService.addEmployeeToProj
 import dev.jalves.estg.trabalhopratico.services.ProjectService.removeEmployeeFromProject
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.services.TaskService
+import dev.jalves.estg.trabalhopratico.services.UserService
 import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
 import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
 import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
@@ -634,6 +635,28 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
+    fun exportEmployeeStats(employee: UserDTO) {
+        scope.launch {
+            val user = User(
+                id = employee.id,
+                displayName = employee.displayName,
+                username = employee.username,
+                role = employee.role,
+            )
+
+            UserService.exportUserStatsToPDF(
+                context = context,
+                userId = user.id,
+                onSuccess = { file ->
+                    showToast("Stats exported successfully to ${file.name}")
+                },
+                onError = { errorMessage ->
+                    showToast("Export failed: $errorMessage")
+                }
+            )
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -696,8 +719,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                                         icon = Icons.Rounded.Download,
                                         name = stringResource(R.string.export_stats),
                                         onClick = {
-                                            // TODO: Implement individual employee export stats functionality
-                                            showToast("Individual employee export coming soon!")
+                                            exportEmployeeStats(employee)
                                         }
                                     )
                                 }

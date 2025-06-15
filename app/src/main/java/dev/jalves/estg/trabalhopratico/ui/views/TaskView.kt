@@ -69,6 +69,7 @@ import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.services.TaskLogService
 import dev.jalves.estg.trabalhopratico.services.TaskService
+import dev.jalves.estg.trabalhopratico.services.UserService
 import dev.jalves.estg.trabalhopratico.ui.components.MenuItem
 import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
 import dev.jalves.estg.trabalhopratico.ui.components.TaskLogItem
@@ -530,7 +531,6 @@ fun TaskEmployeesTab(
     val user = supabase.auth.currentUserOrNull()!!
 
     val scope = rememberCoroutineScope()
-
     val context = LocalContext.current
 
     val filteredEmployees = remember(employees, searchQuery) {
@@ -566,6 +566,21 @@ fun TaskEmployeesTab(
 
     fun showToast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    fun exportEmployeeStats(employee: User) {
+        scope.launch {
+            UserService.exportUserStatsToPDF(
+                context = context,
+                userId = employee.id,
+                onSuccess = { file ->
+                    showToast("Stats exported successfully to ${file.name}")
+                },
+                onError = { errorMessage ->
+                    showToast("Export failed: $errorMessage")
+                }
+            )
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -612,7 +627,7 @@ fun TaskEmployeesTab(
                                         icon = Icons.Rounded.Download,
                                         name = stringResource(R.string.export_stats),
                                         onClick = {
-                                            showToast("Individual employee export not implemented yet")
+                                            exportEmployeeStats(employee)
                                         }
                                     )
                                 }
