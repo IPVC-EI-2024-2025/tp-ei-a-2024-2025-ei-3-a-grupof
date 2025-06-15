@@ -126,6 +126,7 @@ class MainActivity : ComponentActivity() {
                                     popUpTo(0)
                                 }
                                 bottomBarState.value = true
+                                profileViewModel.fetchData()
                             }
                         )
                     }
