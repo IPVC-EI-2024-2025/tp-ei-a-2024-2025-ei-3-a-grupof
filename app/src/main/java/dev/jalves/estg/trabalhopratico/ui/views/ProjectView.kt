@@ -204,7 +204,9 @@ fun ProjectView(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(horizontal = 8.dp),
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             when {
@@ -381,7 +383,7 @@ fun Tabs(
 
         when (selectedDestination) {
             Destination.TASKS.ordinal -> {
-                TasksTab(rootNavController, project.id)
+                TasksTab(rootNavController, project)
             }
             Destination.EMPLOYEES.ordinal -> {
                 EmployeesTab(
@@ -397,7 +399,7 @@ fun Tabs(
 @Composable
 fun TasksTab(
     rootNavController: NavHostController,
-    projectID: String
+    project: ProjectDTO
 ) {
     val showCreateDialog = remember { mutableStateOf(false) }
 
@@ -406,14 +408,16 @@ fun TasksTab(
     var error by remember { mutableStateOf<String?>(null) }
     var searchQuery by remember { mutableStateOf("") }
 
+    val user = supabase.auth.currentUserOrNull()!!
+
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(projectID) {
+    LaunchedEffect(project.id) {
         scope.launch {
             try {
                 isLoading = true
                 error = null
-                val result = TaskService.listProjectTasks(projectID)
+                val result = TaskService.listProjectTasks(project.id)
                 result.fold(
                     onSuccess = { taskList ->
                         tasks = taskList
@@ -509,23 +513,28 @@ fun TasksTab(
         }
 
 
-        FloatingActionButton(
-            onClick = { showCreateDialog.value = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(Icons.Rounded.Add, contentDescription = "Create Task")
+        if(
+            user.hasAccess(Role.ADMIN)
+            || (project.manager != null && project.manager.id == user.id)
+        ){
+            FloatingActionButton(
+                onClick = { showCreateDialog.value = true },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(Icons.Rounded.Add, contentDescription = "Create Task")
+            }
         }
 
         if (showCreateDialog.value) {
             CreateTaskDialog(
-                projectId = projectID,
+                projectId = project.id,
                 onDismiss = {
                     showCreateDialog.value = false
                     scope.launch {
                         try {
-                            val result = TaskService.listProjectTasks(projectID)
+                            val result = TaskService.listProjectTasks(project.id)
                             result.fold(
                                 onSuccess = { taskList -> tasks = taskList },
                                 onFailure = { exception ->
@@ -543,7 +552,7 @@ fun TasksTab(
                     showCreateDialog.value = false
                     scope.launch {
                         try {
-                            val result = TaskService.listProjectTasks(projectID)
+                            val result = TaskService.listProjectTasks(project.id)
                             result.fold(
                                 onSuccess = { taskList -> tasks = taskList },
                                 onFailure = { exception ->
