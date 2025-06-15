@@ -361,14 +361,14 @@ fun EmailChangeCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Change Email",
+                    text = stringResource(R.string.change_email),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Medium
                     )
                 )
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand"
+                    contentDescription = if (isExpanded) stringResource(R.string.collapse) else stringResource(R.string.expand)
                 )
             }
 
@@ -388,13 +388,13 @@ fun EmailChangeCard(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Current Password") },
+                    label = { Text(stringResource(R.string.current_password)) },
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { showPassword = !showPassword }) {
                             Icon(
                                 imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = if (showPassword) "Hide password" else "Show password"
+                                contentDescription = if (showPassword) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
                             )
                         }
                     },
@@ -408,15 +408,15 @@ fun EmailChangeCard(
                     onClick = {
                         scope.launch {
                             if (email.isBlank()) {
-                                Toast.makeText(context, "Email is required", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.email_required), Toast.LENGTH_SHORT).show()
                                 return@launch
                             }
                             if (password.isBlank()) {
-                                Toast.makeText(context, "Password is required", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.password_required), Toast.LENGTH_SHORT).show()
                                 return@launch
                             }
                             if (email == originalEmail) {
-                                Toast.makeText(context, "New email must be different from current email", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.email_must_be_different), Toast.LENGTH_SHORT).show()
                                 return@launch
                             }
 
@@ -427,14 +427,22 @@ fun EmailChangeCard(
                                     password = ""
                                     // Refresh the profile data to get the updated email
                                     profileViewModel.fetchData()
-                                    Toast.makeText(context, "Email updated successfully", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.email_updated_success), Toast.LENGTH_SHORT).show()
                                     isExpanded = false
                                 } else {
                                     val exception = result.exceptionOrNull()
-                                    Toast.makeText(context, "Failed to update email: ${exception?.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.failed_update_email, exception?.message ?: ""),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Failed to update email: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.failed_update_email, e.message ?: ""),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } finally {
                                 isLoading = false
                             }
@@ -446,7 +454,7 @@ fun EmailChangeCard(
                     if (isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                     } else {
-                        Text("Update Email")
+                        Text(stringResource(R.string.update_email))
                     }
                 }
             }
@@ -485,14 +493,14 @@ fun PasswordChangeCard() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Change Password",
+                    text = stringResource(R.string.change_password),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Medium
                     )
                 )
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand"
+                    contentDescription = if (isExpanded) stringResource(R.string.collapse) else stringResource(R.string.expand)
                 )
             }
 
@@ -508,7 +516,7 @@ fun PasswordChangeCard() {
                         IconButton(onClick = { showCurrentPassword = !showCurrentPassword }) {
                             Icon(
                                 imageVector = if (showCurrentPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = if (showCurrentPassword) "Hide password" else "Show password"
+                                contentDescription = if (showCurrentPassword) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
                             )
                         }
                     },
@@ -527,7 +535,7 @@ fun PasswordChangeCard() {
                         IconButton(onClick = { showNewPassword = !showNewPassword }) {
                             Icon(
                                 imageVector = if (showNewPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = if (showNewPassword) "Hide password" else "Show password"
+                                contentDescription = if (showNewPassword) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
                             )
                         }
                     },
@@ -546,7 +554,7 @@ fun PasswordChangeCard() {
                         IconButton(onClick = { showConfirmPassword = !showConfirmPassword }) {
                             Icon(
                                 imageVector = if (showConfirmPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = if (showConfirmPassword) "Hide password" else "Show password"
+                                contentDescription = if (showConfirmPassword) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
                             )
                         }
                     },
@@ -560,15 +568,15 @@ fun PasswordChangeCard() {
                     onClick = {
                         scope.launch {
                             if (currentPassword.isBlank()) {
-                                Toast.makeText(context, "Current password is required", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.current_password_required), Toast.LENGTH_SHORT).show()
                                 return@launch
                             }
                             if (newPassword.isBlank()) {
-                                Toast.makeText(context, "New password is required", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.new_password_required), Toast.LENGTH_SHORT).show()
                                 return@launch
                             }
                             if (newPassword != confirmPassword) {
-                                Toast.makeText(context, "New passwords do not match", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.error_password_mismatch), Toast.LENGTH_SHORT).show()
                                 return@launch
                             }
 
@@ -579,14 +587,22 @@ fun PasswordChangeCard() {
                                     currentPassword = ""
                                     newPassword = ""
                                     confirmPassword = ""
-                                    Toast.makeText(context, "Password updated successfully", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.password_updated_success), Toast.LENGTH_SHORT).show()
                                     isExpanded = false
                                 } else {
                                     val exception = result.exceptionOrNull()
-                                    Toast.makeText(context, "Failed to update password: ${exception?.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.failed_update_password, exception?.message ?: ""),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Failed to update password: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.failed_update_password, e.message ?: ""),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } finally {
                                 isLoading = false
                             }
@@ -598,7 +614,7 @@ fun PasswordChangeCard() {
                     if (isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                     } else {
-                        Text("Update Password")
+                        Text(stringResource(R.string.update_password))
                     }
                 }
             }

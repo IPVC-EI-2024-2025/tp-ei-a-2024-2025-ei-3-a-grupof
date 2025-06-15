@@ -7,6 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.dto.UpdateTask
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.services.TaskService
@@ -25,18 +27,18 @@ fun EditTaskDialog(
     var isLoading by remember { mutableStateOf(false) }
 
     AlertDialog(
-        title = { Text("Edit Task") },
+        title = { Text(stringResource(R.string.edit_task)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Task Name") },
+                    label = { Text(stringResource(R.string.task_name)) },
                 )
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.description)) },
                 )
             }
         },
@@ -56,7 +58,7 @@ fun EditTaskDialog(
                             val result = TaskService.updateTask(dto)
 
                             if (result.isSuccess) {
-                                Toast.makeText(context, "Task Edited!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, R.string.task_edited, Toast.LENGTH_SHORT).show()
                                 onSubmit()
                             } else {
                                 val error = result.exceptionOrNull()?.message ?: "Unknown error"
@@ -70,12 +72,12 @@ fun EditTaskDialog(
                     }
                 }
             ) {
-                Text("Submit")
+                Text(stringResource(R.string.submit))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
