@@ -30,12 +30,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.objects.Project
 import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
+import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
 import io.github.jan.supabase.auth.auth
 
 @Composable
@@ -49,6 +51,15 @@ fun HomeView(
     var projects by remember { mutableStateOf<List<Project>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+
+    val tasksViewModel: TasksViewModel = viewModel()
+
+    val tasks by tasksViewModel.tasks.collectAsState()
+    val errorMessage by tasksViewModel.errorMessage.collectAsState()
+
+    LaunchedEffect(Unit) {
+        tasksViewModel.fetchData()
+    }
 
     LaunchedEffect(Unit) {
         val currentUserId = supabase.auth.currentUserOrNull()?.id
@@ -157,7 +168,77 @@ fun HomeView(
                         }
                     } else {
                         Text(
-                            "No projects found",
+                            stringResource(R.string.no_projects),
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )                    }
+                }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                stringResource(R.string.your_tasks), style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                ), modifier = Modifier.padding(start = 12.dp)
+            )
+
+            when {
+                tasks == null -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                errorMessage != null -> {
+                    Text(
+                        text = "Error loading tasks: $error",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(tasks!!) { task ->
+                            TaskListItem(
+                                task = task,
+                                onClick = {
+                                    rootNavController.navigate("task/${task.id}")
+                                }
+                            )
+                        }
+                    }
+
+                    if (tasks!!.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(
+                                onClick = {
+                                    navController.navigate("tasks")
+                                }
+                            ) {
+                                Text("${stringResource(R.string.see_all)} (${tasks!!.size}+)")
+                            }
+                        }
+                    } else {
+                        Text(
+                            stringResource(R.string.no_tasks),
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(start = 10.dp)
                         )                    }
