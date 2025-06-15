@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Schedule
@@ -41,6 +42,8 @@ import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.components.ProjectListItem
 import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
 import io.github.jan.supabase.auth.auth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun HomeView(
@@ -85,7 +88,8 @@ fun HomeView(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 32.dp),
+            .padding(top = 32.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
@@ -142,10 +146,10 @@ fun HomeView(
                 }
 
                 else -> {
-                    LazyColumn(
+                    Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(projects) { project ->
+                        projects.forEach { project ->
                             ProjectListItem(
                                 project = project,
                                 onClick = {
@@ -213,10 +217,10 @@ fun HomeView(
                     }
 
                     else -> {
-                        LazyColumn(
+                        Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            items(tasks!!) { task ->
+                            tasks!!.forEach { task ->
                                 TaskListItem(
                                     task = task,
                                     onClick = {
