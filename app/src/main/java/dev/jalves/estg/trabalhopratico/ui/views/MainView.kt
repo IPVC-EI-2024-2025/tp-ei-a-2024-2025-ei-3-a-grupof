@@ -47,7 +47,7 @@ fun MainView(
             startDestination = "home"
         ) {
             composable(route = "home") {
-                HomeView(rootNavController, profileViewModel)
+                HomeView(rootNavController, navController, profileViewModel)
             }
 
             composable(route = "tasks") {

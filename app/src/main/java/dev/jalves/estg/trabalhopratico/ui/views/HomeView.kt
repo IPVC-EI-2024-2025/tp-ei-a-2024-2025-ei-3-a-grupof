@@ -41,6 +41,7 @@ import io.github.jan.supabase.auth.auth
 @Composable
 fun HomeView(
     rootNavController: NavHostController,
+    navController: NavHostController,
     profileViewModel: ProfileViewModel
 ) {
     val profile by profileViewModel.profile.collectAsState()
@@ -148,8 +149,7 @@ fun HomeView(
                         ) {
                             Button(
                                 onClick = {
-                                    // Navigate to all projects view
-                                    rootNavController.navigate("all_projects")
+                                    navController.navigate("projects")
                                 }
                             ) {
                                 Text("${stringResource(R.string.see_all)} (${projects.size}+)")
