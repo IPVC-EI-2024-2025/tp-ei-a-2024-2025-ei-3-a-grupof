@@ -71,7 +71,6 @@
     <string name="error_update_failed">Falha ao atualizar perfil: %1$s</string>
     <string name="set_tasks">Colocar Tasks</string>
     <string name="remove_from_project">Remover do Projeto</string>
-    <string name="logs">Registos</string>
     <string name="remove_from_task">Remover da Tarefa</string>
     <string name="error_loading_tasks">Erro ao carregar tarefas: %1$s</string>
     <string name="no_tasks_matching_search">Nenhuma tarefa encontrada correspondente a "%1$s"</string>
@@ -97,7 +96,4 @@
     <string name="photos">Fotos</string>
     <string name="location">Localização</string>
     <string name="task_log">Registro de Tarefa</string>
-    <string name="your_tasks">As tuas tarefas</string>
-    <string name="no_projects">Nenhum projeto encontrado</string>
-    <string name="no_tasks">Nenhuma tarefa encontrada</string>
 </resources>

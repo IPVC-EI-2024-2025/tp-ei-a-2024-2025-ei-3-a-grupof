@@ -9,12 +9,16 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
+import dev.jalves.estg.trabalhopratico.dto.CreateTaskDTO
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
+import dev.jalves.estg.trabalhopratico.dto.CreateUserPerformanceDTO
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
 import dev.jalves.estg.trabalhopratico.dto.UserOverviewDTO
 import dev.jalves.estg.trabalhopratico.objects.Role
+import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.User
+import dev.jalves.estg.trabalhopratico.objects.UserPerformance
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.functions.functions
@@ -144,7 +148,11 @@ object UserService {
         }
     }
 
-    suspend fun fetchUsersByQuery(query: String, role: Role? = null, status: Boolean? = null): List<User> {
+    suspend fun fetchUsersByQuery(
+        query: String,
+        role: Role? = null,
+        status: Boolean? = null
+    ): List<User> {
         return supabase.from("users").select {
             filter {
                 if (role != null) {
@@ -182,6 +190,7 @@ object UserService {
             Role.EMPLOYEE
         }
     }
+
     suspend fun getUserOverview(userId: String): Result<UserOverviewDTO> =
         withContext(Dispatchers.IO) {
             try {
@@ -200,7 +209,6 @@ object UserService {
                 Result.failure(e)
             }
         }
-
     suspend fun exportUserStatsToPDF(
         context: Context,
         userId: String,
@@ -221,8 +229,8 @@ object UserService {
 
             val pdfDocument = PdfDocument()
             val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-            val page = pdfDocument.startPage(pageInfo)
-            val canvas = page.canvas
+            var page = pdfDocument.startPage(pageInfo)
+            var canvas = page.canvas
 
             val titlePaint = Paint().apply {
                 color = Color.BLACK
@@ -236,9 +244,20 @@ object UserService {
                 isFakeBoldText = true
             }
 
+            val subHeaderPaint = Paint().apply {
+                color = Color.BLACK
+                textSize = 16f
+                isFakeBoldText = true
+            }
+
             val bodyPaint = Paint().apply {
                 color = Color.BLACK
-                textSize = 14f
+                textSize = 12f
+            }
+
+            val smallPaint = Paint().apply {
+                color = Color.GRAY
+                textSize = 10f
             }
 
             val linePaint = Paint().apply {
@@ -248,10 +267,23 @@ object UserService {
 
             var yPosition = 80f
             val leftMargin = 50f
-            val lineSpacing = 25f
+            val lineSpacing = 20f
+            val smallLineSpacing = 15f
+            var pageNumber = 1
 
+            fun checkNewPage(): Boolean {
+                if (yPosition > 750f) {
+                    canvas.drawText("Page $pageNumber", 500f, 820f, smallPaint)
+                    pdfDocument.finishPage(page)
 
-
+                    pageNumber++
+                    page = pdfDocument.startPage(pageInfo)
+                    canvas = page.canvas
+                    yPosition = 80f
+                    return true
+                }
+                return false
+            }
 
             canvas.drawText("User Statistics Report", leftMargin, yPosition, titlePaint)
             yPosition += 40f
@@ -262,39 +294,266 @@ object UserService {
             canvas.drawText("User Information", leftMargin, yPosition, headerPaint)
             yPosition += 30f
 
-            canvas.drawText("Display Name: ${overview.user.displayName}", leftMargin + 20f, yPosition, bodyPaint)
+            canvas.drawText("Display Name: ${overview.user.displayName ?: "N/A"}", leftMargin + 20f, yPosition, bodyPaint)
             yPosition += lineSpacing
 
-            canvas.drawText("Username: ${overview.user.username}", leftMargin + 20f, yPosition, bodyPaint)
+            canvas.drawText("Username: ${overview.user.username ?: "N/A"}", leftMargin + 20f, yPosition, bodyPaint)
             yPosition += lineSpacing
 
             canvas.drawText("Email: ${overview.user.email}", leftMargin + 20f, yPosition, bodyPaint)
             yPosition += lineSpacing
 
-            canvas.drawText("Role: ${overview.user.role.value}", leftMargin + 20f, yPosition, bodyPaint)
+            canvas.drawText("Role: ${overview.user.role}", leftMargin + 20f, yPosition, bodyPaint)
+            yPosition += lineSpacing
+
+            canvas.drawText("Status: ${if (overview.user.status == true) "Active" else "Inactive"}", leftMargin + 20f, yPosition, bodyPaint)
             yPosition += 40f
 
-            canvas.drawText("Statistics", leftMargin, yPosition, headerPaint)
-            yPosition += 30f
+            checkNewPage()
 
-            canvas.drawText("Number of Tasks the User is in: ${overview.taskCount}", leftMargin + 20f, yPosition, bodyPaint)
-            yPosition += lineSpacing
+            if (overview.performanceReviews.isNotEmpty()) {
+                canvas.drawText("Performance Summary", leftMargin, yPosition, headerPaint)
+                yPosition += 30f
 
-            canvas.drawText("Number of Task Logs the User is in: ${overview.taskLogCount}", leftMargin + 20f, yPosition, bodyPaint)
-            yPosition += lineSpacing
+                val totalReviews = overview.performanceReviews.size
+                val ratingsWithValues = overview.performanceReviews.mapNotNull { it.rating }
+                val averageRating = if (ratingsWithValues.isNotEmpty()) ratingsWithValues.average() else null
+                val highestRating = ratingsWithValues.maxOrNull()
+                val lowestRating = ratingsWithValues.minOrNull()
 
-            canvas.drawText("Number of Projects the User is in: ${overview.projectCount}", leftMargin + 20f, yPosition, bodyPaint)
-            yPosition += 60f
+                canvas.drawText("Total Reviews: $totalReviews", leftMargin + 20f, yPosition, bodyPaint)
+                yPosition += lineSpacing
 
+                averageRating?.let { rating ->
+                    canvas.drawText("Average Rating: ${"%.2f".format(rating)}/5.0", leftMargin + 20f, yPosition, bodyPaint)
+                    yPosition += lineSpacing
+                }
+
+                highestRating?.let { rating ->
+                    canvas.drawText("Highest Rating: ${"%.2f".format(rating)}", leftMargin + 20f, yPosition, bodyPaint)
+                    yPosition += lineSpacing
+                }
+
+                lowestRating?.let { rating ->
+                    canvas.drawText("Lowest Rating: ${"%.2f".format(rating)}", leftMargin + 20f, yPosition, bodyPaint)
+                    yPosition += lineSpacing
+                }
+
+                yPosition += 30f
+            }
+
+            checkNewPage()
+
+            if (overview.tasks.isNotEmpty()) {
+                canvas.drawText("Task Summary", leftMargin, yPosition, headerPaint)
+                yPosition += 30f
+
+                val totalTasks = overview.tasks.size
+                val completedTasks = overview.tasks.count { it.completionRate == 1.0 }
+                val inProgressTasks = overview.tasks.count { (it.completionRate ?: 0.0) > 0 && (it.completionRate ?: 0.0) < 1.0 }
+                val notStartedTasks = overview.tasks.count { it.completionRate == 0.0 }
+                val averageCompletionRate = overview.tasks.mapNotNull { it.completionRate }.average().takeIf { !it.isNaN() }
+
+                canvas.drawText("Total Tasks: $totalTasks", leftMargin + 20f, yPosition, bodyPaint)
+                yPosition += lineSpacing
+
+                canvas.drawText("Completed Tasks: $completedTasks", leftMargin + 20f, yPosition, bodyPaint)
+                yPosition += lineSpacing
+
+                canvas.drawText("In Progress Tasks: $inProgressTasks", leftMargin + 20f, yPosition, bodyPaint)
+                yPosition += lineSpacing
+
+                canvas.drawText("Not Started Tasks: $notStartedTasks", leftMargin + 20f, yPosition, bodyPaint)
+                yPosition += lineSpacing
+
+                averageCompletionRate?.let { rate ->
+                    canvas.drawText("Average Completion Rate: ${"%.1f".format(rate * 100)}%", leftMargin + 20f, yPosition, bodyPaint)
+                    yPosition += lineSpacing
+                }
+
+                yPosition += 30f
+            }
+
+            checkNewPage()
+
+            if (overview.projects.isNotEmpty()) {
+                canvas.drawText("Projects (${overview.projects.size})", leftMargin, yPosition, headerPaint)
+                yPosition += 30f
+
+                overview.projects.forEachIndexed { index, project ->
+                    checkNewPage()
+
+                    canvas.drawText("${index + 1}. ${project.name ?: "Unknown Project"}",
+                        leftMargin + 20f, yPosition, subHeaderPaint)
+                    yPosition += lineSpacing
+
+                    project.description?.let { desc ->
+                        val words = desc.split(" ")
+                        var currentLine = ""
+                        words.forEach { word ->
+                            if ((currentLine + word).length > 60) {
+                                canvas.drawText("   $currentLine", leftMargin + 40f, yPosition, smallPaint)
+                                yPosition += smallLineSpacing
+                                checkNewPage()
+                                currentLine = word
+                            } else {
+                                currentLine += if (currentLine.isEmpty()) word else " $word"
+                            }
+                        }
+                        if (currentLine.isNotEmpty()) {
+                            canvas.drawText("   $currentLine", leftMargin + 40f, yPosition, smallPaint)
+                            yPosition += smallLineSpacing
+                        }
+                    }
+
+                    project.status?.let { status ->
+                        canvas.drawText("   Status: $status", leftMargin + 40f, yPosition, smallPaint)
+                        yPosition += smallLineSpacing
+                    }
+
+                    yPosition += 25f
+                }
+                yPosition += 20f
+            }
+
+            checkNewPage()
+
+            if (overview.tasks.isNotEmpty()) {
+                canvas.drawText("Task Assignments (${overview.tasks.size})", leftMargin, yPosition, headerPaint)
+                yPosition += 30f
+
+                overview.tasks.take(10).forEachIndexed { index, task ->
+                    checkNewPage()
+
+                    canvas.drawText("Task ${index + 1}", leftMargin + 20f, yPosition, subHeaderPaint)
+                    yPosition += lineSpacing
+
+                    canvas.drawText("   Task ID: ${task.taskId}", leftMargin + 40f, yPosition, smallPaint)
+                    yPosition += smallLineSpacing
+
+                    task.assignedAt?.let { assignedAt ->
+                        canvas.drawText("   Assigned: $assignedAt", leftMargin + 40f, yPosition, smallPaint)
+                        yPosition += smallLineSpacing
+                    }
+
+                    task.completionRate?.let { rate ->
+                        canvas.drawText("   Completion: ${"%.1f".format(rate * 100)}%", leftMargin + 40f, yPosition, smallPaint)
+                        yPosition += smallLineSpacing
+                    }
+
+                    task.completedAt?.let { completedAt ->
+                        canvas.drawText("   Completed: $completedAt", leftMargin + 40f, yPosition, smallPaint)
+                        yPosition += smallLineSpacing
+                    }
+
+                    yPosition += 20f
+                }
+                yPosition += 20f
+            }
+
+            checkNewPage()
+
+            if (overview.performanceReviews.isNotEmpty()) {
+                canvas.drawText("Performance Reviews", leftMargin, yPosition, headerPaint)
+                yPosition += 30f
+
+                overview.performanceReviews.forEachIndexed { index, review ->
+                    checkNewPage()
+
+                    canvas.drawText("Review ${index + 1}", leftMargin + 20f, yPosition, subHeaderPaint)
+                    yPosition += lineSpacing
+
+                    review.rating?.let { rating ->
+                        canvas.drawText("   Rating: ${"%.2f".format(rating)}/5.0", leftMargin + 40f, yPosition, bodyPaint)
+                        yPosition += smallLineSpacing
+                    }
+
+                    review.comments?.let { comments ->
+                        if (comments.isNotBlank()) {
+                            canvas.drawText("   Comments:", leftMargin + 40f, yPosition, bodyPaint)
+                            yPosition += smallLineSpacing
+
+                            val words = comments.split(" ")
+                            var currentLine = ""
+                            words.forEach { word ->
+                                if ((currentLine + word).length > 55) {
+                                    canvas.drawText("     $currentLine", leftMargin + 60f, yPosition, smallPaint)
+                                    yPosition += smallLineSpacing
+                                    checkNewPage()
+                                    currentLine = word
+                                } else {
+                                    currentLine += if (currentLine.isEmpty()) word else " $word"
+                                }
+                            }
+                            if (currentLine.isNotEmpty()) {
+                                canvas.drawText("     $currentLine", leftMargin + 60f, yPosition, smallPaint)
+                                yPosition += smallLineSpacing
+                            }
+                        }
+                    }
+                    yPosition += 20f
+                }
+            }
+
+            checkNewPage()
+
+            if (overview.taskLogs.isNotEmpty()) {
+                canvas.drawText("Task Logs (${overview.taskLogs.size})", leftMargin, yPosition, headerPaint)
+                yPosition += 30f
+
+                overview.taskLogs.take(10).forEachIndexed { index, log ->
+                    checkNewPage()
+
+                    canvas.drawText("Log ${index + 1}", leftMargin + 20f, yPosition, subHeaderPaint)
+                    yPosition += lineSpacing
+
+                    log.Location?.let { status ->
+                        canvas.drawText("   Status: $status", leftMargin + 40f, yPosition, smallPaint)
+                        yPosition += smallLineSpacing
+                    }
+
+                    log.Notes?.let { desc ->
+                        if (desc.isNotBlank()) {
+                            canvas.drawText("   Description:", leftMargin + 40f, yPosition, smallPaint)
+                            yPosition += smallLineSpacing
+
+                            val words = desc.split(" ")
+                            var currentLine = ""
+                            words.forEach { word ->
+                                if ((currentLine + word).length > 55) {
+                                    canvas.drawText("     $currentLine", leftMargin + 60f, yPosition, smallPaint)
+                                    yPosition += smallLineSpacing
+                                    checkNewPage()
+                                    currentLine = word
+                                } else {
+                                    currentLine += if (currentLine.isEmpty()) word else " $word"
+                                }
+                            }
+                            if (currentLine.isNotEmpty()) {
+                                canvas.drawText("     $currentLine", leftMargin + 60f, yPosition, smallPaint)
+                                yPosition += smallLineSpacing
+                            }
+                        }
+                    }
+
+                    yPosition += 20f
+                }
+            }
+
+            checkNewPage()
+
+            yPosition = 750f
             canvas.drawLine(leftMargin, yPosition, 545f, yPosition, linePaint)
-            yPosition += 30f
+            yPosition += 20f
 
             val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
             canvas.drawText("Export Date: $currentDate", leftMargin, yPosition, bodyPaint)
 
+            canvas.drawText("Page $pageNumber", 500f, 820f, smallPaint)
+
             pdfDocument.finishPage(page)
 
-            val fileName = "user_stats_${overview.user.username}_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.pdf"
+            val fileName = "user_stats_${overview.user.username ?: "unknown"}_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.pdf"
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val file = File(downloadsDir, fileName)
 
@@ -317,4 +576,27 @@ object UserService {
             }
         }
     }
+    suspend fun createUserPerformance(dto: CreateUserPerformanceDTO): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val currentUserId = supabase.auth.currentUserOrNull()?.id
+                    ?: return@withContext Result.failure(Exception("User not authenticated"))
+
+                val Performance = UserPerformance(
+                    projectId = dto.projectId,
+                    userId = dto.userId,
+                    rating = dto.rating,
+                    comments = dto.comments,
+                    evaluatedBy = dto.evaluatedBy
+                )
+
+                supabase.from("user_performance").insert(Performance)
+
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to create task", e)
+                Result.failure(e)
+            }
+        }
+
 }

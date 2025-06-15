@@ -12,7 +12,7 @@ data class CreateUserPerformanceDTO(
     val rating: Float,
     val comments: String?,
     @SerialName("evaluated_at")
-    val evaluatedAt: String?,
+    val evaluatedAt: String? = null,
     @SerialName("evaluated_by")
     val evaluatedBy: String
 )

@@ -33,6 +33,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -54,17 +57,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UserDTO
+import dev.jalves.estg.trabalhopratico.services.ProjectService
+import dev.jalves.estg.trabalhopratico.ui.components.SearchBar
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
+import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
+import kotlinx.coroutines.launch
+import dev.jalves.estg.trabalhopratico.R
 import dev.jalves.estg.trabalhopratico.formatDate
 import dev.jalves.estg.trabalhopratico.hasAccess
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.services.AuthService
-import dev.jalves.estg.trabalhopratico.services.ProjectService
 import dev.jalves.estg.trabalhopratico.services.ProjectService.addEmployeeToProject
 import dev.jalves.estg.trabalhopratico.services.ProjectService.removeEmployeeFromProject
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
@@ -74,12 +82,8 @@ import dev.jalves.estg.trabalhopratico.ui.components.ProfilePicture
 import dev.jalves.estg.trabalhopratico.ui.components.TaskListItem
 import dev.jalves.estg.trabalhopratico.ui.components.UserAction
 import dev.jalves.estg.trabalhopratico.ui.components.UserListItem
-import dev.jalves.estg.trabalhopratico.ui.views.dialogs.ConfirmDialog
 import dev.jalves.estg.trabalhopratico.ui.views.dialogs.CreateTaskDialog
-import dev.jalves.estg.trabalhopratico.ui.views.dialogs.EditProjectDialog
-import dev.jalves.estg.trabalhopratico.ui.views.dialogs.UserSelectionDialog
 import io.github.jan.supabase.auth.auth
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -234,7 +238,8 @@ fun ProjectView(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             when {
@@ -246,33 +251,26 @@ fun ProjectView(
                     CircularProgressIndicator()
                 }
                 else -> {
-                    Column (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
+                    Text(project!!.name, style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(horizontal = 8.dp))
+                    Text(
+                        project!!.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
-                        Text(project!!.name, style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(horizontal = 8.dp))
                         Text(
-                            project!!.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(horizontal = 8.dp)
+                            "${stringResource(R.string.created)}: ${formatDate(project!!.startDate)}",
+                            style = MaterialTheme.typography.bodySmall
                         )
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        ) {
-                            Text(
-                                "${stringResource(R.string.created)}: ${formatDate(project!!.startDate)}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                "${stringResource(R.string.due)}: ${formatDate(project!!.dueDate)}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
+                        Text(
+                            "${stringResource(R.string.due)}: ${formatDate(project!!.dueDate)}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
-                    
                     ManagedBy(project!!)
                     Tabs(navController, project!!) {
                         projectViewModel.loadProject(projectID)
@@ -387,6 +385,7 @@ enum class Destination(
     EMPLOYEES("employees", R.string.employees)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Tabs(
     rootNavController: NavHostController,
@@ -440,6 +439,7 @@ fun TasksTab(
     var tasks by remember { mutableStateOf<List<Task>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
 
     val user = supabase.auth.currentUserOrNull()!!
 
@@ -468,6 +468,17 @@ fun TasksTab(
         }
     }
 
+    val filteredTasks = remember(tasks, searchQuery) {
+        if (searchQuery.isBlank()) {
+            tasks
+        } else {
+            tasks.filter { task ->
+                task.name.contains(searchQuery, ignoreCase = true) ||
+                        task.description.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -475,6 +486,11 @@ fun TasksTab(
                 .padding(vertical = 8.dp)
                 .padding(bottom = 80.dp)
         ) {
+            SearchBar(
+                onSearch = { query -> searchQuery = query },
+                onFilter = {}
+            )
+
             when {
                 isLoading -> {
                     Box(
@@ -493,7 +509,16 @@ fun TasksTab(
                     )
                 }
 
-                tasks.isEmpty() -> {
+                filteredTasks.isEmpty() && searchQuery.isNotBlank() -> {
+                    Text(
+                        text = stringResource(R.string.no_tasks_matching_search, searchQuery),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                filteredTasks.isEmpty() -> {
                     Text(
                         text = stringResource(R.string.no_tasks_yet),
                         style = MaterialTheme.typography.bodyMedium,
@@ -507,7 +532,7 @@ fun TasksTab(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
-                        items(tasks) { task ->
+                        items(filteredTasks) { task ->
                             TaskListItem(
                                 task = task,
                                 onClick = {
@@ -581,19 +606,28 @@ fun TasksTab(
 
 @Composable
 fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> Unit = {}) {
+    var searchQuery by remember { mutableStateOf("") }
     val showAddEmployeeDialog = remember { mutableStateOf(false) }
     val showRemoveConfirmDialog = remember { mutableStateOf(false) }
     val selectedEmployee = remember { mutableStateOf<UserDTO?>(null) }
     val scope = rememberCoroutineScope()
-    val profile = supabase.auth.currentUserOrNull()!!
 
     var userRole by remember { mutableStateOf<Role?>(null) }
-
 
     val context = LocalContext.current
 
     LaunchedEffect(projectID) {
         userRole = AuthService.getCurrentUserRole()
+    }
+
+    val filteredEmployees = remember(employees, searchQuery) {
+        if (searchQuery.isBlank()) {
+            employees
+        } else {
+            employees.filter { employee ->
+                employee.displayName.contains(searchQuery, ignoreCase = true)
+            }
+        }
     }
 
     fun showToast(message: String) {
@@ -607,10 +641,24 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                 .padding(vertical = 8.dp)
                 .padding(bottom = 80.dp)
         ) {
+            SearchBar(
+                onSearch = { query -> searchQuery = query },
+                onFilter = {}
+            )
+
             when {
                 employees.isEmpty() -> {
                     Text(
                         text = stringResource(R.string.no_employees_assigned),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                filteredEmployees.isEmpty() && searchQuery.isNotBlank() -> {
+                    Text(
+                        text = stringResource(R.string.no_employees_matching_search, searchQuery),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -622,7 +670,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
-                        items(employees) { employee ->
+                        items(filteredEmployees) { employee ->
                             val user = User(
                                 id = employee.id,
                                 displayName = employee.displayName,
@@ -634,7 +682,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                                 user = user,
                                 simple = userRole == Role.EMPLOYEE
                             ) {
-                                if(profile.hasAccess(Role.MANAGER, Role.ADMIN)){
+                                if(userRole != Role.EMPLOYEE){
                                     UserAction(
                                         icon = Icons.Rounded.RemoveCircle,
                                         name = stringResource(R.string.remove_from_project),
@@ -660,7 +708,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
             }
         }
 
-        if(profile.hasAccess(Role.MANAGER, Role.ADMIN)) {
+        if(userRole != Role.EMPLOYEE) {
             FloatingActionButton(
                 onClick = {
                     showAddEmployeeDialog.value = true
