@@ -92,7 +92,7 @@ fun ProjectListItem(
                         size = 24.dp
                     )
                     Text("•")
-                    Text("$taskCount ${stringResource(R.string.tasks)}")
+                    Text("$taskCount ${stringResource(if (taskCount == 1) R.string.task else R.string.tasks)}")
                     Text("•")
                     Text("${stringResource(R.string.due)} ${formatDate(project.dueDate)}")
                 }
