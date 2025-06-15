@@ -562,7 +562,7 @@ fun TaskEmployeesTab(
                         items(filteredEmployees) { employee ->
                             UserListItem(
                                 user = employee,
-                                simple = userRole != Role.EMPLOYEE
+                                simple = userRole == Role.EMPLOYEE
                             ) {
                                 if (userRole != Role.EMPLOYEE) {
                                     UserAction(

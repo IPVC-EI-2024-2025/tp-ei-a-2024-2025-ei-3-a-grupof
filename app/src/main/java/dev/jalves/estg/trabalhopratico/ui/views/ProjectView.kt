@@ -633,7 +633,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
 
                             UserListItem(
                                 user = user,
-                                simple = userRole != Role.EMPLOYEE
+                                simple = userRole == Role.EMPLOYEE
                             ) {
                                 if(userRole != Role.EMPLOYEE){
                                     UserAction(
