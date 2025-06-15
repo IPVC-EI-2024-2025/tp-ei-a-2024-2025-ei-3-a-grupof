@@ -17,3 +17,11 @@ data class CreateTaskLogDTO(
     val timeSpent: Float,
     val notes: String? = null
 )
+
+@Serializable
+data class CreateLogPhotoDTO(
+    @SerialName("photo_url")
+    val photoUrl: String,
+    @SerialName("log_id")
+    val logId: String
+)

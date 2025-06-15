@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import dev.jalves.estg.trabalhopratico.dto.CreateTaskLogDTO
+import dev.jalves.estg.trabalhopratico.dto.CreateLogPhotoDTO
 import dev.jalves.estg.trabalhopratico.objects.TaskLog
 import dev.jalves.estg.trabalhopratico.objects.LogPhotos
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
@@ -110,7 +111,7 @@ object TaskLogService {
                 val currentUserId = supabase.auth.currentUserOrNull()?.id
                     ?: return@withContext Result.failure(Exception("User not authenticated"))
 
-                val uploadedUrls = mutableListOf<String>()
+                val uploadedPaths = mutableListOf<String>()
 
                 uris.forEachIndexed { index, uri ->
                     val byteArray = context.contentResolver.openInputStream(uri)?.use { stream ->
@@ -124,20 +125,16 @@ object TaskLogService {
                         contentType = ContentType.Image.JPEG
                     }
 
-                    val photoUrl = supabase.storage.from("log-photos")
-                        .createSignedUrl(fileName, 365.minutes)
-
-                    val logPhoto = LogPhotos(
-                        id = "${logId}-${index + 1}",
-                        photoUrl = photoUrl,
+                    val logPhotoDTO = CreateLogPhotoDTO(
+                        photoUrl = fileName, // Store the file path instead of signed URL
                         logId = logId
                     )
 
-                    supabase.from("log_photos").insert(logPhoto)
-                    uploadedUrls.add(photoUrl)
+                    supabase.from("log_photos").insert(logPhotoDTO)
+                    uploadedPaths.add(fileName)
                 }
 
-                Result.success(uploadedUrls)
+                Result.success(uploadedPaths)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to upload log photos", e)
                 Result.failure(e)
@@ -175,18 +172,14 @@ object TaskLogService {
                     contentType = ContentType.Image.JPEG
                 }
 
-                val photoUrl = supabase.storage.from("log-photos")
-                    .createSignedUrl(fileName, 365.minutes)
-
-                val logPhoto = LogPhotos(
-                    id = "${logId}-${nextNumber}",
-                    photoUrl = photoUrl,
+                val logPhotoDTO = CreateLogPhotoDTO(
+                    photoUrl = fileName, // Store the file path instead of signed URL
                     logId = logId
                 )
 
-                supabase.from("log_photos").insert(logPhoto)
+                supabase.from("log_photos").insert(logPhotoDTO)
 
-                Result.success(photoUrl)
+                Result.success(fileName)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to upload log photo", e)
                 Result.failure(e)
@@ -207,6 +200,19 @@ object TaskLogService {
                 Result.success(photos)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to fetch log photos", e)
+                Result.failure(e)
+            }
+        }
+
+    suspend fun getSignedUrlForPhoto(photoPath: String): Result<String> =
+        withContext(Dispatchers.IO) {
+            try {
+                val signedUrl = supabase.storage.from("log-photos")
+                    .createSignedUrl(photoPath, 365.minutes)
+
+                Result.success(signedUrl)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to create signed URL for photo", e)
                 Result.failure(e)
             }
         }
