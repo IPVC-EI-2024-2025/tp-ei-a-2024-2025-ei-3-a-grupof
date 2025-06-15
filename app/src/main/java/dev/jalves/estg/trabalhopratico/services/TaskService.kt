@@ -45,8 +45,7 @@ object TaskService {
     suspend fun assignTaskToEmployee(userID:String,taskID: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
-
-                Log.d("BUH", "Task assigned to employee successfully")
+                Log.d(TAG, "Task assigned to employee successfully")
                 val taskAssignment = CreateTaskAssignmentDTO(
                     taskId = taskID,
                     employeeId = userID,
