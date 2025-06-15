@@ -33,6 +33,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -93,6 +96,7 @@ fun ProjectView(
     val openManagerSelectionDialog = remember { mutableStateOf(false) }
     val confirmCompleteDialog = remember { mutableStateOf(false) }
     val confirmArchiveDialog = remember { mutableStateOf(false) }
+    var isExportingPDF by remember { mutableStateOf(false) }
 
     val projectViewModel: ProjectViewModel = viewModel()
 
@@ -102,9 +106,36 @@ fun ProjectView(
     val error by projectViewModel.error.collectAsState()
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         projectViewModel.loadProject(projectID)
+    }
+
+    fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    fun exportProjectToPDF() {
+        if (isExportingPDF) return
+
+        isExportingPDF = true
+        showToast("Exporting PDF...")
+
+        scope.launch {
+            ProjectService.exportProjectStatsToPDF(
+                context = context,
+                projectId = projectID,
+                onSuccess = { file ->
+                    isExportingPDF = false
+                    showToast("PDF exported successfully to Downloads folder: ${file.name}")
+                },
+                onError = { errorMessage ->
+                    isExportingPDF = false
+                    showToast("Export failed: $errorMessage")
+                }
+            )
+        }
     }
 
     Scaffold(
@@ -169,7 +200,9 @@ fun ProjectView(
                                 },
                                 onClick = {
                                     expanded = false
-                                }
+                                    exportProjectToPDF()
+                                },
+                                enabled = !isExportingPDF
                             )
 
                             DropdownMenuItem(
@@ -663,7 +696,8 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
                                         icon = Icons.Rounded.Download,
                                         name = stringResource(R.string.export_stats),
                                         onClick = {
-                                            // TODO: Implement export stats functionality
+                                            // TODO: Implement individual employee export stats functionality
+                                            showToast("Individual employee export coming soon!")
                                         }
                                     )
                                 }

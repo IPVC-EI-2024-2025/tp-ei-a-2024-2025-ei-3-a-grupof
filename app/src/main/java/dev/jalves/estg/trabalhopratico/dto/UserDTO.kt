@@ -1,6 +1,7 @@
 package dev.jalves.estg.trabalhopratico.dto
 
 import dev.jalves.estg.trabalhopratico.objects.Role
+import dev.jalves.estg.trabalhopratico.objects.User
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,4 +27,22 @@ data class UpdateUserDTO(
     val profilePicture: String? = null,
     val role: Role? = null,
     val status: Boolean? = true
+
 )
+
+
+
+@Serializable
+data class UserOverviewDTO(
+    val user: User,
+
+    @SerialName("task_count")
+    val taskCount: Int,
+
+    @SerialName("task_log_count")
+    val taskLogCount: Int,
+
+    @SerialName("project_count")
+    val projectCount: Int
+)
+

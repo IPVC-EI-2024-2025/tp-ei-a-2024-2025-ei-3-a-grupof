@@ -55,7 +55,6 @@ fun TaskListItem(
                     assignedEmployees = employees
                 },
                 onFailure = {
-                    // Handle error silently or log if needed
                     assignedEmployees = emptyList()
                 }
             )

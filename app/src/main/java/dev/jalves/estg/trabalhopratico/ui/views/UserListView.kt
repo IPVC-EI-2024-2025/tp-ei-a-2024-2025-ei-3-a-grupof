@@ -16,6 +16,8 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.jalves.estg.trabalhopratico.objects.User
@@ -62,6 +65,9 @@ fun UserListView() {
     val coroutineScope = rememberCoroutineScope()
     var fetchJob by remember { mutableStateOf<Job?>(null) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
     fun fetchUsers(query: String = searchQuery, filter: UserFilter = userFilter) {
         fetchJob?.cancel()
         fetchJob = coroutineScope.launch {
@@ -81,6 +87,31 @@ fun UserListView() {
             } finally {
                 isLoading = false
             }
+        }
+    }
+
+    fun exportUserStats(user: User) {
+        coroutineScope.launch {
+            UserService.exportUserStatsToPDF(
+                context = context,
+                userId = user.id,
+                onSuccess = { file ->
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Stats exported successfully to ${file.name}",
+                            duration = androidx.compose.material3.SnackbarDuration.Long
+                        )
+                    }
+                },
+                onError = { errorMessage ->
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Export failed: $errorMessage",
+                            duration = androidx.compose.material3.SnackbarDuration.Long
+                        )
+                    }
+                }
+            )
         }
     }
 
@@ -139,6 +170,7 @@ fun UserListView() {
                             icon = Icons.Rounded.Download,
                             name = stringResource(R.string.export_stats),
                             onClick = {
+                                exportUserStats(user)
                             }
                         )
                     }
@@ -220,5 +252,10 @@ fun UserListView() {
         ) {
             Icon(Icons.Rounded.Add, contentDescription = "Add user")
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }

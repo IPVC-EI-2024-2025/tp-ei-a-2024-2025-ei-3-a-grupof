@@ -88,6 +88,7 @@ fun TaskView(
     val openAssigneeSelectionDialog = remember { mutableStateOf(false) }
     val confirmCompleteDialog = remember { mutableStateOf(false) }
     val confirmArchiveDialog = remember { mutableStateOf(false) }
+    var isExportingPdf by remember { mutableStateOf(false) }
 
     val taskViewModel: TaskViewModel = viewModel()
 
@@ -96,6 +97,15 @@ fun TaskView(
     val error by taskViewModel.error.collectAsState()
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    fun handlePdfExport() {
+        isExportingPdf = true
+        exportTaskPdf(taskID, context, scope) { success, message ->
+            isExportingPdf = false
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
 
     LaunchedEffect(Unit) {
         taskViewModel.loadTask(taskID)
@@ -136,7 +146,9 @@ fun TaskView(
                             text = { MenuItem(Icons.Rounded.TableChart, stringResource(R.string.export_stats)) },
                             onClick = {
                                 expanded = false
-                            }
+                                handlePdfExport()
+                            },
+                            enabled = !isExportingPdf
                         )
 
                         DropdownMenuItem(
@@ -160,7 +172,12 @@ fun TaskView(
                     Text("Error loading task")
                 }
                 task == null -> {
-                    CircularProgressIndicator()
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
                 else -> {
                     Column (
@@ -183,6 +200,21 @@ fun TaskView(
                     AssignedTo()
                     Tabs(navController, task!!, employees) {
                         taskViewModel.loadTask(taskID)
+                    }
+                }
+            }
+
+            if (isExportingPdf) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                        Text("Exporting PDF...", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -231,6 +263,27 @@ fun TaskView(
                 )
             }
         }
+    }
+}
+
+private fun exportTaskPdf(
+    taskID: String,
+    context: android.content.Context,
+    scope: kotlinx.coroutines.CoroutineScope,
+    onResult: (Boolean, String) -> Unit
+) {
+    scope.launch {
+        TaskService.exportTaskStatsToPDF(
+            context = context,
+            taskId = taskID,
+            onSuccess = { file ->
+                onResult(true, "PDF exported successfully to Downloads folder: ${file.name}")
+            },
+            onError = { errorMessage ->
+                onResult(false, "Export failed: $errorMessage")
+                Log.e("TaskView", "PDF export failed: $errorMessage")
+            }
+        )
     }
 }
 
@@ -575,6 +628,7 @@ fun TaskEmployeesTab(
                                         icon = Icons.Rounded.Download,
                                         name = stringResource(R.string.export_stats),
                                         onClick = {
+                                            showToast("Individual employee export not implemented yet")
                                         }
                                     )
                                 }
@@ -585,7 +639,6 @@ fun TaskEmployeesTab(
             }
         }
 
-        // Only show FAB if user is not an employee
         if (userRole != Role.EMPLOYEE) {
             FloatingActionButton(
                 onClick = {
