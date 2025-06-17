@@ -191,12 +191,10 @@ object TaskService {
     suspend fun markTaskComplete(taskId: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
-                val updateData = buildJsonObject {
-                    put("status", TaskStatus.COMPLETE.name)
-                    put("updated_at", "now()")
-                }
-
-                supabase.from("tasks").update(updateData) {
+                supabase.from("tasks").update({
+                    set("status", TaskStatus.COMPLETE.value)
+                    set("updated_at", "now()")
+                }) {
                     filter {
                         eq("id", taskId)
                     }
