@@ -85,7 +85,7 @@
     <string name="photo_count">%1$d fotos</string>
     <string name="hello_name">Olá %1$s</string>
     <string name="fill_required_fields">Por favor, preencha todos os campos obrigatórios</string>
-    <string name="auth_error">Erro de autenticação do usuário</string>
+    <string name="auth_error">Erro de autenticação do utilizador</string>
     <string name="task_log_created">Registro de tarefa criado com sucesso</string>
     <string name="photo_upload_failed">Registro criado, mas falha ao carregar fotos: %1$s</string>
     <string name="save_log_failed">Falha ao salvar registro: %1$s</string>
