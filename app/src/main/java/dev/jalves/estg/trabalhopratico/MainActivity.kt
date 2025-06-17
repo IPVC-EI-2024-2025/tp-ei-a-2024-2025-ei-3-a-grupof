@@ -22,12 +22,11 @@ import androidx.navigation.compose.rememberNavController
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import dev.jalves.estg.trabalhopratico.ui.theme.ThemedApp
 import dev.jalves.estg.trabalhopratico.ui.views.IntroView
-import dev.jalves.estg.trabalhopratico.ui.views.NewTaskLogView
 import dev.jalves.estg.trabalhopratico.ui.views.MainView
+import dev.jalves.estg.trabalhopratico.ui.views.NewTaskLogView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileView
 import dev.jalves.estg.trabalhopratico.ui.views.ProfileViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.ProjectView
-import dev.jalves.estg.trabalhopratico.ui.views.ProjectsViewModel
 import dev.jalves.estg.trabalhopratico.ui.views.RegisterView
 import dev.jalves.estg.trabalhopratico.ui.views.SettingsView
 import dev.jalves.estg.trabalhopratico.ui.views.SignIn
@@ -137,6 +136,7 @@ class MainActivity : ComponentActivity() {
                             },
                             onSuccessfulRegister = {
                                 navController.navigate("main")
+                                profileViewModel.fetchData()
                             }
                         )
                     }
