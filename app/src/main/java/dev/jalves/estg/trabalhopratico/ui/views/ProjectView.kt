@@ -656,7 +656,7 @@ fun EmployeesTab(employees: List<UserDTO>, projectID: String, onRefresh: () -> U
 
                             UserListItem(
                                 user = user,
-                                simple = profile.hasAccess(Role.MANAGER, Role.ADMIN)
+                                simple = profile.hasAccess(Role.EMPLOYEE)
                             ) {
                                 if(profile.hasAccess(Role.MANAGER, Role.ADMIN)){
                                     UserAction(
