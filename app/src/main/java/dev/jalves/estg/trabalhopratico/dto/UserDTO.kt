@@ -2,7 +2,6 @@ package dev.jalves.estg.trabalhopratico.dto
 
 import dev.jalves.estg.trabalhopratico.objects.Role
 import dev.jalves.estg.trabalhopratico.objects.User
-import dev.jalves.estg.trabalhopratico.objects.TaskStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,7 +11,7 @@ data class CreateUserDTO(
     val displayName: String,
     val email: String,
     val username: String,
-    val password: String,
+    val password: String = "",
     val role: Role = Role.EMPLOYEE,
 )
 

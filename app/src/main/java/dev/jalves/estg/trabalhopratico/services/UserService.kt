@@ -2,23 +2,20 @@ package dev.jalves.estg.trabalhopratico.services
 
 import android.content.ContentValues.TAG
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
-import dev.jalves.estg.trabalhopratico.dto.CreateTaskDTO
 import dev.jalves.estg.trabalhopratico.dto.CreateUserDTO
 import dev.jalves.estg.trabalhopratico.dto.CreateUserPerformanceDTO
-import dev.jalves.estg.trabalhopratico.dto.ProjectDTO
 import dev.jalves.estg.trabalhopratico.dto.UpdateUserDTO
 import dev.jalves.estg.trabalhopratico.dto.UserOverviewDTO
 import dev.jalves.estg.trabalhopratico.objects.Role
-import dev.jalves.estg.trabalhopratico.objects.Task
 import dev.jalves.estg.trabalhopratico.objects.User
 import dev.jalves.estg.trabalhopratico.objects.UserPerformance
+import dev.jalves.estg.trabalhopratico.services.AuthService.validateUserData
 import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.functions.functions
@@ -28,7 +25,6 @@ import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import java.io.File
@@ -42,6 +38,11 @@ object UserService {
     suspend fun createUser(user: CreateUserDTO): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
+                val validationError = validateUserData(user)
+                if (validationError != null) {
+                    return@withContext Result.failure(Exception(validationError))
+                }
+
                 supabase.functions.invoke(
                     function = "create-user",
                     body = buildJsonObject {
@@ -68,6 +69,20 @@ object UserService {
     suspend fun updateUser(user: UpdateUserDTO): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
+                val existing = fetchUserById(user.id)
+                val temporaryUser = CreateUserDTO(
+                    displayName = user.displayName ?: existing.displayName,
+                    email       = user.email       ?: existing.email,
+                    username    = user.username    ?: existing.username,
+                    password    = "",
+                    role        = user.role        ?: existing.role
+                )
+
+                val validationError = validateUserData(temporaryUser, user.id)
+                if (validationError != null) {
+                    return@withContext Result.failure(Exception(validationError))
+                }
+
                 supabase.functions.invoke(
                     function = "edit-user",
                     body = buildJsonObject {

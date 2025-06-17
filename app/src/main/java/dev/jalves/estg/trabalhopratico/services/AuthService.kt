@@ -11,6 +11,7 @@ import dev.jalves.estg.trabalhopratico.services.SupabaseService.supabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.booleanOrNull
@@ -20,12 +21,15 @@ import kotlinx.serialization.json.put
 
 object AuthService {
 
-    private suspend fun isDuplicate(key: String, value: Any): Boolean {
+    private suspend fun isDuplicate(key: String, value: Any, excludeId: String? = null): Boolean {
         return try {
             val result = supabase.from("users")
-                .select {
+                .select(
+                    columns = Columns.list("username", "email")
+                ) {
                     filter {
                         eq(key, value)
+                        excludeId?.let { neq("id", it) }
                     }
                 }
                 .decodeList<Map<String, String>>()
@@ -37,12 +41,12 @@ object AuthService {
         }
     }
 
-    private suspend fun validateUserData(newUser: CreateUserDTO): String? {
+    suspend fun validateUserData(newUser: CreateUserDTO, userId: String? = null): String? {
         return try {
             when {
-                isDuplicate("username", newUser.username)
+                isDuplicate("username", newUser.username, userId)
                     -> "duplicate_username"
-                isDuplicate("email", newUser.email)
+                isDuplicate("email", newUser.email, userId)
                     -> "duplicate_email"
                 else -> null
             }

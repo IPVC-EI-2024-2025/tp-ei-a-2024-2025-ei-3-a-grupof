@@ -621,19 +621,18 @@ fun TaskEmployeesTab(
                     ) {
                         items(filteredEmployees) { employee ->
                             UserListItem(
-                                user = employee,
-                                simple = user.hasAccess(Role.EMPLOYEE)
+                                user = employee
                             ) {
-                                if (user.hasAccess(Role.MANAGER, Role.ADMIN)) {
-                                    UserAction(
-                                        icon = Icons.Rounded.RemoveCircle,
-                                        name = stringResource(R.string.remove_from_task),
-                                        onClick = {
-                                            selectedEmployee.value = employee
-                                            showRemoveConfirmDialog.value = true
-                                        }
-                                    )
+                                UserAction(
+                                    icon = Icons.Rounded.RemoveCircle,
+                                    name = stringResource(R.string.remove_from_task),
+                                    onClick = {
+                                        selectedEmployee.value = employee
+                                        showRemoveConfirmDialog.value = true
+                                    }
+                                )
 
+                                if (user.hasAccess(Role.MANAGER, Role.ADMIN)) {
                                     UserAction(
                                         icon = Icons.Rounded.Download,
                                         name = stringResource(R.string.export_stats),
@@ -649,20 +648,18 @@ fun TaskEmployeesTab(
             }
         }
 
-        if (user.hasAccess(Role.MANAGER, Role.ADMIN)) {
-            FloatingActionButton(
-                onClick = {
-                    showAddEmployeeDialog.value = true
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Employee"
-                )
-            }
+        FloatingActionButton(
+            onClick = {
+                showAddEmployeeDialog.value = true
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add Employee"
+            )
         }
 
         if (showAddEmployeeDialog.value) {

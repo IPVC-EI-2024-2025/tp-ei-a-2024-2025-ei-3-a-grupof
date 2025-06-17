@@ -217,7 +217,16 @@ fun NewTaskLogView(
                 ) {
                     OutlinedTextField(
                         value = completionPercentage,
-                        onValueChange = { completionPercentage = it },
+                        onValueChange = { input ->
+                            val digitsOnly = input.filter { it.isDigit() }
+                            val num = digitsOnly.toFloatOrNull()
+                            completionPercentage = when {
+                                num == null            -> ""
+                                num < 0f               -> "0"
+                                num > 100f             -> "100"
+                                else                   -> digitsOnly
+                            }
+                        },
                         label = {
                             Text(
                                 "Completion percentage",
@@ -235,7 +244,15 @@ fun NewTaskLogView(
 
                     OutlinedTextField(
                         value = timeSpent,
-                        onValueChange = { timeSpent = it },
+                        onValueChange = { input ->
+                            val filtered = input.filter { it.isDigit() || it == '.' }
+                            val num = filtered.toFloatOrNull()
+                            timeSpent = when {
+                                num == null        -> ""
+                                num < 0f           -> "0"
+                                else               -> filtered
+                            }
+                        },
                         label = {
                             Text(
                                 "Time spent"
